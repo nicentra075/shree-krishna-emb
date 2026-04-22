@@ -1,2 +1,3 @@
-# shree-krishna-emb
-This is an EMB app for the Designers
+# shree_krishna_emb
+
+A new Flutter project.
