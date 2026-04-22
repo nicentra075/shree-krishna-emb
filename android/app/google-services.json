@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "879320012130",
+    "project_id": "shree-krishna-emb",
+    "storage_bucket": "shree-krishna-emb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879320012130:android:6ec1a05e0b37ce34d8083b",
+        "android_client_info": {
+          "package_name": "com.nicentra.shree_krishna_emb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH3PA36UjBS0_0j2RWp1GwyxOzfrwHWNA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
