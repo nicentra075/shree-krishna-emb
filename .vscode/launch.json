@@ -1,0 +1,49 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "shree_krishna_emb_admin",
+            "cwd": "shree_krishna_emb_admin",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "shree_krishna_emb_admin (profile mode)",
+            "cwd": "shree_krishna_emb_admin",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "shree_krishna_emb_admin (release mode)",
+            "cwd": "shree_krishna_emb_admin",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "shree_krishna_emb_user_app",
+            "cwd": "shree_krishna_emb_user_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "shree_krishna_emb_user_app (profile mode)",
+            "cwd": "shree_krishna_emb_user_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "shree_krishna_emb_user_app (release mode)",
+            "cwd": "shree_krishna_emb_user_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
