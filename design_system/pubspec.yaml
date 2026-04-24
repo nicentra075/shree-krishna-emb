@@ -1,0 +1,39 @@
+name: shree_krishna_design_system
+description: "Shared design system package for Shree Krishna Embroidery apps with reusable UI components, tokens, and theming."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Shared Core Package
+  shree_krishna_core:
+    path: ../core
+
+  # State Management & Utilities
+  equatable: ^2.0.5
+
+  # Image Picker for file selection
+  image_picker: ^1.1.2
+
+  # Loading animations
+  loading_animation_widget: ^1.3.0
+
+  # Shimmer effect for skeleton loaders
+  shimmer: ^3.0.0
+
+  # Connectivity detection
+  connectivity_plus: ^7.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

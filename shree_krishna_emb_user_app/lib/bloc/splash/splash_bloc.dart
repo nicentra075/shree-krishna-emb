@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:shree_krishna_emb/data/datasources/local_user_datasource.dart';
 
 part 'splash_event.dart';
 part 'splash_state.dart';
@@ -40,6 +41,9 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   /// Timer for splash screen duration
   Timer? _splashTimer;
 
+  /// Local data source for persistent storage
+  final LocalUserDataSource _localDataSource;
+
   /// Duration to show splash screen before transitioning
   static const Duration splashDuration = Duration(seconds: 3);
 
@@ -48,7 +52,9 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   /// QUBIT GUIDE:
   /// The constructor sets the initial state and registers event handlers.
   /// Each event type has its own handler method (on<EventName>).
-  SplashBloc() : super(const SplashInitial()) {
+  SplashBloc({required LocalUserDataSource localDataSource})
+      : _localDataSource = localDataSource,
+        super(const SplashInitial()) {
     // Register event handlers
     // This tells the BLoC: "When you receive this event, call this handler"
     on<InitializeSplashEvent>(_onInitialize);
@@ -74,8 +80,11 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     InitializeSplashEvent event,
     Emitter<SplashState> emit,
   ) async {
+    // Check if user has seen walkthrough before
+    final walkthroughSeen = await _localDataSource.getWalkthroughSeen();
+
     // Emit loading state - tells UI to show splash screen
-    emit(const SplashLoading(elapsed: Duration.zero));
+    emit(SplashLoading(elapsed: Duration.zero, skipWalkthrough: walkthroughSeen));
 
     // Start a timer for the splash duration
     // After 3 seconds, we'll emit SplashComplete

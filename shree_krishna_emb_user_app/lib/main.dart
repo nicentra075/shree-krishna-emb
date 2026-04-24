@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
-import 'package:shree_krishna_emb/screens/walkthrough/walkthrough_screen.dart';
-import 'package:shree_krishna_emb/screens/splash/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shree_krishna_emb/firebase_options.dart';
+import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
+import 'package:shree_krishna_emb/routes/app_routes.dart';
+import 'package:shree_krishna_emb/l10n/app_localization.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  final prefs = await SharedPreferences.getInstance();
+  await AppLocalization.initialize(prefs);
+
+  await setupServiceLocator(prefs);
+
   runApp(const MainApp());
 }
 
@@ -28,16 +41,9 @@ class _MainAppState extends State<MainApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      // Splash screen is the initial route
-      home: const SplashScreen(),
-      // Named routes for navigation
-      routes: {
-        '/splash': (context) => const SplashScreen(),
-        '/walkthrough': (context) => BlocProvider(
-          create: (context) => WalkthroughBloc(),
-          child: const WalkthroughScreen(),
-        ),
-      },
+      // Centralized routing system
+      initialRoute: AppRoutes.splash,
+      onGenerateRoute: AppRoutes.onGenerateRoute,
     );
   }
 
@@ -49,3 +55,5 @@ class _MainAppState extends State<MainApp> {
     });
   }
 }
+
+

@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="shree_krishna_emb_admin"
+        android:label="Shree Krishna Embroidery Admin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

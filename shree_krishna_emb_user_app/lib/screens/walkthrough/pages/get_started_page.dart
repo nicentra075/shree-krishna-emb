@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
+import 'package:shree_krishna_emb/theme/app_theme.dart';
+
+/// Get Started Page - "Your Digital Atelier"
+/// First walkthrough screen from Stitch design
 
 class GetStartedPage extends StatefulWidget {
   const GetStartedPage({super.key});
@@ -9,28 +13,22 @@ class GetStartedPage extends StatefulWidget {
   State<GetStartedPage> createState() => _GetStartedPageState();
 }
 
-class _GetStartedPageState extends State<GetStartedPage> with TickerProviderStateMixin {
-  late AnimationController _sparkleController;
-  late AnimationController _bounceController;
+class _GetStartedPageState extends State<GetStartedPage>
+    with TickerProviderStateMixin {
+  late AnimationController _floatingController;
 
   @override
   void initState() {
     super.initState();
-    _sparkleController = AnimationController(
+    _floatingController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-
-    _bounceController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    )..repeat();
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
-    _sparkleController.dispose();
-    _bounceController.dispose();
+    _floatingController.dispose();
     super.dispose();
   }
 
@@ -42,121 +40,233 @@ class _GetStartedPageState extends State<GetStartedPage> with TickerProviderStat
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(int.parse('0xFFEC4899')),
-            Color(int.parse('0xFFF97316')).withValues(alpha: 0.8),
+            const Color(0xFFFAFAF5),
+            const Color(0xFFFFF5E9),
           ],
         ),
       ),
       child: Stack(
         children: [
-          // Sparkle effects
+          // Background decorative circles
           Positioned(
-            top: 80,
-            left: 50,
-            child: FadeTransition(
-              opacity: Tween(begin: 0.3, end: 1.0).animate(_sparkleController),
-              child: const Icon(
-                Icons.star,
-                color: Colors.white,
-                size: 24,
+            top: -50,
+            left: -50,
+            child: FadeInDown(
+              duration: const Duration(milliseconds: 800),
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFFE8D4C4).withValues(alpha: 0.3),
+                ),
               ),
             ),
           ),
           Positioned(
-            top: 120,
-            right: 40,
-            child: FadeTransition(
-              opacity: Tween(begin: 0.5, end: 1.0).animate(
-                CurvedAnimation(parent: _sparkleController, curve: const Interval(0.3, 0.7)),
-              ),
-              child: const Icon(
-                Icons.star,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 200,
-            right: 30,
-            child: FadeTransition(
-              opacity: Tween(begin: 0.4, end: 0.9).animate(
-                CurvedAnimation(parent: _sparkleController, curve: const Interval(0.6, 1.0)),
-              ),
-              child: const Icon(
-                Icons.star_half,
-                color: Colors.white,
-                size: 22,
+            bottom: -30,
+            right: -30,
+            child: FadeInUp(
+              duration: const Duration(milliseconds: 800),
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.primaryLight.withValues(alpha: 0.1),
+                ),
               ),
             ),
           ),
+
           // Main content
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.horizontalPadding,
-              vertical: AppConstants.verticalPadding,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Bouncing icon
-                BounceInDown(
-                  duration: const Duration(milliseconds: 1000),
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.2),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        width: 2,
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.horizontalPadding,
+                vertical: 30,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 30),
+
+                  // Orange shopping bag icon with floating animation
+                  FadeInDown(
+                    duration: const Duration(milliseconds: 800),
+                    child: AnimatedBuilder(
+                      animation: _floatingController,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, _floatingController.value * 15 - 7.5),
+                          child: child,
+                        );
+                      },
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.primaryLight,
+                          boxShadow: AppTheme.ambientShadow,
+                        ),
+                        child: const Icon(
+                          Icons.shopping_bag_outlined,
+                          color: Colors.white,
+                          size: 32,
+                        ),
                       ),
                     ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.rocket_launch,
-                        size: 60,
-                        color: Colors.white,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Product showcase cards
+                  FadeInUp(
+                    duration: const Duration(milliseconds: 900),
+                    delay: const Duration(milliseconds: 200),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Back card (dark phone mockup)
+                        Transform.translate(
+                          offset: const Offset(-20, -15),
+                          child: Container(
+                            width: 110,
+                            height: 170,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: const Color(0xFF1A1A1A),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 20,
+                                  offset: const Offset(5, 10),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                color: const Color(0xFF2A2A2A),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.phone_iphone,
+                                    color: Color(0xFF444),
+                                    size: 45,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Front card (embroidery/craft)
+                        Transform.translate(
+                          offset: const Offset(20, 15),
+                          child: Container(
+                            width: 130,
+                            height: 140,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: const Color(0xFFB8860B),
+                              boxShadow: AppTheme.ambientShadow,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Stack(
+                                children: [
+                                  // Embroidery pattern
+                                  Container(
+                                    color: const Color(0xFFD4A574),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.auto_awesome_mosaic,
+                                        color: Color(0xFF8B6914),
+                                        size: 70,
+                                      ),
+                                    ),
+                                  ),
+                                  // Texture overlay
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Colors.black.withValues(alpha: 0.05),
+                                          Colors.black.withValues(alpha: 0.15),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 50),
+
+                  // Headline: "One Platform, Infinite Possibilities"
+                  FadeInLeft(
+                    duration: const Duration(milliseconds: 900),
+                    delay: const Duration(milliseconds: 400),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                              color: const Color(0xFF1A1C19),
+                              fontWeight: FontWeight.bold,
+                            ),
+                        children: [
+                          const TextSpan(text: 'One Platform,\n'),
+                          TextSpan(
+                            text: 'Infinite Possibilities',
+                            style: TextStyle(
+                              color: AppTheme.primaryDark,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                // Title
-                FadeInLeft(
-                  duration: const Duration(milliseconds: 1000),
-                  delay: const Duration(milliseconds: 200),
-                  child: Text(
-                    'Get Started',
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+
+                  // Description
+                  FadeInRight(
+                    duration: const Duration(milliseconds: 900),
+                    delay: const Duration(milliseconds: 600),
+                    child: Text(
+                      'Buy premium embroidery designs or sell your creations. Connect directly with artisans and businesses worldwide',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: const Color(0xFF554336),
+                            fontSize: 15,
+                            height: 1.6,
+                          ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                // Description
-                FadeInRight(
-                  duration: const Duration(milliseconds: 1000),
-                  delay: const Duration(milliseconds: 400),
-                  child: Text(
-                    'Join our community and start creating your own embroidery designs today',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      fontSize: 16,
+                  const SizedBox(height: 35),
+
+                  // Footer text
+                  FadeInUp(
+                    duration: const Duration(milliseconds: 800),
+                    delay: const Duration(milliseconds: 800),
+                    child: Text(
+                      'SHREE KRISHNA EMB • PREMIUMCRAFTS',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: const Color(0xFF554336).withValues(alpha: 0.5),
+                            letterSpacing: 1.2,
+                          ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 60),
-                // Call to action items
-                FadeInUp(
-                  duration: const Duration(milliseconds: 1000),
-                  delay: const Duration(milliseconds: 600),
-                  child: _buildCtaCards(),
-                ),
-              ],
+                  const SizedBox(height: 30),
+                ],
+              ),
             ),
           ),
         ],
@@ -164,81 +274,4 @@ class _GetStartedPageState extends State<GetStartedPage> with TickerProviderStat
     );
   }
 
-  Widget _buildCtaCards() {
-    return Column(
-      children: [
-        _buildCtaCard(
-          '👤',
-          'Create Account',
-          'Get started in minutes',
-        ),
-        const SizedBox(height: 12),
-        _buildCtaCard(
-          '🎓',
-          'Learn & Explore',
-          'Access tutorials and guides',
-        ),
-        const SizedBox(height: 12),
-        _buildCtaCard(
-          '🏆',
-          'Showcase Work',
-          'Build your portfolio',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCtaCard(String emoji, String title, String subtitle) {
-    return BounceInRight(
-      duration: const Duration(milliseconds: 800),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.3),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Text(
-              emoji,
-              style: const TextStyle(fontSize: 32),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward,
-              color: Colors.white.withValues(alpha: 0.6),
-              size: 18,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

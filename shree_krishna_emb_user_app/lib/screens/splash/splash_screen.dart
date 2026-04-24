@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_emb/bloc/splash/splash_bloc.dart';
-import 'package:shree_krishna_emb/screens/walkthrough/walkthrough_screen.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
+import 'package:shree_krishna_emb/routes/app_routes.dart';
+import 'package:shree_krishna_emb/core/di/service_locator.dart';
 
 
 class SplashScreen extends StatelessWidget {
@@ -10,16 +11,13 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SplashBloc()..add(const InitializeSplashEvent()),
+    return BlocProvider.value(
+      value: getIt<SplashBloc>()..add(const InitializeSplashEvent()),
       child: BlocListener<SplashBloc, SplashState>(
         listener: (context, state) {
           // When splash completes, navigate to walkthrough
           if (state is SplashComplete) {
-            Navigator.of(context).pushReplacementNamed(
-              '/walkthrough',
-              arguments: const WalkthroughScreen(),
-            );
+            context.navigateToWalkthrough();
           }
         },
         child: BlocBuilder<SplashBloc, SplashState>(

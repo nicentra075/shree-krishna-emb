@@ -1,14 +1,18 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shree_krishna_emb/models/walkthrough_model.dart';
+import 'package:shree_krishna_emb/data/datasources/local_user_datasource.dart';
 
 part 'walkthrough_event.dart';
 part 'walkthrough_state.dart';
 
 class WalkthroughBloc extends Bloc<WalkthroughEvent, WalkthroughState> {
-  static const int totalPages = 3;
+  static const int totalPages = 5;
+  final LocalUserDataSource _localDataSource;
 
-  WalkthroughBloc() : super(const WalkthroughInitial()) {
+  WalkthroughBloc({required LocalUserDataSource localDataSource})
+      : _localDataSource = localDataSource,
+        super(const WalkthroughInitial()) {
     on<InitializeWalkthroughEvent>(_onInitialize);
     on<NextPageEvent>(_onNextPage);
     on<PreviousPageEvent>(_onPreviousPage);
@@ -101,6 +105,7 @@ class WalkthroughBloc extends Bloc<WalkthroughEvent, WalkthroughState> {
     CompleteWalkthroughEvent event,
     Emitter<WalkthroughState> emit,
   ) async {
+    await _localDataSource.setWalkthroughSeen(true);
     emit(const WalkthroughCompleted());
   }
 

@@ -6,7 +6,10 @@ import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/discover_page.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/collaborate_page.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/get_started_page.dart';
+import 'package:shree_krishna_emb/screens/walkthrough/pages/embroidery_designs_page.dart';
+import 'package:shree_krishna_emb/screens/walkthrough/pages/designer_community_page.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
+import 'package:shree_krishna_emb/theme/app_theme.dart';
 
 class WalkthroughScreen extends StatefulWidget {
   const WalkthroughScreen({super.key});
@@ -46,10 +49,10 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
             }
           });
         } else if (state is WalkthroughCompleted) {
-          // Handle navigation to main app
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Welcome to Shree Krishna Embroidery!'),
+              duration: Duration(seconds: 2),
             ),
           );
         }
@@ -75,9 +78,11 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
                         );
                       },
                       children: [
-                        const DiscoverPage(),
-                        const CollaboratePage(),
                         const GetStartedPage(),
+                        const CollaboratePage(),
+                        const EmbroideryDesignsPage(),
+                        const DesignerCommunityPage(),
+                        const DiscoverPage(),
                       ],
                     ),
                   ),
@@ -109,69 +114,99 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SmoothPageIndicator(
-              controller: _pageController,
-              count: state.pages.length,
-              effect: const WormEffect(
-                dotHeight: 8,
-                dotWidth: 8,
-                spacing: 8,
-                activeDotColor: Color(0xFF6366F1),
-                dotColor: Color(0xFFE2E8F0),
+            // Animated Page Indicator
+            BounceInDown(
+              duration: const Duration(milliseconds: 600),
+              child: SmoothPageIndicator(
+                controller: _pageController,
+                count: state.pages.length,
+                effect: WormEffect(
+                  dotHeight: 8,
+                  dotWidth: 8,
+                  spacing: 8,
+                  activeDotColor: AppTheme.primaryDark,
+                  dotColor: const Color(0xFFDDD9D0),
+                ),
               ),
             ),
             const SizedBox(height: AppConstants.verticalPadding),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (!state.isFirstPage)
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      context.read<WalkthroughBloc>().add(
-                        const PreviousPageEvent(),
-                      );
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                    label: const Text('Back'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
+
+            // Animated Navigation Buttons
+            ScaleTransition(
+              scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+                CurvedAnimation(
+                  parent: AlwaysStoppedAnimation(1.0),
+                  curve: Curves.easeInOutBack,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  if (!state.isFirstPage)
+                    BounceInLeft(
+                      duration: const Duration(milliseconds: 600),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          context.read<WalkthroughBloc>().add(
+                            const PreviousPageEvent(),
+                          );
+                        },
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text('Back'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF5F1ED),
+                          foregroundColor: AppTheme.primaryDark,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          elevation: 2,
+                          shadowColor: Colors.black.withValues(alpha: 0.2),
+                        ),
                       ),
                     ),
-                  ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: state.isFirstPage ? 0 : 16),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (state.isLastPage) {
-                          context.read<WalkthroughBloc>().add(
-                            const CompleteWalkthroughEvent(),
-                          );
-                        } else {
-                          context.read<WalkthroughBloc>().add(
-                            const NextPageEvent(),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppConstants.borderRadiusMedium,
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: state.isFirstPage ? 0 : 16),
+                      child: BounceInRight(
+                        duration: const Duration(milliseconds: 600),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (state.isLastPage) {
+                              context.read<WalkthroughBloc>().add(
+                                const CompleteWalkthroughEvent(),
+                              );
+                            } else {
+                              context.read<WalkthroughBloc>().add(
+                                const NextPageEvent(),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryDark,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppConstants.borderRadiusMedium,
+                              ),
+                            ),
+                            elevation: 4,
+                            shadowColor: AppTheme.primaryDark.withValues(alpha: 0.4),
+                          ),
+                          child: Text(
+                            state.isLastPage ? 'Get Started' : 'Next',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
-                      child: Text(state.isLastPage ? 'Get Started' : 'Next'),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

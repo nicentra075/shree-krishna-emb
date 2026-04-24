@@ -29,20 +29,25 @@ class SplashInitial extends SplashState {
 /// Splash Loading State
 ///
 /// The splash screen is displaying and counting down to transition.
-/// This state includes the duration elapsed for animation purposes.
+/// This state includes the duration elapsed for animation purposes and
+/// whether to skip the walkthrough based on previous user interaction.
 ///
 /// Example usage:
 /// ```dart
 /// final splashDuration = Duration(seconds: 3);
-/// emit(SplashLoading(elapsed: Duration(seconds: 1)));
+/// emit(SplashLoading(elapsed: Duration(seconds: 1), skipWalkthrough: false));
 /// ```
 class SplashLoading extends SplashState {
   final Duration elapsed;
+  final bool skipWalkthrough;
 
-  const SplashLoading({required this.elapsed});
+  const SplashLoading({
+    required this.elapsed,
+    this.skipWalkthrough = false,
+  });
 
   @override
-  List<Object?> get props => [elapsed];
+  List<Object?> get props => [elapsed, skipWalkthrough];
 }
 
 /// Splash Complete State

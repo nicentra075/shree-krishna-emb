@@ -10,11 +10,27 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Shared Core Package (models, entities, errors)
+  shree_krishna_core:
+    path: ../core
+
+  # Firebase
   firebase_core: ^4.7.0
+  cloud_firestore: ^6.3.0
+  firebase_auth: ^6.4.0
+  firebase_storage: ^13.3.0
 
   # State Management
   flutter_bloc: ^8.1.4
   bloc: ^8.1.2
+  get_it: ^7.6.0
+
+  # HTTP & Networking (for future migration)
+  http: ^1.1.0
+  dio: ^5.3.1
+
+  # JSON serialization
+  json_annotation: ^4.8.1
 
   # UI Package
   flutter_ui_toolbox: ^0.0.6
@@ -23,8 +39,28 @@ dependencies:
   animate_do: ^3.1.2
   smooth_page_indicator: ^1.2.0
 
+  # Caching & Local Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.2
+
+  # Shared Design System
+  shree_krishna_design_system:
+    path: ../design_system
+
+  # Design System Components
+  image_picker: ^1.1.2
+  loading_animation_widget: ^1.3.0
+  shimmer: ^3.0.0
+  connectivity_plus: ^7.0.0
+
+  # Localization
+  intl: ^0.20.2
+
   # Additional utilities
   equatable: ^2.0.5
+  uuid: ^4.0.0
 
 
 

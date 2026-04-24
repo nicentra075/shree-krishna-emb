@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector
+    android:height="108dp"
+    android:width="108dp"
+    android:viewportHeight="108"
+    android:viewportWidth="108"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Main Background: Royal Saffron Dark (#8f4e00) -->
+    <path android:fillColor="#8f4e00"
+          android:pathData="M0,0h108v108h-108z"/>
+
+    <!-- Top Accent Bar: Royal Saffron Light (#ff9933) -->
+    <path android:fillColor="#ff9933"
+          android:pathData="M0,0h108v14h-108z"/>
+
+    <!-- Deep Blue Accent Circle (top right) using path arc -->
+    <path android:fillColor="#8fa7fe"
+          android:pathData="M85,20a7,7 0 1,0 14,0a7,7 0 1,0 -14,0"/>
+
+    <!-- Decorative geometric shapes using Deep Blue -->
+    <!-- Left vertical accent line -->
+    <path android:fillColor="#00000000" android:pathData="M14,24L14,88"
+          android:strokeColor="#4059aa" android:strokeWidth="2.5"/>
+
+    <!-- Right vertical accent line -->
+    <path android:fillColor="#00000000" android:pathData="M94,24L94,88"
+          android:strokeColor="#4059aa" android:strokeWidth="2.5"/>
+
+    <!-- Center circle accent (main focus) using path -->
+    <path android:fillColor="#00000000" android:pathData="M34,54a20,20 0 1,0 40,0a20,20 0 1,0 -40,0"
+          android:strokeColor="#8fa7fe" android:strokeWidth="2"/>
+
+    <!-- Inner concentric circle using path -->
+    <path android:fillColor="#00000000" android:pathData="M41,54a13,13 0 1,0 26,0a13,13 0 1,0 -26,0"
+          android:strokeColor="#ff9933" android:strokeWidth="1.5"/>
+
+    <!-- Small center dot -->
+    <path android:fillColor="#ff9933"
+          android:pathData="M51,54a3,3 0 1,0 6,0a3,3 0 1,0 -6,0"/>
+
+    <!-- Bottom accent bar: Deep Blue Light (#8fa7fe) -->
+    <path android:fillColor="#8fa7fe"
+          android:pathData="M0,94h108v14h-108z"/>
+
+    <!-- Corner accent triangles -->
+    <!-- Top Left triangle -->
+    <path android:fillColor="#4059aa"
+          android:pathData="M0,0L18,0L0,18Z"/>
+
+    <!-- Bottom Right triangle -->
+    <path android:fillColor="#4059aa"
+          android:pathData="M108,108L90,108L108,90Z"/>
+
+</vector>
