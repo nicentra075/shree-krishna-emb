@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 
@@ -39,10 +40,7 @@ class _GetStartedPageState extends State<GetStartedPage>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFFFAFAF5),
-            const Color(0xFFFFF5E9),
-          ],
+          colors: [AppTheme.surfaceLight, const Color(0xFFFFF5E9)],
         ),
       ),
       child: Stack(
@@ -98,7 +96,10 @@ class _GetStartedPageState extends State<GetStartedPage>
                       animation: _floatingController,
                       builder: (context, child) {
                         return Transform.translate(
-                          offset: Offset(0, _floatingController.value * 15 - 7.5),
+                          offset: Offset(
+                            0,
+                            _floatingController.value * 15 - 7.5,
+                          ),
                           child: child,
                         );
                       },
@@ -180,7 +181,7 @@ class _GetStartedPageState extends State<GetStartedPage>
                                     color: const Color(0xFFD4A574),
                                     child: const Center(
                                       child: Icon(
-                                        Icons.auto_awesome_mosaic,
+                                        Icons.spa,
                                         color: Color(0xFF8B6914),
                                         size: 70,
                                       ),
@@ -217,17 +218,15 @@ class _GetStartedPageState extends State<GetStartedPage>
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              color: const Color(0xFF1A1C19),
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: AppTextStyles.headlineLarge(
+                          color: AppTheme.textDark,
+                        ),
                         children: [
                           const TextSpan(text: 'One Platform,\n'),
                           TextSpan(
                             text: 'Infinite Possibilities',
-                            style: TextStyle(
+                            style: AppTextStyles.headlineLarge(
                               color: AppTheme.primaryDark,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -243,11 +242,9 @@ class _GetStartedPageState extends State<GetStartedPage>
                     child: Text(
                       'Buy premium embroidery designs or sell your creations. Connect directly with artisans and businesses worldwide',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: const Color(0xFF554336),
-                            fontSize: 15,
-                            height: 1.6,
-                          ),
+                      style: AppTextStyles.bodyLarge(
+                        color: AppTheme.textBrown,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 35),
@@ -258,10 +255,9 @@ class _GetStartedPageState extends State<GetStartedPage>
                     delay: const Duration(milliseconds: 800),
                     child: Text(
                       'SHREE KRISHNA EMB • PREMIUMCRAFTS',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: const Color(0xFF554336).withValues(alpha: 0.5),
-                            letterSpacing: 1.2,
-                          ),
+                      style: AppTextStyles.labelSmall(
+                        color: AppTheme.textBrown.withValues(alpha: 0.5),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -273,5 +269,4 @@ class _GetStartedPageState extends State<GetStartedPage>
       ),
     );
   }
-
 }

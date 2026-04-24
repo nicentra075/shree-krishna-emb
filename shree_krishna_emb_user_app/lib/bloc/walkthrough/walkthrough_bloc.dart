@@ -7,12 +7,12 @@ part 'walkthrough_event.dart';
 part 'walkthrough_state.dart';
 
 class WalkthroughBloc extends Bloc<WalkthroughEvent, WalkthroughState> {
-  static const int totalPages = 5;
+  static const int totalPages = 4;
   final LocalUserDataSource _localDataSource;
 
   WalkthroughBloc({required LocalUserDataSource localDataSource})
-      : _localDataSource = localDataSource,
-        super(const WalkthroughInitial()) {
+    : _localDataSource = localDataSource,
+      super(const WalkthroughInitial()) {
     on<InitializeWalkthroughEvent>(_onInitialize);
     on<NextPageEvent>(_onNextPage);
     on<PreviousPageEvent>(_onPreviousPage);
@@ -114,7 +114,8 @@ class WalkthroughBloc extends Bloc<WalkthroughEvent, WalkthroughState> {
       const WalkthroughPage(
         id: 1,
         title: 'Discover',
-        description: 'Explore beautiful embroidery designs from talented artists around the world',
+        description:
+            'Explore beautiful embroidery designs from talented artists around the world',
         imagePath: 'assets/images/discover.png',
         backgroundColor: '0xFF6366F1',
         buttonText: 'Next',
@@ -122,7 +123,8 @@ class WalkthroughBloc extends Bloc<WalkthroughEvent, WalkthroughState> {
       const WalkthroughPage(
         id: 2,
         title: 'Collaborate',
-        description: 'Work together with other designers to create amazing embroidery masterpieces',
+        description:
+            'Work together with other designers to create amazing embroidery masterpieces',
         imagePath: 'assets/images/collaborate.png',
         backgroundColor: '0xFF8B5CF6',
         buttonText: 'Next',
@@ -130,7 +132,8 @@ class WalkthroughBloc extends Bloc<WalkthroughEvent, WalkthroughState> {
       const WalkthroughPage(
         id: 3,
         title: 'Get Started',
-        description: 'Join our community and start creating your own embroidery designs today',
+        description:
+            'Join our community and start creating your own embroidery designs today',
         imagePath: 'assets/images/get_started.png',
         backgroundColor: '0xFFEC4899',
         buttonText: 'Get Started',

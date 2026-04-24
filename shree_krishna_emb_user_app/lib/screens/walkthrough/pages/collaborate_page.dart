@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
@@ -22,7 +23,7 @@ class _CollaboratePageState extends State<CollaboratePage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFFFAFAF5),
+            AppTheme.surfaceLight,
             const Color(0xFFFFF5E9),
           ],
         ),
@@ -43,10 +44,10 @@ class _CollaboratePageState extends State<CollaboratePage> {
                 },
                 child: Text(
                   'Skip',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF554336),
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style: AppTextStyles.bodyMedium(
+                    color: AppTheme.textBrown,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -87,7 +88,7 @@ class _CollaboratePageState extends State<CollaboratePage> {
                                   color: const Color(0xFFD4A574),
                                   child: const Center(
                                     child: Icon(
-                                      Icons.auto_awesome_mosaic,
+                                      Icons.spa,
                                       color: Color(0xFF8B6914),
                                       size: 120,
                                     ),
@@ -149,21 +150,20 @@ class _CollaboratePageState extends State<CollaboratePage> {
                                       const SizedBox(width: 6),
                                       Text(
                                         'ACTIVE PROJECT',
-                                        style:
-                                            Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                  color: const Color(0xFF554336),
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                        style: AppTextStyles.labelSmall(
+                                          color: AppTheme.textBrown,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
                                     'Trending Designs',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: const Color(0xFF1A1C19),
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                    style: AppTextStyles.bodySmall(
+                                      color: AppTheme.textDark,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -182,17 +182,15 @@ class _CollaboratePageState extends State<CollaboratePage> {
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              color: const Color(0xFF1A1C19),
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: AppTextStyles.headlineLarge(
+                          color: AppTheme.textDark,
+                        ),
                         children: [
                           const TextSpan(text: 'Designers Meet\n'),
                           TextSpan(
                             text: 'Business',
-                            style: TextStyle(
+                            style: AppTextStyles.headlineLarge(
                               color: AppTheme.primaryDark,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -208,11 +206,9 @@ class _CollaboratePageState extends State<CollaboratePage> {
                     child: Text(
                       'Artists showcase their embroidery designs. Businesses discover and purchase stunning patterns directly from creators',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: const Color(0xFF554336),
-                            fontSize: 15,
-                            height: 1.6,
-                          ),
+                      style: AppTextStyles.bodyLarge(
+                        color: AppTheme.textBrown,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 65),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
@@ -21,7 +22,7 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFFFAFAF5),
+            AppTheme.surfaceLight,
             const Color(0xFFFFF5E9),
           ],
         ),
@@ -45,10 +46,10 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                   children: [
                     Text(
                       'Shree Krishna EMB',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: const Color(0xFF554336),
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: AppTextStyles.labelLarge(
+                        color: AppTheme.textBrown,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -58,11 +59,11 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                       },
                       child: Text(
                         'SKIP',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppTheme.primaryDark,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.0,
-                            ),
+                        style: AppTextStyles.labelSmall(
+                          color: AppTheme.primaryDark,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                        ),
                       ),
                     ),
                   ],
@@ -106,7 +107,7 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                                   color: const Color(0xFFD4A76A),
                                   child: const Center(
                                     child: Icon(
-                                      Icons.auto_awesome_mosaic,
+                                      Icons.spa,
                                       color: Color(0xFF8B6914),
                                       size: 140,
                                     ),
@@ -158,11 +159,10 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                                   const SizedBox(width: 6),
                                   Text(
                                     'HANDCRAFTED TRADITION',
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                          color: const Color(0xFF554336),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 10,
-                                        ),
+                                    style: AppTextStyles.labelSmall(
+                                      color: AppTheme.textBrown,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -181,15 +181,15 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              color: const Color(0xFF1A1C19),
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: AppTextStyles.headlineLarge(
+                          color: AppTheme.textDark,
+                          fontWeight: FontWeight.bold,
+                        ),
                         children: [
                           const TextSpan(text: 'Preserving\n'),
                           TextSpan(
                             text: 'Heritage Crafts',
-                            style: TextStyle(
+                            style: AppTextStyles.headlineLarge(
                               color: AppTheme.primaryDark,
                               fontWeight: FontWeight.bold,
                             ),
@@ -207,11 +207,10 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                     child: Text(
                       'Connecting authentic artisans with global fashion businesses. Celebrating embroidery craftsmanship in the digital era',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: const Color(0xFF554336),
-                            fontSize: 15,
-                            height: 1.6,
-                          ),
+                      style: AppTextStyles.bodyLarge(
+                        color: AppTheme.textBrown,
+                        height: 1.6,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 65),

@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/firebase_options.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
+import 'package:shree_krishna_emb/core/utils/global_navigator.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
-import 'package:shree_krishna_emb/l10n/app_localization.dart';
+import 'package:shree_krishna_emb/localisations/app_localization.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final prefs = await SharedPreferences.getInstance();
   await AppLocalization.initialize(prefs);
 
   await setupServiceLocator(prefs);
+
+  // Initialize snackbar with global navigator
+  AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
 
   runApp(const MainApp());
 }
@@ -41,6 +44,8 @@ class _MainAppState extends State<MainApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      // Global navigator key for accessing context anywhere in the app
+      navigatorKey: GlobalNavigator.navigatorKey,
       // Centralized routing system
       initialRoute: AppRoutes.splash,
       onGenerateRoute: AppRoutes.onGenerateRoute,
@@ -55,5 +60,3 @@ class _MainAppState extends State<MainApp> {
     });
   }
 }
-
-

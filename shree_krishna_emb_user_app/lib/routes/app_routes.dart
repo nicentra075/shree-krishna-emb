@@ -3,7 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
 import 'package:shree_krishna_emb/screens/splash/splash_screen.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/walkthrough_screen.dart';
+import 'package:shree_krishna_emb/screens/auth/login_screen.dart';
+import 'package:shree_krishna_emb/screens/auth/signup_screen.dart';
+import 'package:shree_krishna_emb/screens/auth/otp_verification_screen.dart';
+import 'package:shree_krishna_emb/screens/auth/forgot_password_screen.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
+import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 
 
 // ==================== Route Arguments ====================
@@ -54,6 +59,18 @@ class AppRoutes {
   /// Walkthrough screen - Onboarding flow
   static const String walkthrough = '/walkthrough';
 
+  /// Login screen - User authentication
+  static const String login = '/login';
+
+  /// Sign up screen - User registration
+  static const String signup = '/signup';
+
+  /// OTP verification screen - OTP confirmation
+  static const String otpVerification = '/otp-verification';
+
+  /// Forgot password screen - Password reset
+  static const String forgotPassword = '/forgot-password';
+
   /// Home/Main screen (add later)
   static const String home = '/home';
 
@@ -82,6 +99,12 @@ class AppRoutes {
   /// - Type-safe argument passing
   /// - Prevents "route not found" errors
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    // Log navigation with arguments
+    AppLogger.logNavigation(
+      settings.name ?? 'unknown',
+      arguments: settings.arguments,
+    );
+
     switch (settings.name) {
       case splash:
         return _buildRoute(
@@ -97,6 +120,34 @@ class AppRoutes {
             value: getIt<WalkthroughBloc>(),
             child: const WalkthroughScreen(),
           ),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case login:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const LoginScreen(),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case signup:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const SignupScreen(),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case otpVerification:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const OtpVerificationScreen(),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case forgotPassword:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const ForgotPasswordScreen(),
           transitionType: _TransitionType.fadeInSlide,
         );
 
@@ -143,28 +194,11 @@ class AppRoutes {
     );
   }
 
-  // Add more navigation methods here:
-  // static Future<void> navigateToHome(BuildContext context) {
-  //   return Navigator.of(context).pushNamedAndRemoveUntil(home, (route) => false);
-  // }
-  //
-  // static Future<void> navigateToProfile(
-  //   BuildContext context,
-  //   String userId,
-  // ) {
-  //   return Navigator.of(context).pushNamed(
-  //     profile,
-  //     arguments: ProfileArgs(userId: userId),
-  //   );
-  // }
 
-  // ==================== Navigation with Replacement ====================
-  /// Replace current route with new route (go back on device back)
-  ///
-  /// Use when:
-  /// - Opening a detail page from a list
-  /// - Opening a modal dialog
-  /// - User might want to go back
+
+
+  //###############################################
+  
   static Future<void> push(
     BuildContext context,
     String routeName, {
@@ -176,7 +210,7 @@ class AppRoutes {
     );
   }
 
-  /// Remove all previous routes and replace with new route (no back button)
+  /// Remove all previous routes and replacance with new route (no back button)
   ///
   /// Use when:
   /// - Navigating after login/logout
@@ -307,10 +341,25 @@ extension AppNavigationExtension on BuildContext {
     return AppRoutes.navigateToSplash(this);
   }
 
-  // Add more extension methods here for commonly used routes:
-  // Future<void> navigateToHome() => AppRoutes.navigateToHome(this);
-  // Future<void> navigateToProfile(String userId) =>
-  //     AppRoutes.navigateToProfile(this, userId);
+  /// Navigate to Login
+  Future<void> navigateToLogin() {
+    return AppRoutes.push(this, AppRoutes.login);
+  }
+
+  /// Navigate to Signup
+  Future<void> navigateToSignup() {
+    return AppRoutes.push(this, AppRoutes.signup);
+  }
+
+  /// Navigate to OTP Verification
+  Future<void> navigateToOtpVerification() {
+    return AppRoutes.push(this, AppRoutes.otpVerification);
+  }
+
+  /// Navigate to Forgot Password
+  Future<void> navigateToForgotPassword() {
+    return AppRoutes.push(this, AppRoutes.forgotPassword);
+  }
 }
 
 // ==================== Navigation Documentation ====================

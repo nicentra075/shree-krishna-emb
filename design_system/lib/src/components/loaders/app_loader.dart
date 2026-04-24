@@ -9,20 +9,20 @@ class AppLoader extends StatelessWidget {
   final double size;
   final AppThemeConfig? themeConfig;
 
-  const AppLoader({
-    this.color,
-    this.size = 40.0,
-    this.themeConfig,
-    super.key,
-  });
+  const AppLoader({this.color, this.size = 40.0, this.themeConfig, super.key});
 
   @override
   Widget build(BuildContext context) {
-    final loaderColor = color ?? DesignSystemTheme.primaryDark(themeConfig);
+    final primaryDarkColor =
+        color ?? DesignSystemTheme.primaryDark(themeConfig);
+    final primaryLightColor = DesignSystemTheme.primaryLight(themeConfig);
+    final secondaryDarkColor = DesignSystemTheme.secondaryDark(themeConfig);
 
     return LoadingAnimationWidget.discreteCircle(
       size: size,
-      color: loaderColor,
+      color: primaryDarkColor,
+      secondRingColor: primaryLightColor,
+      thirdRingColor: secondaryDarkColor,
     );
   }
 }

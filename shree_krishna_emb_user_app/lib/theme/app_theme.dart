@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 
 /// App Theme Configuration
 /// Based on "The Modern Heirloom" Design System
@@ -18,6 +19,15 @@ class AppTheme {
   // Deep Blue Palette
   static const Color secondaryDark = Color(0xFF4059aa);
   static const Color secondaryLight = Color(0xFF8fa7fe);
+
+  // Text Colors
+  static const Color textDark = Color(0xFF1A1C19);
+  static const Color textBrown = Color(0xFF554336);
+  static const Color textMuted = Color(0xFFB5B5B0);
+
+  // Border & Divider Colors
+  static const Color borderLight = Color(0xFFE8E8E3);
+  static const Color borderMuted = Color(0xFFDBC2B0);
 
   // Neutral & Surface Colors
   static const Color surfaceLight = Color(0xFFFFFBFE);

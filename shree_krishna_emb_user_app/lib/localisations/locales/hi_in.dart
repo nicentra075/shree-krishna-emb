@@ -5,7 +5,6 @@ class HiINStrings implements LocaleStrings {
   String get appName => 'श्री कृष्ण कढ़ाई';
   @override
   String get appVersion => 'v0.1.0';
-
   @override
   String get confirm => 'पुष्टि करें';
   @override
@@ -48,7 +47,15 @@ class HiINStrings implements LocaleStrings {
   @override
   String get splashTitle => 'श्री कृष्ण कढ़ाई';
   @override
+  String get splashWelcomeTo => 'स्वागत है';
+  @override
+  String get splashTagline => 'सुंदर कढ़ाई डिजाइन खोजें, बनाएं और साझा करें';
+  @override
   String get splashInitializing => 'शुरुआत हो रही है...';
+  @override
+  String get madeWithLove => 'प्यार से बनाया';
+  @override
+  String get byNicentra => 'Nicentra द्वारा';
 
   @override
   String get walkthroughSkip => 'अभी छोड़ें';

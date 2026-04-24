@@ -28,7 +28,11 @@ abstract class LocaleStrings {
 
   // ========== Splash Screen ==========
   String get splashTitle;
+  String get splashWelcomeTo;
+  String get splashTagline;
   String get splashInitializing;
+  String get madeWithLove;
+  String get byNicentra;
 
   // ========== Walkthrough Screens ==========
   String get walkthroughSkip;

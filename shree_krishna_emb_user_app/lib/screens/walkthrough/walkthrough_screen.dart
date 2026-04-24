@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/discover_page.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/collaborate_page.dart';
@@ -10,6 +11,8 @@ import 'package:shree_krishna_emb/screens/walkthrough/pages/embroidery_designs_p
 import 'package:shree_krishna_emb/screens/walkthrough/pages/designer_community_page.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
+import 'package:shree_krishna_emb/localisations/app_localization.dart';
+import 'package:shree_krishna_emb/routes/app_routes.dart';
 
 class WalkthroughScreen extends StatefulWidget {
   const WalkthroughScreen({super.key});
@@ -36,6 +39,8 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalization.strings;
+
     return BlocListener<WalkthroughBloc, WalkthroughState>(
       listener: (context, state) {
         if (state is WalkthroughLoaded) {
@@ -49,44 +54,46 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
             }
           });
         } else if (state is WalkthroughCompleted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Welcome to Shree Krishna Embroidery!'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+          AppSnackbar.showSuccess('Welcome to ${strings.appName}!');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              AppRoutes.pushReplacementAll(context, AppRoutes.login);
+            }
+          });
         }
       },
       child: BlocBuilder<WalkthroughBloc, WalkthroughState>(
         builder: (context, state) {
           if (state is WalkthroughLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
+            return const Scaffold(body: Center(child: AppLoader()));
           }
 
           if (state is WalkthroughLoaded) {
             return Scaffold(
-              body: Column(
+              body: Stack(
                 children: [
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      onPageChanged: (index) {
-                        context.read<WalkthroughBloc>().add(
-                          GoToPageEvent(index),
-                        );
-                      },
-                      children: [
-                        const GetStartedPage(),
-                        const CollaboratePage(),
-                        const EmbroideryDesignsPage(),
-                        const DesignerCommunityPage(),
-                        const DiscoverPage(),
-                      ],
-                    ),
+                  // Full-screen PageView
+                  PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      context.read<WalkthroughBloc>().add(GoToPageEvent(index));
+                    },
+                    children: [
+                      const GetStartedPage(),
+                      const CollaboratePage(),
+                      const EmbroideryDesignsPage(),
+                      //const DesignerCommunityPage(),
+                      const DiscoverPage(),
+                    ],
                   ),
-                  _buildBottomNavigation(context, state),
+
+                  // Bottom Navigation Overlay
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: _buildBottomNavigation(context, state),
+                  ),
                 ],
               ),
             );
@@ -98,19 +105,34 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
             );
           }
 
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return const Scaffold(body: Center(child: AppLoader()));
         },
       ),
     );
   }
 
   Widget _buildBottomNavigation(BuildContext context, WalkthroughLoaded state) {
+    final strings = AppLocalization.strings;
+
     return FadeInUp(
       duration: AppConstants.buttonAnimationDuration,
       child: Container(
-        padding: const EdgeInsets.all(AppConstants.horizontalPadding),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.white.withValues(alpha: 0.0),
+              Colors.white.withValues(alpha: 0.95),
+            ],
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(
+          AppConstants.horizontalPadding,
+          32,
+          AppConstants.horizontalPadding,
+          24,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -119,7 +141,7 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
               duration: const Duration(milliseconds: 600),
               child: SmoothPageIndicator(
                 controller: _pageController,
-                count: state.pages.length,
+                count: 4, // 4 total pages
                 effect: WormEffect(
                   dotHeight: 8,
                   dotWidth: 8,
@@ -129,7 +151,7 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: AppConstants.verticalPadding),
+            const SizedBox(height: 24),
 
             // Animated Navigation Buttons
             ScaleTransition(
@@ -145,32 +167,29 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
                   if (!state.isFirstPage)
                     BounceInLeft(
                       duration: const Duration(milliseconds: 600),
-                      child: ElevatedButton.icon(
+                      child: AppButton(
+                        label: strings.back,
                         onPressed: () {
                           context.read<WalkthroughBloc>().add(
                             const PreviousPageEvent(),
                           );
                         },
-                        icon: const Icon(Icons.arrow_back),
-                        label: const Text('Back'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF5F1ED),
-                          foregroundColor: AppTheme.primaryDark,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          elevation: 2,
-                          shadowColor: Colors.black.withValues(alpha: 0.2),
-                        ),
+                        variant: AppButtonVariant.outlined,
+                        leadingIcon: Icons.arrow_back,
+                        size: AppButtonSize.medium,
                       ),
                     ),
                   Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(left: state.isFirstPage ? 0 : 16),
+                      padding: EdgeInsets.only(
+                        left: state.isFirstPage ? 0 : 16,
+                      ),
                       child: BounceInRight(
                         duration: const Duration(milliseconds: 600),
-                        child: ElevatedButton(
+                        child: AppButton(
+                          label: state.isLastPage
+                              ? strings.walkthroughGetStarted
+                              : strings.next,
                           onPressed: () {
                             if (state.isLastPage) {
                               context.read<WalkthroughBloc>().add(
@@ -182,25 +201,9 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
                               );
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryDark,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppConstants.borderRadiusMedium,
-                              ),
-                            ),
-                            elevation: 4,
-                            shadowColor: AppTheme.primaryDark.withValues(alpha: 0.4),
-                          ),
-                          child: Text(
-                            state.isLastPage ? 'Get Started' : 'Next',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
+                          variant: AppButtonVariant.primary,
+                          size: AppButtonSize.medium,
+                          isFullWidth: true,
                         ),
                       ),
                     ),

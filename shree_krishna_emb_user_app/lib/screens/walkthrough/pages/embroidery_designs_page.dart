@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 
@@ -19,7 +20,7 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFFFAFAF5),
+            AppTheme.surfaceLight,
             const Color(0xFFFFF5E9),
           ],
         ),
@@ -38,10 +39,10 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                 },
                 child: Text(
                   'Skip',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF554336),
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style: AppTextStyles.bodyMedium(
+                    color: AppTheme.textBrown,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -65,15 +66,15 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              color: const Color(0xFF1A1C19),
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: AppTextStyles.headlineLarge(
+                          color: AppTheme.textDark,
+                          fontWeight: FontWeight.bold,
+                        ),
                         children: [
                           const TextSpan(text: 'Explore Every\n'),
                           TextSpan(
                             text: 'Style',
-                            style: TextStyle(
+                            style: AppTextStyles.headlineLarge(
                               color: AppTheme.primaryDark,
                               fontWeight: FontWeight.bold,
                             ),
@@ -91,11 +92,10 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                     child: Text(
                       'From traditional Zari work to modern thread embroidery. Traditional Indian, Contemporary fusion, Ethnic patterns, and more',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: const Color(0xFF554336),
-                            fontSize: 15,
-                            height: 1.6,
-                          ),
+                      style: AppTextStyles.bodyLarge(
+                        color: AppTheme.textBrown,
+                        height: 1.6,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -179,17 +179,17 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                               children: [
                                 Text(
                                   '50,000+ Designs',
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF1A1C19),
-                                      ),
+                                  style: AppTextStyles.labelLarge(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textDark,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'From master craftsmen',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: const Color(0xFF554336),
-                                      ),
+                                  style: AppTextStyles.bodySmall(
+                                    color: AppTheme.textBrown,
+                                  ),
                                 ),
                               ],
                             ),
@@ -246,18 +246,17 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
           const SizedBox(height: 10),
           Text(
             card.title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            style: AppTextStyles.labelLarge(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             card.description,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  fontSize: 11,
-                ),
+            style: AppTextStyles.labelSmall(
+              color: Colors.white.withValues(alpha: 0.85),
+            ),
             textAlign: TextAlign.center,
           ),
         ],

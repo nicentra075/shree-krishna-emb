@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shree_krishna_core/config/app_theme_config.dart';
 import '../../theme/design_system_theme.dart';
 import '../../tokens/app_border_radius.dart';
+import '../loaders/app_loader.dart';
 
 enum AppButtonVariant { primary, secondary, outlined, ghost, destructive }
 enum AppButtonSize { small, medium, large }
@@ -144,13 +145,10 @@ class AppButton extends StatelessWidget {
 
   Widget _buildButtonContent(BuildContext context, {Color? textColor}) {
     if (isLoading) {
-      return SizedBox(
-        height: 20,
-        width: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation(textColor ?? Colors.white),
-        ),
+      return AppLoader(
+        size: 20,
+        color: textColor ?? Colors.white,
+        themeConfig: themeConfig,
       );
     }
 

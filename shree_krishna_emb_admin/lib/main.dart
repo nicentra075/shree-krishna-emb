@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/firebase_options.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
+import 'package:shree_krishna_emb_admin/core/utils/global_navigator.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 
 void main() async {
@@ -16,6 +18,9 @@ void main() async {
   await AppLocalization.initialize(prefs);
 
   await setupAdminServiceLocator(prefs);
+
+  // Initialize snackbar with global navigator
+  AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
 
   runApp(const AdminApp());
 }
@@ -43,6 +48,8 @@ class AdminApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.light,
+      // Global navigator key for accessing context anywhere in the app
+      navigatorKey: GlobalNavigator.navigatorKey,
       home: const AdminHomePage(),
     );
   }

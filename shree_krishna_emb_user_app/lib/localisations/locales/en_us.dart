@@ -5,7 +5,6 @@ class EnUSStrings implements LocaleStrings {
   String get appName => 'Shree Krishna Embroidery';
   @override
   String get appVersion => 'v0.1.0';
-
   @override
   String get confirm => 'Confirm';
   @override
@@ -48,7 +47,15 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get splashTitle => 'Shree Krishna Embroidery';
   @override
+  String get splashWelcomeTo => 'Welcome to';
+  @override
+  String get splashTagline => 'Discover, Create & Share Beautiful Embroidery Designs';
+  @override
   String get splashInitializing => 'Initializing...';
+  @override
+  String get madeWithLove => 'Made with';
+  @override
+  String get byNicentra => 'by Nicentra';
 
   @override
   String get walkthroughSkip => 'Skip for now';

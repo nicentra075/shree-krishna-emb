@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 
@@ -19,7 +20,7 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFFFAFAF5),
+            AppTheme.surfaceLight,
             const Color(0xFFFFF5E9),
           ],
         ),
@@ -43,10 +44,10 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                   children: [
                     Text(
                       'For Designers',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: const Color(0xFF554336),
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: AppTextStyles.labelLarge(
+                        color: AppTheme.textBrown,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -54,11 +55,11 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                       },
                       child: Text(
                         'SKIP',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppTheme.primaryDark,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.0,
-                            ),
+                        style: AppTextStyles.labelSmall(
+                          color: AppTheme.primaryDark,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                        ),
                       ),
                     ),
                   ],
@@ -154,11 +155,10 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                                   const SizedBox(width: 6),
                                   Text(
                                     'GROWING COMMUNITY',
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                          color: const Color(0xFF554336),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 10,
-                                        ),
+                                    style: AppTextStyles.labelSmall(
+                                      color: AppTheme.textBrown,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -177,15 +177,15 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              color: const Color(0xFF1A1C19),
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: AppTextStyles.headlineLarge(
+                          color: AppTheme.textDark,
+                          fontWeight: FontWeight.bold,
+                        ),
                         children: [
                           const TextSpan(text: 'Monetize Your\n'),
                           TextSpan(
                             text: 'Embroidery',
-                            style: TextStyle(
+                            style: AppTextStyles.headlineLarge(
                               color: AppTheme.primaryDark,
                               fontWeight: FontWeight.bold,
                             ),
@@ -203,11 +203,10 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                     child: Text(
                       'Upload your traditional & contemporary embroidery designs. Reach businesses worldwide and earn from every design sold',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: const Color(0xFF554336),
-                            fontSize: 15,
-                            height: 1.6,
-                          ),
+                      style: AppTextStyles.bodyLarge(
+                        color: AppTheme.textBrown,
+                        height: 1.6,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -299,17 +298,17 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1A1C19),
-                        ),
+                    style: AppTextStyles.labelLarge(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textDark,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: const Color(0xFF554336),
-                        ),
+                    style: AppTextStyles.bodySmall(
+                      color: AppTheme.textBrown,
+                    ),
                   ),
                 ],
               ),
