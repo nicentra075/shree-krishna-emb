@@ -79,6 +79,7 @@ abstract class LocaleStrings {
   String get registerSubtitle;
   String get noAccount;
   String get haveAccount;
+  String get rememberMe;
 
   // ========== Validation Errors ==========
   String get fieldRequired;

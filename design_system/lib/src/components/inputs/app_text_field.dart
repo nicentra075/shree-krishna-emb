@@ -17,6 +17,7 @@ class AppTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final void Function(String)? onChanged;
   final AppThemeConfig? themeConfig;
+  final TextInputAction? textInputAction;
 
   const AppTextField({
     this.label,
@@ -31,6 +32,7 @@ class AppTextField extends StatelessWidget {
     this.suffixIcon,
     this.onChanged,
     this.themeConfig,
+    this.textInputAction,
     super.key,
   });
 
@@ -43,6 +45,7 @@ class AppTextField extends StatelessWidget {
       validator: validator,
       keyboardType: keyboardType,
       obscureText: obscureText,
+      textInputAction: textInputAction,
       enabled: enabled,
       maxLines: maxLines,
       minLines: maxLines == 1 ? null : 1,

@@ -12,7 +12,20 @@
           "package_name": "com.nicentra.shree_krishna_emb"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "879320012130-fjot0jajuvac7e77gfu1764p7c3052uu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nicentra.shree_krishna_emb",
+            "certificate_hash": "bfb68ccb36850860b0655832f76937a380cf58cd"
+          }
+        },
+        {
+          "client_id": "879320012130-1mr0fnjm54deid212ju31d1a2b9ahtoa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDH3PA36UjBS0_0j2RWp1GwyxOzfrwHWNA"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "879320012130-1mr0fnjm54deid212ju31d1a2b9ahtoa.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "879320012130-83m5aa1q2odo8o1qrt31md9denav6hlo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.nicentra.shree-krishna-emb"
+              }
+            }
+          ]
         }
       }
     }

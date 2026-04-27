@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shree_krishna_core/models/user_model.dart';
 import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
 import 'package:shree_krishna_emb/screens/splash/splash_screen.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/walkthrough_screen.dart';
 import 'package:shree_krishna_emb/screens/auth/login_screen.dart';
 import 'package:shree_krishna_emb/screens/auth/signup_screen.dart';
 import 'package:shree_krishna_emb/screens/auth/otp_verification_screen.dart';
 import 'package:shree_krishna_emb/screens/auth/forgot_password_screen.dart';
+import 'package:shree_krishna_emb/screens/auth/complete_profile_screen.dart';
+import 'package:shree_krishna_emb/screens/main/main_screen.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/core/utils/app_logger.dart';
-
 
 // ==================== Route Arguments ====================
 /// Container for passing arguments to walkthrough screen
 class WalkthroughArgs {
   final bool skipAnimation;
 
-  WalkthroughArgs({
-    this.skipAnimation = false,
-  });
+  WalkthroughArgs({this.skipAnimation = false});
 }
 
 // Add more argument classes here as needed
@@ -70,6 +71,9 @@ class AppRoutes {
 
   /// Forgot password screen - Password reset
   static const String forgotPassword = '/forgot-password';
+
+  /// Complete profile screen - Complete Google/Phone profile
+  static const String completeProfile = '/complete-profile';
 
   /// Home/Main screen (add later)
   static const String home = '/home';
@@ -126,28 +130,70 @@ class AppRoutes {
       case login:
         return _buildRoute(
           settings: settings,
-          builder: (context) => const LoginScreen(),
+          builder: (context) => BlocProvider.value(
+            value: getIt<AuthBloc>(),
+            child: const LoginScreen(),
+          ),
           transitionType: _TransitionType.fadeInSlide,
         );
 
       case signup:
         return _buildRoute(
           settings: settings,
-          builder: (context) => const SignupScreen(),
+          builder: (context) => BlocProvider.value(
+            value: getIt<AuthBloc>(),
+            child: const SignupScreen(),
+          ),
           transitionType: _TransitionType.fadeInSlide,
         );
 
       case otpVerification:
         return _buildRoute(
           settings: settings,
-          builder: (context) => const OtpVerificationScreen(),
+          builder: (context) => BlocProvider.value(
+            value: getIt<AuthBloc>(),
+            child: const OtpVerificationScreen(),
+          ),
           transitionType: _TransitionType.fadeInSlide,
         );
 
       case forgotPassword:
         return _buildRoute(
           settings: settings,
-          builder: (context) => const ForgotPasswordScreen(),
+          builder: (context) => BlocProvider.value(
+            value: getIt<AuthBloc>(),
+            child: const ForgotPasswordScreen(),
+          ),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case completeProfile:
+        final args = settings.arguments as CompleteProfileArgs?;
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => BlocProvider.value(
+            value: getIt<AuthBloc>(),
+            child: CompleteProfileScreen(
+              args:
+                  args ??
+                  CompleteProfileArgs(
+                    type: 'google',
+                    user: UserModel(
+                      id: '',
+                      email: '',
+                      createdAt: DateTime.now(),
+                      isActive: true,
+                    ),
+                  ),
+            ),
+          ),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case home:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const MainScreen(),
           transitionType: _TransitionType.fadeInSlide,
         );
 
@@ -177,7 +223,9 @@ class AppRoutes {
   /// This is the entry point of the app. Usually called from main.dart
   /// or when user logs out.
   static Future<void> navigateToSplash(BuildContext context) {
-    return Navigator.of(context).pushNamedAndRemoveUntil(splash, (route) => false);
+    return Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(splash, (route) => false);
   }
 
   /// Navigate to Walkthrough Screen
@@ -194,20 +242,44 @@ class AppRoutes {
     );
   }
 
+  /// Navigate to Complete Profile Screen
+  ///
+  /// Called after new user signs in with Google or Phone.
+  /// Expects CompleteProfileArgs as arguments.
+  static Future<void> navigateToCompleteProfile(
+    BuildContext context,
+    CompleteProfileArgs args,
+  ) {
+    return Navigator.of(context).pushNamed(completeProfile, arguments: args);
+  }
 
+  /// Navigate to Home Screen
+  ///
+  /// Called after successful login/signup.
+  /// Removes all previous routes (no back button).
+  static Future<void> navigateToHome(BuildContext context) {
+    return Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(home, (route) => false);
+  }
 
+  /// Navigate to Login Screen
+  ///
+  /// Called on logout. Clears all previous routes.
+  static Future<void> navigateToLogin(BuildContext context) {
+    return Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(login, (route) => false);
+  }
 
   //###############################################
-  
+
   static Future<void> push(
     BuildContext context,
     String routeName, {
     Object? arguments,
   }) {
-    return Navigator.of(context).pushNamed(
-      routeName,
-      arguments: arguments,
-    );
+    return Navigator.of(context).pushNamed(routeName, arguments: arguments);
   }
 
   /// Remove all previous routes and replacance with new route (no back button)
@@ -267,12 +339,13 @@ class AppRoutes {
       case _TransitionType.fadeInSlide:
         // Fade in + slide from right
         return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1.0, 0.0),
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-          ),
+          position:
+              Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
           child: FadeTransition(opacity: animation, child: child),
         );
 
@@ -283,12 +356,13 @@ class AppRoutes {
       case _TransitionType.slideFromBottom:
         // Slide from bottom
         return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0.0, 1.0),
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-          ),
+          position:
+              Tween<Offset>(
+                begin: const Offset(0.0, 1.0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
           child: child,
         );
 
@@ -316,13 +390,7 @@ class AppRoutes {
 }
 
 /// Transition types for route animations
-enum _TransitionType {
-  none,
-  fadeInSlide,
-  fadeOnly,
-  slideFromBottom,
-  scale,
-}
+enum _TransitionType { none, fadeInSlide, fadeOnly, slideFromBottom, scale }
 
 /// Extension on BuildContext for easier navigation
 ///
@@ -359,6 +427,16 @@ extension AppNavigationExtension on BuildContext {
   /// Navigate to Forgot Password
   Future<void> navigateToForgotPassword() {
     return AppRoutes.push(this, AppRoutes.forgotPassword);
+  }
+
+  /// Navigate to Complete Profile
+  Future<void> navigateToCompleteProfile(CompleteProfileArgs args) {
+    return AppRoutes.navigateToCompleteProfile(this, args);
+  }
+
+  /// Navigate to Home
+  Future<void> navigateToHome() {
+    return AppRoutes.navigateToHome(this);
   }
 }
 

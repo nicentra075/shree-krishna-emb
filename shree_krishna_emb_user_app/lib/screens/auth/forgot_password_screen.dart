@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
-import 'package:shree_krishna_emb/routes/app_routes.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
+import 'package:shree_krishna_emb/core/utils/validators.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -12,18 +16,17 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  late TextEditingController _emailOrPhoneController;
-  bool _isLoading = false;
+  late TextEditingController _emailController;
 
   @override
   void initState() {
     super.initState();
-    _emailOrPhoneController = TextEditingController();
+    _emailController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _emailOrPhoneController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -41,36 +44,52 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          strings.forgotPassword ?? 'Reset Password',
+          'Reset Password',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: const Color(0xFF1A1C19),
-                fontWeight: FontWeight.w600,
-              ),
+            color: const Color(0xFF1A1C19),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-      body: Stack(
-        children: [
-          _buildBackgroundDecoration(),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  _buildSecurityIcon(),
-                  const SizedBox(height: 32),
-                  _buildTitle(strings),
-                  const SizedBox(height: 32),
-                  _buildForm(context, strings),
-                  const SizedBox(height: 32),
-                  _buildBackToLoginLink(context, strings),
-                  const SizedBox(height: 40),
-                ],
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthPasswordResetSent) {
+            AppSnackbar.showSuccess(
+              'Password reset email sent! Check your inbox.',
+            );
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted) {
+                Navigator.pop(this.context);
+              }
+            });
+          } else if (state is AuthError) {
+            AppSnackbar.showError(state.message);
+          }
+        },
+        child: Stack(
+          children: [
+            _buildBackgroundDecoration(),
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 40),
+                    _buildSecurityIcon(),
+                    const SizedBox(height: 32),
+                    _buildTitle(strings),
+                    const SizedBox(height: 32),
+                    _buildForm(context, strings),
+                    const SizedBox(height: 32),
+                    _buildBackToLoginLink(context, strings),
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -98,11 +117,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         shape: BoxShape.circle,
         color: const Color(0xFFF0F4FF),
       ),
-      child: Icon(
-        Icons.lock_outline,
-        size: 56,
-        color: AppTheme.secondaryDark,
-      ),
+      child: Icon(Icons.lock_outline, size: 50, color: AppTheme.primaryLight),
     );
   }
 
@@ -110,20 +125,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Column(
       children: [
         Text(
-          strings.forgotPassword ?? 'Forgot Password?',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF1A1C19),
-              ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'No worries! Enter your email or phone number and we\'ll send you a link to reset your password.',
+          'Forgot Password?',
+          style: AppTextStyles.headlineLarge(color: AppTheme.textDark),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF554336),
-                height: 1.6,
-              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Enter your email address and we\'ll send you a link to reset your password.',
+          style: AppTextStyles.bodyMedium(color: AppTheme.textBrown),
+          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -131,101 +141,107 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Widget _buildForm(BuildContext context, dynamic strings) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1A1C19).withValues(alpha: 0.05),
+            color: const Color(0xFF1A1C19).withValues(alpha: 0.06),
             blurRadius: 32,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 12),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            strings.email ?? 'Email or Phone Number',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1C19),
-                ),
-          ),
-          const SizedBox(height: 12),
           AppTextField(
-            hint: 'name@example.com or +91 9876543210',
-            controller: _emailOrPhoneController,
+            label: 'Email Address',
+            hint: 'you@example.com',
+            controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icon(
-              Icons.email_outlined,
-              color: AppTheme.primaryDark,
+              Icons.mail_outline,
+              color: AppTheme.primaryDark.withValues(alpha: 0.5),
+              size: 20,
             ),
           ),
           const SizedBox(height: 24),
-          AppButton(
-            label: 'Send Reset Link →',
-            onPressed: _isLoading ? null : _handleSendResetLink,
-            isLoading: _isLoading,
-            isFullWidth: true,
-          ),
+          _buildSendButton(context),
         ],
       ),
     );
   }
 
-  Widget _buildBackToLoginLink(BuildContext context, dynamic strings) {
-    return TextButton(
-      onPressed: () {
-        AppRoutes.pushReplacementAll(context, AppRoutes.login);
-      },
-      child: Text(
-        '← ${strings.back ?? 'Back'} to ${strings.signIn ?? 'Login'}',
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: AppTheme.primaryLight,
-              fontWeight: FontWeight.w600,
+  Widget _buildSendButton(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+
+        return SizedBox(
+          width: double.infinity,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppTheme.primaryDark, const Color(0xFFFF9933)],
+              ),
+              borderRadius: BorderRadius.circular(16),
             ),
+            child: ElevatedButton(
+              onPressed: isLoading ? null : () => _handleSendReset(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(
+                          AppTheme.surfaceLight,
+                        ),
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text('Send Reset Link', style: AppTextStyles.button()),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBackToLoginLink(BuildContext context, dynamic strings) {
+    return Center(
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Text(
+          'Back to Login',
+          style: AppTextStyles.labelMedium(
+            color: AppTheme.primaryDark,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
 
-  void _handleSendResetLink() async {
-    if (_emailOrPhoneController.text.isEmpty) {
-      AppSnackbar.showError(
-        AppLocalization.strings.fieldRequired,
-      );
+  void _handleSendReset(BuildContext context) {
+    final email = _emailController.text.trim();
+
+    final emailError = Validators.validateEmail(email);
+    if (emailError != null) {
+      AppSnackbar.showError(emailError);
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (mounted) {
-        AppSnackbar.showSuccess(
-          'Password reset link sent to your email',
-        );
-
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            AppRoutes.pushReplacementAll(context, AppRoutes.login);
-          }
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        AppSnackbar.showError('Failed to send reset link');
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    context.read<AuthBloc>().add(SendPasswordResetEmailEvent(email: email));
   }
 }

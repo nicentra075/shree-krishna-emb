@@ -133,6 +133,8 @@ class EnUSStrings implements LocaleStrings {
   String get noAccount => 'Don\'t have an account?';
   @override
   String get haveAccount => 'Already have an account?';
+  @override
+  String get rememberMe => 'Remember Me';
 
   @override
   String get fieldRequired => 'This field is required';

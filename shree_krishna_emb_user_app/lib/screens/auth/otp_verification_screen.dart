@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
-import 'package:shree_krishna_emb/localisations/app_localization.dart';
+import 'package:shree_krishna_emb/routes/app_routes.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
+import 'package:shree_krishna_emb/screens/auth/complete_profile_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String? phoneNumber;
@@ -18,14 +23,24 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   int _remainingSeconds = 45;
   bool _canResendOtp = false;
   late Stopwatch _stopwatch;
+  String? _verificationId;
+  String? _phoneNumber;
 
   @override
   void initState() {
     super.initState();
-    _otpControllers = List.generate(4, (_) => TextEditingController());
-    _otpFocusNodes = List.generate(4, (_) => FocusNode());
+    _otpControllers = List.generate(6, (_) => TextEditingController());
+    _otpFocusNodes = List.generate(6, (_) => FocusNode());
     _stopwatch = Stopwatch()..start();
     _startTimer();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments as Map?;
+      if (args != null) {
+        _verificationId = args['verificationId'] as String?;
+        _phoneNumber = args['phoneNumber'] as String?;
+      }
+    });
   }
 
   void _startTimer() {
@@ -57,8 +72,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalization.strings;
-
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAF5),
       appBar: AppBar(
@@ -69,134 +82,50 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          strings.email ?? 'OTP Verification',
+          'Verify Phone Number',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppTheme.primaryLight,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
-              _buildSecurityIcon(),
-              const SizedBox(height: 32),
-              _buildTitle(strings),
-              const SizedBox(height: 24),
-              _buildOtpInput(context),
-              const SizedBox(height: 32),
-              AppButton(
-                label: 'Verify & Proceed',
-                onPressed: _handleVerifyOtp,
-                isFullWidth: true,
-              ),
-              const SizedBox(height: 20),
-              _buildTimerAndResend(strings),
-              const SizedBox(height: 40),
-            ],
+            color: AppTheme.primaryLight,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSecurityIcon() {
-    return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: const Color(0xFFF0F4FF),
-      ),
-      child: Icon(
-        Icons.security_outlined,
-        size: 64,
-        color: AppTheme.secondaryDark,
-      ),
-    );
-  }
-
-  Widget _buildTitle(dynamic strings) {
-    return Column(
-      children: [
-        Text(
-          'Verify Your Identity',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF1A1C19),
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthAuthenticated) {
+            AppSnackbar.showSuccess('Phone verified successfully!');
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted) {
+                AppRoutes.navigateToHome(context);
+              }
+            });
+          } else if (state is AuthNewPhoneUser) {
+            AppRoutes.navigateToCompleteProfile(
+              context,
+              CompleteProfileArgs(
+                type: 'phone',
+                user: state.user,
+                phoneNumber: state.phoneNumber,
               ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Enter the 4-digit code sent to ${widget.phoneNumber ?? '+91 9XXXXXXXXX'}',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF554336),
-                height: 1.5,
-              ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOtpInput(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        4,
-        (index) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: SizedBox(
-            width: 60,
-            height: 60,
-            child: TextField(
-              controller: _otpControllers[index],
-              focusNode: _otpFocusNodes[index],
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.number,
-              maxLength: 1,
-              decoration: InputDecoration(
-                counterText: '',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFDBC2B0),
-                    width: 2,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFDBC2B0),
-                    width: 2,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: AppTheme.primaryLight,
-                    width: 2,
-                  ),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: EdgeInsets.zero,
-              ),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1A1C19),
-                  ),
-              onChanged: (value) {
-                if (value.isNotEmpty && index < 3) {
-                  _otpFocusNodes[index + 1].requestFocus();
-                } else if (value.isEmpty && index > 0) {
-                  _otpFocusNodes[index - 1].requestFocus();
-                }
-              },
+            );
+          } else if (state is AuthError) {
+            AppSnackbar.showError(state.message);
+          }
+        },
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                const SizedBox(height: 40),
+                _buildHeader(),
+                const SizedBox(height: 40),
+                _buildOtpInputBoxes(),
+                const SizedBox(height: 30),
+                _buildVerifyButton(context),
+                const SizedBox(height: 20),
+                _buildResendSection(),
+                const SizedBox(height: 40),
+              ],
             ),
           ),
         ),
@@ -204,80 +133,199 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 
-  Widget _buildTimerAndResend(dynamic strings) {
-    final minutes = _remainingSeconds ~/ 60;
-    final seconds = _remainingSeconds % 60;
-
+  Widget _buildHeader() {
     return Column(
       children: [
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: "Didn't receive the code? ",
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: const Color(0xFF554336),
-                ),
-            children: [
-              TextSpan(
-                text:
-                    '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.primaryLight,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ],
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: AppTheme.primaryLight.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.phone_iphone,
+            color: AppTheme.primaryLight,
+            size: 30,
           ),
         ),
-        const SizedBox(height: 12),
-        TextButton(
-          onPressed: _canResendOtp ? _handleResendOtp : null,
-          child: Text(
-            'Resend OTP',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: _canResendOtp
-                      ? AppTheme.primaryLight
-                      : const Color(0xFFB5B5B0),
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.underline,
-                ),
-          ),
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Text(
-          'Artisanal Atelier',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: const Color(0xFFB5B5B0),
-                letterSpacing: 1.0,
-              ),
+          'Enter Verification Code',
+          style: AppTextStyles.headlineLarge(color: AppTheme.textDark),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'We sent a 6-digit code to\n${_phoneNumber ?? 'your phone'}',
+          style: AppTextStyles.bodyMedium(color: AppTheme.textBrown),
+          textAlign: TextAlign.center,
         ),
       ],
     );
   }
 
-  void _handleVerifyOtp() {
-    final otp =
-        _otpControllers.map((controller) => controller.text).join();
+  Widget _buildOtpInputBoxes() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: List.generate(6, (index) {
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: SizedBox(
+              height: 56,
+              child: TextField(
+                controller: _otpControllers[index],
+                focusNode: _otpFocusNodes[index],
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                maxLength: 1,
+                decoration: InputDecoration(
+                  counterText: '',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onChanged: (value) {
+                  // Keep only digits and limit to 1 character
+                  final filteredValue = value.replaceAll(RegExp(r'[^0-9]'), '');
 
-    if (otp.length != 4) {
-      AppSnackbar.showError('Please enter a valid OTP');
+                  // Always update controller to have only 1 digit or empty
+                  final finalValue = filteredValue.isEmpty
+                      ? ''
+                      : filteredValue[0];
+                  _otpControllers[index].text = finalValue;
+
+                  // Position cursor at the end
+                  if (finalValue.isNotEmpty) {
+                    _otpControllers[index].selection =
+                        TextSelection.fromPosition(TextPosition(offset: 1));
+                  }
+
+                  // Auto-move to next field when 1 digit is entered
+                  if (finalValue.isNotEmpty && index < 5) {
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      _otpFocusNodes[index + 1].requestFocus();
+                    });
+                  } else if (finalValue.isEmpty && index > 0) {
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      _otpFocusNodes[index - 1].requestFocus();
+                    });
+                  }
+                },
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildVerifyButton(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+
+        return SizedBox(
+          width: double.infinity,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppTheme.primaryDark, const Color(0xFFFF9933)],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ElevatedButton(
+              onPressed: isLoading ? null : () => _handleVerifyOtp(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: AppLoader(size: 20, color: AppTheme.surfaceLight),
+                    )
+                  : Text('Verify OTP', style: AppTextStyles.button()),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildResendSection() {
+    return Column(
+      children: [
+        if (!_canResendOtp)
+          Text(
+            'Resend code in $_remainingSeconds seconds',
+            style: AppTextStyles.bodySmall(color: AppTheme.textBrown),
+          )
+        else
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _remainingSeconds = 45;
+                _canResendOtp = false;
+                _stopwatch.reset();
+                _stopwatch.start();
+                _startTimer();
+                for (var controller in _otpControllers) {
+                  controller.clear();
+                }
+              });
+              if (_phoneNumber != null) {
+                context.read<AuthBloc>().add(
+                  SendPhoneOtpEvent(phoneNumber: _phoneNumber!),
+                );
+              }
+            },
+            child: Text(
+              'Resend Code',
+              style: AppTextStyles.labelMedium(
+                color: AppTheme.primaryDark,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  void _handleVerifyOtp(BuildContext context) {
+    final otp = _otpControllers.map((controller) => controller.text).join();
+    print(
+      '🔵 [OtpVerificationScreen] OTP entered: $otp (length: ${otp.length})',
+    );
+
+    if (otp.length != 6) {
+      AppSnackbar.showError('Please enter a valid 6-digit code');
       return;
     }
 
-    AppSnackbar.showSuccess('OTP verified successfully');
-  }
-
-  void _handleResendOtp() {
-    _stopwatch.reset();
-    _stopwatch.start();
-    _remainingSeconds = 45;
-    _canResendOtp = false;
-
-    for (var controller in _otpControllers) {
-      controller.clear();
+    if (_verificationId == null || _phoneNumber == null) {
+      print('🔴 [OtpVerificationScreen] Missing verificationId or phoneNumber');
+      AppSnackbar.showError('Verification ID or phone number is missing');
+      return;
     }
 
-    _startTimer();
-    AppSnackbar.showSuccess('OTP sent to your phone');
+    print(
+      '🔵 [OtpVerificationScreen] Dispatching VerifyPhoneOtpEvent - OTP: $otp, VerificationId: $_verificationId, Phone: $_phoneNumber',
+    );
+    context.read<AuthBloc>().add(
+      VerifyPhoneOtpEvent(
+        verificationId: _verificationId!,
+        smsCode: otp,
+        phoneNumber: _phoneNumber!,
+      ),
+    );
   }
 }

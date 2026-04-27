@@ -5,37 +5,69 @@ class UserEntity extends Equatable {
   final String id;
   final String email;
   final String? name;
+  final String? phoneNumber;
   final String? photoUrl;
+  final int? userId;
+  final String loginMethod;
   final DateTime createdAt;
+  final DateTime? loginAt;
+  final DateTime? logoutAt;
   final bool isActive;
 
   const UserEntity({
     required this.id,
     required this.email,
     this.name,
+    this.phoneNumber,
     this.photoUrl,
+    this.userId,
+    this.loginMethod = 'email',
     required this.createdAt,
+    this.loginAt,
+    this.logoutAt,
     required this.isActive,
   });
 
   @override
-  List<Object?> get props => [id, email, name, photoUrl, createdAt, isActive];
+  List<Object?> get props => [
+    id,
+    email,
+    name,
+    phoneNumber,
+    photoUrl,
+    userId,
+    loginMethod,
+    createdAt,
+    loginAt,
+    logoutAt,
+    isActive,
+  ];
 
   // Create copy with modified fields
   UserEntity copyWith({
     String? id,
     String? email,
     String? name,
+    String? phoneNumber,
     String? photoUrl,
+    int? userId,
+    String? loginMethod,
     DateTime? createdAt,
+    DateTime? loginAt,
+    DateTime? logoutAt,
     bool? isActive,
   }) {
     return UserEntity(
       id: id ?? this.id,
       email: email ?? this.email,
       name: name ?? this.name,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       photoUrl: photoUrl ?? this.photoUrl,
+      userId: userId ?? this.userId,
+      loginMethod: loginMethod ?? this.loginMethod,
       createdAt: createdAt ?? this.createdAt,
+      loginAt: loginAt ?? this.loginAt,
+      logoutAt: logoutAt ?? this.logoutAt,
       isActive: isActive ?? this.isActive,
     );
   }
@@ -47,8 +79,13 @@ class UserModel extends UserEntity {
     required super.id,
     required super.email,
     super.name,
+    super.phoneNumber,
     super.photoUrl,
+    super.userId,
+    super.loginMethod,
     required super.createdAt,
+    super.loginAt,
+    super.logoutAt,
     required super.isActive,
   });
 
@@ -58,10 +95,19 @@ class UserModel extends UserEntity {
       id: id,
       email: json['email'] as String? ?? '',
       name: json['name'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
       photoUrl: json['photoUrl'] as String?,
+      userId: json['userId'] as int?,
+      loginMethod: json['loginMethod'] as String? ?? 'email',
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
+      loginAt: json['loginAt'] != null
+          ? DateTime.parse(json['loginAt'] as String)
+          : null,
+      logoutAt: json['logoutAt'] != null
+          ? DateTime.parse(json['logoutAt'] as String)
+          : null,
       isActive: json['isActive'] as bool? ?? true,
     );
   }
@@ -71,8 +117,13 @@ class UserModel extends UserEntity {
     return {
       'email': email,
       'name': name,
+      'phoneNumber': phoneNumber,
       'photoUrl': photoUrl,
+      'userId': userId,
+      'loginMethod': loginMethod,
       'createdAt': createdAt.toIso8601String(),
+      'loginAt': loginAt?.toIso8601String(),
+      'logoutAt': logoutAt?.toIso8601String(),
       'isActive': isActive,
     };
   }
@@ -83,10 +134,19 @@ class UserModel extends UserEntity {
       id: json['id'] as String? ?? '',
       email: json['email'] as String? ?? '',
       name: json['name'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
       photoUrl: json['photoUrl'] as String?,
+      userId: json['userId'] as int?,
+      loginMethod: json['loginMethod'] as String? ?? 'email',
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
+      loginAt: json['loginAt'] != null
+          ? DateTime.parse(json['loginAt'] as String)
+          : null,
+      logoutAt: json['logoutAt'] != null
+          ? DateTime.parse(json['logoutAt'] as String)
+          : null,
       isActive: json['isActive'] as bool? ?? true,
     );
   }
@@ -97,8 +157,13 @@ class UserModel extends UserEntity {
       'id': id,
       'email': email,
       'name': name,
+      'phoneNumber': phoneNumber,
       'photoUrl': photoUrl,
+      'userId': userId,
+      'loginMethod': loginMethod,
       'createdAt': createdAt.toIso8601String(),
+      'loginAt': loginAt?.toIso8601String(),
+      'logoutAt': logoutAt?.toIso8601String(),
       'isActive': isActive,
     };
   }
@@ -109,8 +174,13 @@ class UserModel extends UserEntity {
       id: entity.id,
       email: entity.email,
       name: entity.name,
+      phoneNumber: entity.phoneNumber,
       photoUrl: entity.photoUrl,
+      userId: entity.userId,
+      loginMethod: entity.loginMethod,
       createdAt: entity.createdAt,
+      loginAt: entity.loginAt,
+      logoutAt: entity.logoutAt,
       isActive: entity.isActive,
     );
   }

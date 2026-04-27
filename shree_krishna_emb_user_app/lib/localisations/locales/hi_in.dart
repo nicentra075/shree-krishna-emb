@@ -133,6 +133,8 @@ class HiINStrings implements LocaleStrings {
   String get noAccount => 'खाता नहीं है?';
   @override
   String get haveAccount => 'पहले से खाता है?';
+  @override
+  String get rememberMe => 'मुझे याद रखें';
 
   @override
   String get fieldRequired => 'यह फील्ड आवश्यक है';

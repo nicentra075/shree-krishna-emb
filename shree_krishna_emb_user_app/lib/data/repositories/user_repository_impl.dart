@@ -16,8 +16,8 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl({
     required UserDataSource remoteDataSource,
     required LocalUserDataSource localDataSource,
-  })  : _remoteDataSource = remoteDataSource,
-        _localDataSource = localDataSource;
+  }) : _remoteDataSource = remoteDataSource,
+       _localDataSource = localDataSource;
 
   @override
   Future<Either<Failure, UserModel>> getUserById(String userId) async {
@@ -60,7 +60,8 @@ class UserRepositoryImpl implements UserRepository {
     String? lastDocumentId,
   }) async {
     try {
-      final cacheKey = 'all_users_limit_${limit}_after_${lastDocumentId ?? 'start'}';
+      final cacheKey =
+          'all_users_limit_${limit}_after_${lastDocumentId ?? 'start'}';
 
       // Step 1: Check local cache
       final cachedData = await _localDataSource.getCachedUserList(cacheKey);
@@ -80,7 +81,8 @@ class UserRepositoryImpl implements UserRepository {
       return Right(users);
     } on ServerException catch (e) {
       // Try graceful degradation with stale cache
-      final cacheKey = 'all_users_limit_${limit}_after_${lastDocumentId ?? 'start'}';
+      final cacheKey =
+          'all_users_limit_${limit}_after_${lastDocumentId ?? 'start'}';
       final cachedData = await _localDataSource.getCachedUserList(cacheKey);
       if (cachedData != null) {
         return Right(cachedData.data);
@@ -88,7 +90,8 @@ class UserRepositoryImpl implements UserRepository {
       return Left(ServerFailure(e.message, code: e.code));
     } on NetworkException catch (e) {
       // Try graceful degradation with stale cache
-      final cacheKey = 'all_users_limit_${limit}_after_${lastDocumentId ?? 'start'}';
+      final cacheKey =
+          'all_users_limit_${limit}_after_${lastDocumentId ?? 'start'}';
       final cachedData = await _localDataSource.getCachedUserList(cacheKey);
       if (cachedData != null) {
         return Right(cachedData.data);

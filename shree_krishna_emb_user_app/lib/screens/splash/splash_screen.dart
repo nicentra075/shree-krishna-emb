@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/bloc/splash/splash_bloc.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
@@ -15,12 +18,24 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = AppLocalization.strings;
 
-    return BlocProvider.value(
-      value: getIt<SplashBloc>()..add(const InitializeSplashEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(
+          value: getIt<SplashBloc>()..add(const InitializeSplashEvent()),
+        ),
+        BlocProvider.value(
+          value: getIt<AuthBloc>()..add(const CheckAuthStatusEvent()),
+        ),
+      ],
       child: BlocListener<SplashBloc, SplashState>(
         listener: (context, state) {
           if (state is SplashComplete) {
-            context.navigateToWalkthrough();
+            final authState = context.read<AuthBloc>().state;
+            if (authState is AuthAuthenticated) {
+              context.navigateToHome();
+            } else {
+              context.navigateToWalkthrough();
+            }
           }
         },
         child: BlocBuilder<SplashBloc, SplashState>(
@@ -96,7 +111,7 @@ class SplashScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 32,
                                 ),
-                                child: Text(
+                                child: Text( 
                                   strings.splashTagline,
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.bodyLarge(

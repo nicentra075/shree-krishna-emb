@@ -12,6 +12,7 @@ export 'src/tokens/app_text_styles.dart';
 export 'src/theme/design_system_theme.dart';
 
 // Components
+export 'src/components/app_bars/app_app_bar.dart';
 export 'src/components/buttons/app_button.dart';
 export 'src/components/inputs/app_text_field.dart';
 export 'src/components/dialogs/app_dialog.dart';
