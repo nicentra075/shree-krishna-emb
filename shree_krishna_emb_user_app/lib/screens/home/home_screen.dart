@@ -1,483 +1,517 @@
 import 'package:flutter/material.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
+import 'package:shree_krishna_emb/localisations/app_localization.dart';
 
-class HomeScreenContent extends StatefulWidget {
+class HomeScreenContent extends StatelessWidget {
   const HomeScreenContent({super.key});
 
-  @override
-  State<HomeScreenContent> createState() => _HomeScreenContentState();
-}
-
-class _HomeScreenContentState extends State<HomeScreenContent> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Search Bar
-          FadeInUp(
-            duration: const Duration(milliseconds: 500),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: GestureDetector(
-                onTap: () {
-                  // TODO: Navigate to search screen
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.onSurfaceLight.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppTheme.onSurfaceLight.withValues(alpha: 0.12),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.search,
-                        color: AppTheme.onSurfaceLight.withValues(alpha: 0.5),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Search designs...',
-                        style: AppTextStyles.bodyMedium(
-                          color: AppTheme.onSurfaceLight.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Category Filter
-          FadeInUp(
-            delay: const Duration(milliseconds: 100),
-            duration: const Duration(milliseconds: 500),
-            child: _buildCategoryFilter(),
-          ),
-
-          // Featured Section
-          FadeInUp(
-            delay: const Duration(milliseconds: 200),
-            duration: const Duration(milliseconds: 500),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Featured Designs',
-                        style: AppTextStyles.headlineMedium(),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // TODO: Navigate to see all
-                        },
-                        child: Text(
-                          'See All',
-                          style: AppTextStyles.bodyMedium(
-                            color: AppTheme.primaryLight,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _buildDesignGrid(),
-                ],
-              ),
-            ),
-          ),
-
+          // Hero Banner
+          _buildHeroBanner(context),
           const SizedBox(height: 24),
 
-          // Trending Section
-          FadeInUp(
-            delay: const Duration(milliseconds: 300),
-            duration: const Duration(milliseconds: 500),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Trending Now',
-                        style: AppTextStyles.headlineMedium(),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // TODO: Navigate to see all
-                        },
-                        child: Text(
-                          'See All',
-                          style: AppTextStyles.bodyMedium(
-                            color: AppTheme.primaryLight,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTrendingCarousel(),
-                ],
-              ),
-            ),
-          ),
+          // Authorized Sellers
+          _buildAuthorizedSellers(context),
+          const SizedBox(height: 24),
 
+          // Trending Designs
+          _buildTrendingDesigns(context),
+          const SizedBox(height: 24),
+
+          // Saree Designs
+          _buildSareeDesigns(context),
+          const SizedBox(height: 24),
+
+          // Explore Collections
+          _buildExploreCollections(context),
           const SizedBox(height: 24),
 
           // Recently Viewed
-          FadeInUp(
-            delay: const Duration(milliseconds: 400),
-            duration: const Duration(milliseconds: 500),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Recently Viewed',
-                        style: AppTextStyles.headlineMedium(),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // TODO: Navigate to history
-                        },
-                        child: Text(
-                          'View All',
-                          style: AppTextStyles.bodyMedium(
-                            color: AppTheme.primaryLight,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _buildRecentlyViewedList(),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 32),
+          _buildRecentlyViewed(context),
+          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryFilter() {
-    final categories = ['All', 'Saree', 'Suit', 'Lehenga', 'Dupatta', 'Shawl'];
-
-    return SizedBox(
-      height: 40,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          final isSelected = index == 0;
-
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: FilterChip(
-              selected: isSelected,
-              label: Text(category),
-              onSelected: (selected) {
-                // TODO: Filter by category
-              },
-              backgroundColor: Colors.transparent,
-              side: BorderSide(
-                color: isSelected
-                    ? AppTheme.primaryLight
-                    : AppTheme.onSurfaceLight.withValues(alpha: 0.2),
-              ),
-              labelStyle: AppTextStyles.bodySmall(
-                color: isSelected
-                    ? AppTheme.primaryLight
-                    : AppTheme.onSurfaceLight,
-              ),
-            ),
-          );
-        },
+  static Widget _buildHeroBanner(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      height: 180,
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryLight,
+        borderRadius: BorderRadius.circular(16),
       ),
-    );
-  }
-
-  Widget _buildDesignGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: 4,
-      itemBuilder: (context, index) {
-        return FadeInUp(
-          delay: Duration(milliseconds: 300 + (index * 100)),
-          duration: const Duration(milliseconds: 500),
-          child: _buildDesignCard('Design ${index + 1}', '₹${1500 + (index * 500)}'),
-        );
-      },
-    );
-  }
-
-  Widget _buildDesignCard(String name, String price) {
-    return GestureDetector(
-      onTap: () {
-        // TODO: Navigate to design detail
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: AppTheme.onSurfaceLight.withValues(alpha: 0.05),
-          border: Border.all(
-            color: AppTheme.onSurfaceLight.withValues(alpha: 0.1),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Design Image Placeholder
-            Container(
-              height: 140,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-                color: AppTheme.primaryLight.withValues(alpha: 0.1),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.image_outlined,
-                  color: AppTheme.primaryLight.withValues(alpha: 0.3),
-                  size: 40,
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.secondaryDark,
+                    AppTheme.secondaryLight,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
             ),
-            // Design Details
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
-                      style: AppTextStyles.bodyMedium(
-                        fontWeight: FontWeight.w500,
+                      AppLocalization.strings.newArrival2024,
+                      style: AppTextStyles.labelSmall(
+                        color: Colors.white,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
                     Text(
-                      'By Designer',
-                      style: AppTextStyles.bodySmall(
-                        color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
+                      AppLocalization.strings.royalZardosiCollection,
+                      style: AppTextStyles.headlineMedium(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          price,
-                          style: AppTextStyles.bodyMedium(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryLight,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppTheme.primaryLight.withValues(alpha: 0.1),
-                          ),
-                          child: Icon(
-                            Icons.favorite_border,
-                            size: 16,
-                            color: AppTheme.primaryLight,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: Navigate to collection
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryLight,
+                  ),
+                  child: Text(AppLocalization.strings.explore),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildAuthorizedSellers(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppLocalization.strings.authorizedSellers,
+                style: AppTextStyles.headlineMedium(),
               ),
+              TextButton(
+                onPressed: () {
+                  // TODO: Navigate to all sellers
+                },
+                child: Text(
+                  AppLocalization.strings.viewAll,
+                  style: AppTextStyles.labelMedium(
+                    color: AppTheme.primaryLight,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                _buildSellerCard('V. Textiles', true),
+                const SizedBox(width: 12),
+                _buildSellerCard('Surat Kraft', true),
+                const SizedBox(width: 12),
+                _buildSellerCard('Elite Motif', true),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildSellerCard(String name, bool isVerified) {
+    return Container(
+      width: 140,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerLowestLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.borderLight,
+        ),
+      ),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: AppTheme.secondaryLight,
+            child: Icon(
+              Icons.store,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.labelMedium(),
+          ),
+          if (isVerified) ...[
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  size: 14,
+                  color: AppTheme.primaryLight,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  AppLocalization.strings.verified,
+                  style: AppTextStyles.labelSmall(
+                    color: AppTheme.primaryLight,
+                  ),
+                ),
+              ],
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildTrendingDesigns(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            AppLocalization.strings.trendingDesigns,
+            style: AppTextStyles.headlineMedium(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                _buildDesignCard(
+                  'Golden Peacock Mandala',
+                  '₹1,249',
+                  'Premium',
+                ),
+                const SizedBox(width: 12),
+                _buildDesignCard(
+                  'Silver Lotus Border',
+                  '₹899',
+                  'Classic',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildDesignCard(String name, String price, String tier) {
+    return Container(
+      width: 160,
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerLowestLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.borderLight,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 120,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceContainerLowLight,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Icon(
+              Icons.image,
+              color: AppTheme.onSurfaceLight.withValues(alpha: 0.3),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelMedium(),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      price,
+                      style: AppTextStyles.labelMedium(
+                        color: AppTheme.primaryLight,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Icon(
+                      Icons.favorite_border,
+                      size: 16,
+                      color: AppTheme.primaryLight,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.secondaryLight.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    tier,
+                    style: AppTextStyles.labelSmall(
+                      color: AppTheme.secondaryDark,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildSareeDesigns(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            AppLocalization.strings.sareeDesigns,
+            style: AppTextStyles.headlineMedium(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              _buildSareeDesignCard(
+                'Banarasi Fusion',
+                '12,000+ Stitches',
+              ),
+              const SizedBox(height: 12),
+              _buildSareeDesignCard(
+                'Pastel Sequin Flora',
+                '8,500+ Stitches',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildSareeDesignCard(String name, String stitches) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerLowLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.borderLight,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceContainerLowestLight,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.image,
+              color: AppTheme.onSurfaceLight.withValues(alpha: 0.3),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: AppTextStyles.labelMedium(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  stitches,
+                  style: AppTextStyles.labelSmall(
+                    color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildExploreCollections(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            AppLocalization.strings.exploreCollections,
+            style: AppTextStyles.headlineMedium(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildCollectionCard('Multi-head Designs'),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildCollectionCard('Cording Designs'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildCollectionCard('Small Machine\nDesigns'),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildCollectionCard('Other\nCategories'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildCollectionCard(String name) {
+    return Container(
+      height: 100,
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryLight.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Text(
+          name,
+          textAlign: TextAlign.center,
+          style: AppTextStyles.labelMedium(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTrendingCarousel() {
-    return SizedBox(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return FadeInRight(
-            delay: Duration(milliseconds: 400 + (index * 100)),
-            duration: const Duration(milliseconds: 500),
-            child: Container(
-              width: 160,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: AppTheme.primaryLight.withValues(alpha: 0.1),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 120,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.image_outlined,
-                        color: AppTheme.primaryLight.withValues(alpha: 0.3),
-                        size: 40,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Trending Design ${index + 1}',
-                          style: AppTextStyles.bodySmall(
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '₹${2000 + (index * 300)}',
-                          style: AppTextStyles.bodySmall(
-                            color: AppTheme.primaryLight,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+  static Widget _buildRecentlyViewed(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            AppLocalization.strings.recentlyViewed,
+            style: AppTextStyles.headlineMedium(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                _buildRecentlyViewedCard(),
+                const SizedBox(width: 12),
+                _buildRecentlyViewedCard(),
+                const SizedBox(width: 12),
+                _buildRecentlyViewedCard(),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildRecentlyViewedList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 3,
-      itemBuilder: (context, index) {
-        return FadeInLeft(
-          delay: Duration(milliseconds: 500 + (index * 150)),
-          duration: const Duration(milliseconds: 500),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: AppTheme.onSurfaceLight.withValues(alpha: 0.05),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: AppTheme.primaryLight.withValues(alpha: 0.1),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.image_outlined,
-                        color: AppTheme.primaryLight.withValues(alpha: 0.3),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Embroidered Saree ${index + 1}',
-                          style: AppTextStyles.bodyMedium(
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'By Designer Name',
-                          style: AppTextStyles.bodySmall(
-                            color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '₹${3000 + (index * 500)}',
-                        style: AppTextStyles.bodyMedium(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryLight,
-                        ),
-                      ),
-                      Icon(
-                        Icons.favorite_border,
-                        size: 18,
-                        color: AppTheme.primaryLight,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+  static Widget _buildRecentlyViewedCard() {
+    return Container(
+      width: 100,
+      height: 100,
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerLowLight,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(
+        Icons.image,
+        color: AppTheme.onSurfaceLight.withValues(alpha: 0.3),
+      ),
     );
   }
 }

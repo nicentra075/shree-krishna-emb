@@ -333,4 +333,25 @@ class EnUSStrings implements LocaleStrings {
   String get noProjectsFound => 'No projects found';
   @override
   String get noOrdersFound => 'No orders found';
+
+  @override
+  String get newArrival2024 => 'New Arrival 2024';
+  @override
+  String get royalZardosiCollection => 'Royal Zardosi Collection';
+  @override
+  String get explore => 'Explore';
+  @override
+  String get authorizedSellers => 'Authorized Sellers';
+  @override
+  String get viewAll => 'View All';
+  @override
+  String get verified => 'Verified';
+  @override
+  String get trendingDesigns => 'Trending Designs';
+  @override
+  String get sareeDesigns => 'Saree Designs';
+  @override
+  String get exploreCollections => 'Explore Collections';
+  @override
+  String get recentlyViewed => 'Recently Viewed';
 }

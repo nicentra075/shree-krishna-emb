@@ -333,4 +333,25 @@ class HiINStrings implements LocaleStrings {
   String get noProjectsFound => 'कोई प्रोजेक्ट नहीं मिला';
   @override
   String get noOrdersFound => 'कोई ऑर्डर नहीं मिला';
+
+  @override
+  String get newArrival2024 => 'नया आगमन 2024';
+  @override
+  String get royalZardosiCollection => 'रॉयल ज़र्दोसी संग्रह';
+  @override
+  String get explore => 'खोजें';
+  @override
+  String get authorizedSellers => 'अधिकृत विक्रेता';
+  @override
+  String get viewAll => 'सभी देखें';
+  @override
+  String get verified => 'सत्यापित';
+  @override
+  String get trendingDesigns => 'ट्रेंडिंग डिज़ाइन';
+  @override
+  String get sareeDesigns => 'साड़ी डिज़ाइन';
+  @override
+  String get exploreCollections => 'संग्रह खोजें';
+  @override
+  String get recentlyViewed => 'हाल ही में देखा गया';
 }

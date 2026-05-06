@@ -197,4 +197,16 @@ abstract class LocaleStrings {
   String get completed;
   String get noProjectsFound;
   String get noOrdersFound;
+
+  // ========== Home Screen Sections ==========
+  String get newArrival2024;
+  String get royalZardosiCollection;
+  String get explore;
+  String get authorizedSellers;
+  String get viewAll;
+  String get verified;
+  String get trendingDesigns;
+  String get sareeDesigns;
+  String get exploreCollections;
+  String get recentlyViewed;
 }
