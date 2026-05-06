@@ -187,4 +187,14 @@ abstract class LocaleStrings {
   String get chooseColors;
   String get estimatedPrice;
   String get submitOrder;
+
+  // ========== Work & Projects ==========
+  String get myWorkDashboard;
+  String get myPurchases;
+  String get all;
+  String get open;
+  String get inProgress;
+  String get completed;
+  String get noProjectsFound;
+  String get noOrdersFound;
 }

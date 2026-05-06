@@ -60,7 +60,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = AppLocalization.strings;
     final isGoogleFlow = widget.args.type == 'google';
 
     return Scaffold(

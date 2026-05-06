@@ -316,4 +316,21 @@ class HiINStrings implements LocaleStrings {
   String get estimatedPrice => 'अनुमानित मूल्य';
   @override
   String get submitOrder => 'ऑर्डर जमा करें';
+
+  @override
+  String get myWorkDashboard => 'मेरा कार्य डैशबोर्ड';
+  @override
+  String get myPurchases => 'मेरी खरीदारी';
+  @override
+  String get all => 'सभी';
+  @override
+  String get open => 'खुला';
+  @override
+  String get inProgress => 'प्रगति में';
+  @override
+  String get completed => 'पूर्ण';
+  @override
+  String get noProjectsFound => 'कोई प्रोजेक्ट नहीं मिला';
+  @override
+  String get noOrdersFound => 'कोई ऑर्डर नहीं मिला';
 }

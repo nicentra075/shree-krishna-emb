@@ -316,4 +316,21 @@ class EnUSStrings implements LocaleStrings {
   String get estimatedPrice => 'Estimated Price';
   @override
   String get submitOrder => 'Submit Order';
+
+  @override
+  String get myWorkDashboard => 'My Work Dashboard';
+  @override
+  String get myPurchases => 'My Purchases';
+  @override
+  String get all => 'All';
+  @override
+  String get open => 'Open';
+  @override
+  String get inProgress => 'In Progress';
+  @override
+  String get completed => 'Completed';
+  @override
+  String get noProjectsFound => 'No projects found';
+  @override
+  String get noOrdersFound => 'No orders found';
 }
