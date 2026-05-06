@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/screens/home/home_screen.dart';
 import 'package:shree_krishna_emb/screens/profile/profile_screen.dart';
+import 'package:shree_krishna_emb/screens/work/work_screen.dart';
+import 'package:shree_krishna_emb/bloc/work/work_bloc.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -54,8 +57,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   PreferredSizeWidget? _buildAppBar(BuildContext context) {
-    // Hide AppBar when on profile screen
-    if (_selectedBottomNav == 4) {
+    // Hide AppBar when on Account screen
+    if (_selectedBottomNav == 2) {
       return null;
     }
 
@@ -135,30 +138,11 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return const HomeScreenContent();
       case 1:
-        // Search screen
-        return Center(
-          child: Text(
-            'Search Screen (Coming Soon)',
-            style: AppTextStyles.headlineMedium(),
-          ),
+        return BlocProvider(
+          create: (context) => WorkBloc(),
+          child: const WorkScreen(),
         );
       case 2:
-        // Messages screen
-        return Center(
-          child: Text(
-            'Messages Screen (Coming Soon)',
-            style: AppTextStyles.headlineMedium(),
-          ),
-        );
-      case 3:
-        // Wishlist screen
-        return Center(
-          child: Text(
-            'Wishlist Screen (Coming Soon)',
-            style: AppTextStyles.headlineMedium(),
-          ),
-        );
-      case 4:
         return const ProfileScreen();
       default:
         return const HomeScreenContent();
@@ -180,18 +164,6 @@ class _MainScreenState extends State<MainScreen> {
           setState(() {
             _selectedBottomNav = index;
           });
-          // Handle navigation-specific logic if needed
-          switch (index) {
-            case 1:
-              // TODO: Navigate to search screen
-              break;
-            case 2:
-              // TODO: Navigate to messages screen
-              break;
-            case 3:
-              // TODO: Navigate to wishlist screen
-              break;
-          }
         },
         type: BottomNavigationBarType.fixed,
         backgroundColor: AppTheme.surfaceLight,
@@ -204,24 +176,14 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_outlined),
-            activeIcon: Icon(Icons.chat),
-            label: 'Messages',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            activeIcon: Icon(Icons.favorite),
-            label: 'Wishlist',
+            icon: Icon(Icons.work_outline),
+            activeIcon: Icon(Icons.work),
+            label: 'Work',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Account',
           ),
         ],
       ),
