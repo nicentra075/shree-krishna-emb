@@ -6,6 +6,8 @@ class HiINStrings implements LocaleStrings {
   @override
   String get appVersion => 'v0.1.0';
   @override
+  String get appTagline => 'हस्तनिर्मित डिज़ाइन देखें';
+  @override
   String get confirm => 'पुष्टि करें';
   @override
   String get cancel => 'रद्द करें';

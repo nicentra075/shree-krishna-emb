@@ -4,6 +4,7 @@ abstract class LocaleStrings {
   // ========== App General ==========
   String get appName;
   String get appVersion;
+  String get appTagline;
 
   // ========== Common ==========
   String get confirm;

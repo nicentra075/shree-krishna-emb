@@ -7,6 +7,7 @@ import 'package:shree_krishna_emb/screens/home/home_screen.dart';
 import 'package:shree_krishna_emb/screens/profile/profile_screen.dart';
 import 'package:shree_krishna_emb/screens/work/work_screen.dart';
 import 'package:shree_krishna_emb/bloc/work/work_bloc.dart';
+import 'package:shree_krishna_emb/localisations/app_localization.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -73,7 +74,7 @@ class _MainScreenState extends State<MainScreen> {
           FadeInDown(
             duration: const Duration(milliseconds: 500),
             child: Text(
-              'Shree Krishna',
+              AppLocalization.strings.appName,
               style: AppTextStyles.headlineLarge(
                 color: AppTheme.primaryLight,
                 fontWeight: FontWeight.bold,
@@ -85,7 +86,7 @@ class _MainScreenState extends State<MainScreen> {
             delay: const Duration(milliseconds: 200),
             duration: const Duration(milliseconds: 500),
             child: Text(
-              'Explore Handmade Designs',
+              AppLocalization.strings.appTagline,
               style: AppTextStyles.bodySmall(
                 color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
               ),

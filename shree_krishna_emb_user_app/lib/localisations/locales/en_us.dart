@@ -6,6 +6,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get appVersion => 'v0.1.0';
   @override
+  String get appTagline => 'Explore Handmade Designs';
+  @override
   String get confirm => 'Confirm';
   @override
   String get cancel => 'Cancel';
