@@ -354,4 +354,29 @@ class EnUSStrings implements LocaleStrings {
   String get exploreCollections => 'Explore Collections';
   @override
   String get recentlyViewed => 'Recently Viewed';
+
+  @override
+  String get wallet => 'Wallet';
+  @override
+  String get availableBalance => 'Available Balance';
+  @override
+  String get addFunds => 'Add Funds';
+  @override
+  String get goldPlan => 'Gold Plan';
+  @override
+  String get membershipExpires => 'Membership expires in';
+  @override
+  String get studioManagement => 'Studio Management';
+  @override
+  String get myWork => 'My Work';
+  @override
+  String get mySellingProducts => 'My Selling Products';
+  @override
+  String get switchToDesigner => 'Switch to Designer';
+  @override
+  String get support => 'Support';
+  @override
+  String get whatsappSupport => 'WhatsApp Support';
+  @override
+  String get termsConditions => 'Terms & Conditions';
 }

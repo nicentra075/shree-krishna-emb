@@ -354,4 +354,29 @@ class HiINStrings implements LocaleStrings {
   String get exploreCollections => 'संग्रह खोजें';
   @override
   String get recentlyViewed => 'हाल ही में देखा गया';
+
+  @override
+  String get wallet => 'वॉलेट';
+  @override
+  String get availableBalance => 'उपलब्ध शेष';
+  @override
+  String get addFunds => 'धन जोड़ें';
+  @override
+  String get goldPlan => 'गोल्ड प्लान';
+  @override
+  String get membershipExpires => 'सदस्यता समाप्त होती है';
+  @override
+  String get studioManagement => 'स्टूडियो प्रबंधन';
+  @override
+  String get myWork => 'मेरा काम';
+  @override
+  String get mySellingProducts => 'मेरे बेचने वाले उत्पाद';
+  @override
+  String get switchToDesigner => 'डिजाइनर में स्विच करें';
+  @override
+  String get support => 'सहायता';
+  @override
+  String get whatsappSupport => 'व्हाट्सएप सपोर्ट';
+  @override
+  String get termsConditions => 'शर्तें और शर्तें';
 }

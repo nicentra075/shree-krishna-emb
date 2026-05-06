@@ -209,4 +209,18 @@ abstract class LocaleStrings {
   String get sareeDesigns;
   String get exploreCollections;
   String get recentlyViewed;
+
+  // ========== Profile Screen ==========
+  String get wallet;
+  String get availableBalance;
+  String get addFunds;
+  String get goldPlan;
+  String get membershipExpires;
+  String get studioManagement;
+  String get myWork;
+  String get mySellingProducts;
+  String get switchToDesigner;
+  String get support;
+  String get whatsappSupport;
+  String get termsConditions;
 }
