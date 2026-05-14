@@ -64,6 +64,11 @@ class _MainScreenState extends State<MainScreen> {
       return null;
     }
 
+    // Get screen name based on selected tab
+    String screenName = _selectedBottomNav == 0
+        ? AppLocalization.strings.home
+        : AppLocalization.strings.myWork;
+
     return AppBar(
       backgroundColor: AppTheme.surfaceLight,
       elevation: 0,
@@ -71,31 +76,14 @@ class _MainScreenState extends State<MainScreen> {
       titleSpacing: 0,
       title: Padding(
         padding: const EdgeInsets.only(left: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FadeInDown(
-              duration: const Duration(milliseconds: 500),
-              child: Text(
-                AppLocalization.strings.appName,
-                style: AppTextStyles.headlineLarge(
-                  color: AppTheme.primaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+        child: FadeInDown(
+          duration: const Duration(milliseconds: 500),
+          child: Text(
+            screenName,
+            style: AppTextStyles.headlineMedium(
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 4),
-            FadeInDown(
-              delay: const Duration(milliseconds: 200),
-              duration: const Duration(milliseconds: 500),
-              child: Text(
-                AppLocalization.strings.appTagline,
-                style: AppTextStyles.bodySmall(
-                  color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
       actions: [

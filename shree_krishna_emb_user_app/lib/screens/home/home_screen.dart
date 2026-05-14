@@ -13,6 +13,10 @@ class HomeScreenContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
+          // Branding Section
+          _buildBrandingSection(context),
+          const SizedBox(height: 24),
+
           // Hero Banner
           _buildHeroBanner(context),
           const SizedBox(height: 24),
@@ -36,6 +40,31 @@ class HomeScreenContent extends StatelessWidget {
           // Recently Viewed
           _buildRecentlyViewed(context),
           const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildBrandingSection(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalization.strings.appName,
+            style: AppTextStyles.headlineLarge(
+              color: AppTheme.primaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            AppLocalization.strings.appTagline,
+            style: AppTextStyles.bodyMedium(
+              color: AppTheme.onSurfaceLight.withValues(alpha: 0.7),
+            ),
+          ),
         ],
       ),
     );
