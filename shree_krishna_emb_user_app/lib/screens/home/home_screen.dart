@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
@@ -13,22 +12,39 @@ class HomeScreenContent extends StatefulWidget {
 
 class _HomeScreenContentState extends State<HomeScreenContent> {
   int _currentBannerIndex = 0;
+  late PageController _bannerController;
 
   // Banner data
   final List<Map<String, String>> _banners = [
-    {
-      'label': 'New Arrival 2024',
-      'title': 'Royal Zardosi Collection',
-    },
-    {
-      'label': 'Special Offer',
-      'title': 'Premium Embroidery Designs',
-    },
-    {
-      'label': 'Limited Edition',
-      'title': 'Exclusive Collections',
-    },
+    {'label': 'New Arrival 2024', 'title': 'Royal Zardosi Collection'},
+    {'label': 'Special Offer', 'title': 'Premium Embroidery Designs'},
+    {'label': 'Limited Edition', 'title': 'Exclusive Collections'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _bannerController = PageController();
+    _startAutoPlay();
+  }
+
+  @override
+  void dispose() {
+    _bannerController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoPlay() {
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted && _bannerController.hasClients) {
+        _bannerController.nextPage(
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOutCubic,
+        );
+        _startAutoPlay();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,23 +126,20 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
 
     return Column(
       children: [
-        CarouselSlider(
-          options: CarouselOptions(
-            height: carouselHeight,
-            autoPlay: true,
-            autoPlayInterval: const Duration(seconds: 5),
-            autoPlayAnimationDuration: const Duration(milliseconds: 800),
-            autoPlayCurve: Curves.easeInOutCubic,
-            scrollDirection: Axis.horizontal,
-            onPageChanged: (index, reason) {
+        SizedBox(
+          height: carouselHeight,
+          child: PageView.builder(
+            controller: _bannerController,
+            onPageChanged: (index) {
               setState(() {
-                _currentBannerIndex = index;
+                _currentBannerIndex = index % _banners.length;
               });
             },
+            itemBuilder: (context, index) {
+              final banner = _banners[index % _banners.length];
+              return _buildBannerCard(banner['label']!, banner['title']!);
+            },
           ),
-          items: _banners.map((banner) {
-            return _buildBannerCard(banner['label']!, banner['title']!);
-          }).toList(),
         ),
         const SizedBox(height: 12),
         // Indicator dots
@@ -322,7 +335,9 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                 children: [
                   CircleAvatar(
                     radius: avatarRadius,
-                    backgroundColor: AppTheme.primaryLight.withValues(alpha: 0.1),
+                    backgroundColor: AppTheme.primaryLight.withValues(
+                      alpha: 0.1,
+                    ),
                     child: Icon(
                       Icons.store,
                       color: AppTheme.primaryLight,
@@ -337,10 +352,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                         decoration: BoxDecoration(
                           color: AppTheme.secondaryLight,
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
+                          border: Border.all(color: Colors.white, width: 2),
                         ),
                         padding: const EdgeInsets.all(4),
                         child: const Icon(
@@ -445,7 +457,9 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.labelSmall(fontWeight: FontWeight.w600),
+                      style: AppTextStyles.labelSmall(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     SizedBox(
@@ -572,7 +586,9 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.labelSmall(fontWeight: FontWeight.w600),
+                      style: AppTextStyles.labelSmall(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
