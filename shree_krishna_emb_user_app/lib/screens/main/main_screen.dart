@@ -88,7 +88,7 @@ class _MainScreenState extends State<MainScreen> {
             screenName,
             style: AppTextStyles.headlineMedium(
               fontWeight: FontWeight.bold,
-              color: AppTheme.primaryLight,
+              color: AppTheme.primaryDark,
             ),
           ),
         ),

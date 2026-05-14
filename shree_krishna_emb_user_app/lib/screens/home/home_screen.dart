@@ -1,10 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 
-class HomeScreenContent extends StatelessWidget {
+class HomeScreenContent extends StatefulWidget {
   const HomeScreenContent({super.key});
+
+  @override
+  State<HomeScreenContent> createState() => _HomeScreenContentState();
+}
+
+class _HomeScreenContentState extends State<HomeScreenContent> {
+  int _currentBannerIndex = 0;
+
+  // Banner data
+  final List<Map<String, String>> _banners = [
+    {
+      'label': 'New Arrival 2024',
+      'title': 'Royal Zardosi Collection',
+    },
+    {
+      'label': 'Special Offer',
+      'title': 'Premium Embroidery Designs',
+    },
+    {
+      'label': 'Limited Edition',
+      'title': 'Exclusive Collections',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +43,7 @@ class HomeScreenContent extends StatelessWidget {
 
           // Hero Banner
           _buildHeroBanner(context),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Authorized Sellers
           _buildAuthorizedSellers(context),
@@ -46,23 +70,33 @@ class HomeScreenContent extends StatelessWidget {
   }
 
   static Widget _buildBrandingSection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryLight.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.primaryLight.withValues(alpha: 0.15),
+          width: 1,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             AppLocalization.strings.appName,
-            style: AppTextStyles.headlineLarge(
+            style: AppTextStyles.headlineMedium(
               color: AppTheme.primaryLight,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             AppLocalization.strings.appTagline,
-            style: AppTextStyles.bodyMedium(
-              color: AppTheme.onSurfaceLight.withValues(alpha: 0.7),
+            style: AppTextStyles.bodySmall(
+              color: AppTheme.onSurfaceLight.withValues(alpha: 0.65),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -70,10 +104,53 @@ class HomeScreenContent extends StatelessWidget {
     );
   }
 
-  static Widget _buildHeroBanner(BuildContext context) {
+  Widget _buildHeroBanner(BuildContext context) {
+    return Column(
+      children: [
+        CarouselSlider(
+          options: CarouselOptions(
+            height: 220,
+            autoPlay: true,
+            autoPlayInterval: const Duration(seconds: 5),
+            autoPlayAnimationDuration: const Duration(milliseconds: 800),
+            autoPlayCurve: Curves.easeInOutCubic,
+            scrollDirection: Axis.horizontal,
+            onPageChanged: (index, reason) {
+              setState(() {
+                _currentBannerIndex = index;
+              });
+            },
+          ),
+          items: _banners.map((banner) {
+            return _buildBannerCard(banner['label']!, banner['title']!);
+          }).toList(),
+        ),
+        const SizedBox(height: 12),
+        // Indicator dots
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            _banners.length,
+            (index) => Container(
+              width: _currentBannerIndex == index ? 24 : 8,
+              height: 8,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: _currentBannerIndex == index
+                    ? AppTheme.primaryLight
+                    : AppTheme.onSurfaceLight.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildBannerCard(String label, String title) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      height: 220,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -113,7 +190,7 @@ class HomeScreenContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalization.strings.newArrival2024,
+                      label,
                       style: AppTextStyles.labelSmall(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -121,7 +198,7 @@ class HomeScreenContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      AppLocalization.strings.royalZardosiCollection,
+                      title,
                       style: AppTextStyles.headlineMedium(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
