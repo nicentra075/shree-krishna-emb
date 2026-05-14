@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shree_krishna_core/models/user_model.dart';
 import 'package:shree_krishna_core/errors/exceptions.dart';
 import 'package:shree_krishna_emb/domain/repositories/auth_repository.dart';
+import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 import 'dart:async';
 
 abstract class FirebaseAuthDataSource {
@@ -56,9 +57,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
     required FirebaseAuth firebaseAuth,
     required FirebaseFirestore firestore,
     required GoogleSignIn googleSignIn,
-  })  : _firebaseAuth = firebaseAuth,
-        _firestore = firestore,
-        _googleSignIn = googleSignIn;
+  }) : _firebaseAuth = firebaseAuth,
+       _firestore = firestore,
+       _googleSignIn = googleSignIn;
 
   @override
   Future<UserModel> signUpWithEmail({
@@ -142,19 +143,24 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   @override
   Future<AuthResult> signInWithGoogle() async {
     try {
-      final googleUser = await _googleSignIn.signIn();
+      AppLogger.logOperation('signInWithGoogle', status: 'starting authentication');
 
-      if (googleUser == null) {
+      // v7.x API: authenticate() returns GoogleSignInAuthentication directly
+      final googleAuth = await _googleSignIn.authenticate();
+
+      if (googleAuth == null) {
         throw ServerException(message: 'Google sign in cancelled');
       }
 
-      final googleAuth = await googleUser.authentication;
+      // In v7.x, the authentication object has accessToken and idToken directly
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
 
       if (userCredential.user == null) {
         throw ServerException(message: 'Failed to sign in with Google');
@@ -179,7 +185,10 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           isActive: true,
         );
 
-        await _firestore.collection('users').doc(uid).set(user.toFirebaseJson());
+        await _firestore
+            .collection('users')
+            .doc(uid)
+            .set(user.toFirebaseJson());
 
         return AuthResult(user: user, isNewUser: true);
       } else {
@@ -199,7 +208,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   @override
   Future<String> sendPhoneOtp(String phoneNumber) async {
     try {
-      print('🟡 [FirebaseAuthDataSource] sendPhoneOtp called with: $phoneNumber');
+      AppLogger.logOperation('sendPhoneOtp', data: phoneNumber);
 
       final completer = Completer<String>();
       bool isCompleted = false;
@@ -207,26 +216,33 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          print('🟢 [FirebaseAuthDataSource] verificationCompleted - Auto-signing in with credential');
+          AppLogger.logOperation('verificationCompleted', status: 'Auto-signing in with credential');
           if (!isCompleted) {
             isCompleted = true;
             await _firebaseAuth.signInWithCredential(credential);
             if (!completer.isCompleted) {
-              completer.completeError(ServerException(message: 'Auto verification completed, but OTP flow was not initiated'));
+              completer.completeError(
+                ServerException(
+                  message:
+                      'Auto verification completed, but OTP flow was not initiated',
+                ),
+              );
             }
           }
         },
         verificationFailed: (FirebaseAuthException e) {
-          print('🔴 [FirebaseAuthDataSource] verificationFailed - Error: ${e.code} - ${e.message}');
+          AppLogger.logError('verificationFailed', error: '${e.code} - ${e.message}');
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
-              completer.completeError(ServerException(message: _handleAuthException(e)));
+              completer.completeError(
+                ServerException(message: _handleAuthException(e)),
+              );
             }
           }
         },
         codeSent: (String vId, int? resendToken) {
-          print('🟢 [FirebaseAuthDataSource] codeSent - Verification ID: $vId, ResendToken: $resendToken');
+          AppLogger.logOperation('codeSent', data: 'VerificationID: $vId, ResendToken: $resendToken');
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -235,7 +251,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
         },
         codeAutoRetrievalTimeout: (String vId) {
-          print('🟠 [FirebaseAuthDataSource] codeAutoRetrievalTimeout - Verification ID: $vId');
+          AppLogger.logOperation('codeAutoRetrievalTimeout', data: 'VerificationID: $vId');
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -247,11 +263,13 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       );
 
       final verificationId = await completer.future;
-      print('🟢 [FirebaseAuthDataSource] sendPhoneOtp completed successfully with ID: $verificationId');
+      AppLogger.logOperation('sendPhoneOtp', status: 'completed', data: 'VerificationID: $verificationId');
       return verificationId;
     } catch (e) {
-      print('🔴 [FirebaseAuthDataSource] sendPhoneOtp Exception: ${e.toString()}');
-      throw ServerException(message: 'Failed to send phone OTP: ${e.toString()}');
+      AppLogger.logError('sendPhoneOtp Exception', error: e.toString());
+      throw ServerException(
+        message: 'Failed to send phone OTP: ${e.toString()}',
+      );
     }
   }
 
@@ -267,7 +285,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         smsCode: smsCode,
       );
 
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
 
       if (userCredential.user == null) {
         throw ServerException(message: 'Failed to verify OTP');
@@ -292,7 +312,10 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           isActive: true,
         );
 
-        await _firestore.collection('users').doc(uid).set(user.toFirebaseJson());
+        await _firestore
+            .collection('users')
+            .doc(uid)
+            .set(user.toFirebaseJson());
 
         return AuthResult(user: user, isNewUser: true);
       } else {
@@ -326,7 +349,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
       return user;
     } catch (e) {
-      throw ServerException(message: 'Failed to complete profile: ${e.toString()}');
+      throw ServerException(
+        message: 'Failed to complete profile: ${e.toString()}',
+      );
     }
   }
 
@@ -347,7 +372,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
       return user;
     } catch (e) {
-      throw ServerException(message: 'Failed to complete profile: ${e.toString()}');
+      throw ServerException(
+        message: 'Failed to complete profile: ${e.toString()}',
+      );
     }
   }
 
@@ -377,7 +404,10 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         return null;
       }
 
-      final userDoc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
 
       if (!userDoc.exists) {
         return null;
@@ -385,7 +415,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
       return UserModel.fromFirebaseJson(userDoc.data()!, firebaseUser.uid);
     } catch (e) {
-      throw ServerException(message: 'Failed to get current user: ${e.toString()}');
+      throw ServerException(
+        message: 'Failed to get current user: ${e.toString()}',
+      );
     }
   }
 
@@ -396,7 +428,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
     } on FirebaseAuthException catch (e) {
       throw ServerException(message: _handleAuthException(e));
     } catch (e) {
-      throw ServerException(message: 'Failed to send reset email: ${e.toString()}');
+      throw ServerException(
+        message: 'Failed to send reset email: ${e.toString()}',
+      );
     }
   }
 

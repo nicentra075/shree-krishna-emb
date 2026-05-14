@@ -9,7 +9,7 @@ part of 'splash_bloc.dart';
 /// - States are immutable snapshots of your data
 /// - Each state represents one possible UI condition
 /// - The UI listens to state changes via BlocBuilder/BlocListener
-/// - Use equality checks (override List<Object?> get props) for state comparison
+/// - Use equality checks (override `List<Object?>` get props) for state comparison
 
 sealed class SplashState extends Equatable {
   const SplashState();
@@ -58,11 +58,13 @@ class SplashLoading extends SplashState {
 /// QUBIT GUIDE:
 /// When you emit this state, the UI should navigate using:
 /// ```dart
-/// context.read<SplashBloc>().stream.listen((state) {
-///   if (state is SplashComplete) {
-///     Navigator.of(context).pushReplacementNamed('/walkthrough');
-///   }
-/// });
+/// context.read<SplashBloc>()
+///     .stream
+///     .listen((state) {
+///       if (state is SplashComplete) {
+///         Navigator.of(context).pushReplacementNamed('/walkthrough');
+///       }
+///     });
 /// ```
 class SplashComplete extends SplashState {
   const SplashComplete();

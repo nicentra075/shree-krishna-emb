@@ -44,7 +44,7 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
     FirebaseAuthDataSourceImpl(
       firebaseAuth: getIt(),
       firestore: getIt(),
-      googleSignIn: GoogleSignIn(),
+      googleSignIn: GoogleSignIn.instance,
     ),
   );
 

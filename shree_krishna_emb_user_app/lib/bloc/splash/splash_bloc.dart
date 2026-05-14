@@ -51,7 +51,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   ///
   /// QUBIT GUIDE:
   /// The constructor sets the initial state and registers event handlers.
-  /// Each event type has its own handler method (on<EventName>).
+  /// Each event type has its own handler method (`on<EventName>`).
   SplashBloc({required LocalUserDataSource localDataSource})
       : _localDataSource = localDataSource,
         super(const SplashInitial()) {
