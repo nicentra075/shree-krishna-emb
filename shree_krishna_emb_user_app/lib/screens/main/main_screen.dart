@@ -68,33 +68,35 @@ class _MainScreenState extends State<MainScreen> {
       backgroundColor: AppTheme.surfaceLight,
       elevation: 0,
       automaticallyImplyLeading: false,
-      titleSpacing: 16,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
-        children: [
-          FadeInDown(
-            duration: const Duration(milliseconds: 500),
-            child: Text(
-              AppLocalization.strings.appName,
-              style: AppTextStyles.headlineLarge(
-                color: AppTheme.primaryLight,
-                fontWeight: FontWeight.bold,
+      titleSpacing: 0,
+      title: Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FadeInDown(
+              duration: const Duration(milliseconds: 500),
+              child: Text(
+                AppLocalization.strings.appName,
+                style: AppTextStyles.headlineLarge(
+                  color: AppTheme.primaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 4),
-          FadeInDown(
-            delay: const Duration(milliseconds: 200),
-            duration: const Duration(milliseconds: 500),
-            child: Text(
-              AppLocalization.strings.appTagline,
-              style: AppTextStyles.bodySmall(
-                color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
+            const SizedBox(height: 4),
+            FadeInDown(
+              delay: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 500),
+              child: Text(
+                AppLocalization.strings.appTagline,
+                style: AppTextStyles.bodySmall(
+                  color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
         Padding(
