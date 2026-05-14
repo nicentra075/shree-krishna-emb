@@ -95,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 16),
+          padding: const EdgeInsets.only(right: 12),
           child: FadeInDown(
             delay: const Duration(milliseconds: 400),
             duration: const Duration(milliseconds: 500),
@@ -124,6 +124,36 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: FadeInDown(
+            delay: const Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 500),
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  // Navigate to Account screen
+                  setState(() {
+                    _selectedBottomNav = 2;
+                  });
+                },
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryLight.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.person_outline,
+                    color: AppTheme.primaryLight,
+                    size: 18,
+                  ),
                 ),
               ),
             ),
