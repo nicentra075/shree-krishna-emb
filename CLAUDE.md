@@ -6,13 +6,14 @@
 **Backend:** Firebase (MVP), future migration to Supabase or Node.js  
 **Architecture:** Clean Architecture with migration-ready pattern  
 **State Management:** BLoC (flutter_bloc)  
-**Budget:** Low-cost, scalable  
+**Budget:** Low-cost, scalable
 
 ---
 
 ## Architecture Rules (CRITICAL)
 
 ### Rule 1: Three-Layer Separation
+
 ```
 Presentation (UI)    → Never imports Firebase/API classes
     ↓
@@ -33,7 +34,7 @@ class UserModel extends UserEntity {
   // Current: Firebase
   factory UserModel.fromFirebaseJson(Map<String, dynamic> json) { ... }
   Map<String, dynamic> toFirebaseJson() { ... }
-  
+
   // Future: API/Supabase/Node.js
   factory UserModel.fromApiJson(Map<String, dynamic> json) { ... }
   Map<String, dynamic> toApiJson() { ... }
@@ -87,7 +88,7 @@ void setupServiceLocator() {
   getIt.registerSingleton<UserDataSource>(
     FirebaseUserDataSource(firestore: getIt()), // ← Change this line only
   );
-  
+
   // Everything else stays the same
   getIt.registerSingleton<UserRepository>(
     UserRepositoryImpl(dataSource: getIt()),
@@ -102,21 +103,23 @@ void setupServiceLocator() {
 Follow these 6 steps EXACTLY. This ensures future migration works.
 
 ### Step 1: Create Entity (Domain)
+
 ```dart
 // lib/domain/entities/product.dart
 class ProductEntity extends Equatable {
   final String id;
   final String name;
   final double price;
-  
+
   const ProductEntity({required this.id, required this.name, required this.price});
-  
+
   @override
   List<Object?> get props => [id, name, price];
 }
 ```
 
 ### Step 2: Create Model (Data)
+
 ```dart
 // lib/data/models/product_model.dart
 class ProductModel extends ProductEntity {
@@ -125,7 +128,7 @@ class ProductModel extends ProductEntity {
     required super.name,
     required super.price,
   });
-  
+
   // Firebase conversion
   factory ProductModel.fromFirebaseJson(Map<String, dynamic> json) {
     return ProductModel(
@@ -134,11 +137,11 @@ class ProductModel extends ProductEntity {
       price: (json['price'] as num).toDouble(),
     );
   }
-  
+
   Map<String, dynamic> toFirebaseJson() {
     return {'id': id, 'name': name, 'price': price};
   }
-  
+
   // API conversion (for future migration)
   factory ProductModel.fromApiJson(Map<String, dynamic> json) {
     return ProductModel(
@@ -147,7 +150,7 @@ class ProductModel extends ProductEntity {
       price: (json['price'] as num).toDouble(),
     );
   }
-  
+
   Map<String, dynamic> toApiJson() {
     return {'id': id, 'name': name, 'price': price};
   }
@@ -155,6 +158,7 @@ class ProductModel extends ProductEntity {
 ```
 
 ### Step 3: Create DataSource (Data Layer Implementation)
+
 ```dart
 // lib/data/datasources/firebase_product_datasource.dart
 abstract class ProductDataSource {
@@ -167,10 +171,10 @@ abstract class ProductDataSource {
 
 class FirebaseProductDataSource implements ProductDataSource {
   final FirebaseFirestore _firestore;
-  
+
   FirebaseProductDataSource({required FirebaseFirestore firestore})
       : _firestore = firestore;
-  
+
   @override
   Future<ProductModel> getProduct(String id) async {
     try {
@@ -183,12 +187,13 @@ class FirebaseProductDataSource implements ProductDataSource {
       throw ServerException(message: e.message ?? 'Error');
     }
   }
-  
+
   // ... implement other methods
 }
 ```
 
 ### Step 4: Create Repository Interface (Domain)
+
 ```dart
 // lib/domain/repositories/product_repository.dart
 abstract class ProductRepository {
@@ -201,14 +206,15 @@ abstract class ProductRepository {
 ```
 
 ### Step 5: Create Repository Implementation (Data)
+
 ```dart
 // lib/data/repositories/product_repository_impl.dart
 class ProductRepositoryImpl implements ProductRepository {
   final ProductDataSource _dataSource;
-  
+
   ProductRepositoryImpl({required ProductDataSource dataSource})
       : _dataSource = dataSource;
-  
+
   @override
   Future<Either<Failure, ProductModel>> getProduct(String id) async {
     try {
@@ -220,19 +226,20 @@ class ProductRepositoryImpl implements ProductRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-  
+
   // ... implement other methods
 }
 ```
 
 ### Step 6: Create Use Cases & Register in Service Locator
+
 ```dart
 // lib/domain/usecases/get_product_usecase.dart
 class GetProductUseCase {
   final ProductRepository repository;
-  
+
   GetProductUseCase(this.repository);
-  
+
   Future<Either<Failure, ProductModel>> call(String productId) {
     return repository.getProduct(productId);
   }
@@ -241,17 +248,17 @@ class GetProductUseCase {
 // lib/core/di/service_locator.dart
 void setupServiceLocator() {
   // ... existing code ...
-  
+
   // Data sources
   getIt.registerSingleton<ProductDataSource>(
     FirebaseProductDataSource(firestore: getIt()),
   );
-  
+
   // Repositories
   getIt.registerSingleton<ProductRepository>(
     ProductRepositoryImpl(dataSource: getIt()),
   );
-  
+
   // Use cases
   getIt.registerSingleton<GetProductUseCase>(
     GetProductUseCase(getIt()),
@@ -260,17 +267,18 @@ void setupServiceLocator() {
 ```
 
 ### Step 7: Use in BLoC (Presentation)
+
 ```dart
 // lib/presentation/bloc/product_bloc.dart
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final GetProductUseCase getProduct;
-  
+
   ProductBloc(this.getProduct) : super(ProductInitial()) {
     on<GetProductEvent>((event, emit) async {
       emit(ProductLoading());
-      
+
       final result = await getProduct(event.productId);
-      
+
       result.fold(
         (failure) => emit(ProductError(failure.message)),
         (product) => emit(ProductLoaded(product)),
@@ -315,6 +323,7 @@ products/
 Current rules are in [FIREBASE_BACKEND_GUIDE.md](FIREBASE_BACKEND_GUIDE.md)
 
 Update rules in Firebase Console when:
+
 - Adding new collections
 - Changing access patterns
 - Implementing new auth features
@@ -353,6 +362,7 @@ lib/
 ```
 
 Only differences:
+
 - BLoCs specific to each app's features
 - Screens and widgets specific to each app's UI
 
@@ -363,6 +373,7 @@ Data layer should be shared or identical.
 ## Dependencies Management
 
 ### Core Dependencies (Keep Updated)
+
 - `firebase_core: ^4.7.0`
 - `cloud_firestore: ^6.3.0`
 - `firebase_auth: ^4.14.0`
@@ -371,13 +382,16 @@ Data layer should be shared or identical.
 - `equatable: ^2.0.5`
 
 ### Never Add
+
 - ❌ Duplicate packages for same functionality
 - ❌ Outdated packages
 - ❌ Packages with known security issues
 - ❌ Too many analytics/tracking packages (costs & privacy)
 
 ### When Adding Package
+
 Check:
+
 - [ ] Not already in pubspec.yaml
 - [ ] Actively maintained (recent commits)
 - [ ] No security vulnerabilities
@@ -389,6 +403,7 @@ Check:
 ## Naming Conventions
 
 ### Files
+
 - Entities: `user_entity.dart`
 - Models: `user_model.dart`
 - DataSources: `firebase_user_datasource.dart`, `api_user_datasource.dart`
@@ -399,6 +414,7 @@ Check:
 - Widgets: `user_card_widget.dart` or `user_card.dart`
 
 ### Classes
+
 - Entities: `UserEntity`
 - Models: `UserModel`
 - DataSources: `FirebaseUserDataSource`, `ApiUserDataSource`
@@ -409,6 +425,7 @@ Check:
 - States: `UserInitial`, `UserLoading`, `UserLoaded`, `UserError`
 
 ### Variables
+
 - Private: `_privateVariable`
 - Constants: `CONSTANT_VALUE` or `kConstantValue`
 
@@ -436,26 +453,29 @@ Before committing:
 ## Testing Strategy
 
 ### Unit Tests (Data & Domain)
+
 ```dart
 test('UserRepositoryImpl converts exceptions to failures', () async {
   final mockDataSource = MockUserDataSource();
   when(mockDataSource.getUserById(any))
       .thenThrow(ServerException(message: 'Error'));
-  
+
   final repo = UserRepositoryImpl(dataSource: mockDataSource);
   final result = await repo.getUserById('123');
-  
+
   expect(result, isA<Left>());
 });
 ```
 
 ### Integration Tests (With Emulator)
+
 ```bash
 firebase emulators:start
 flutter test --dart-define=USE_FIRESTORE_EMULATOR=true
 ```
 
 ### Widget Tests (UI)
+
 ```dart
 testWidgets('UserCard displays user name', (WidgetTester tester) async {
   await tester.pumpWidget(const UserCard(user: testUser));
@@ -470,12 +490,14 @@ testWidgets('UserCard displays user name', (WidgetTester tester) async {
 ## Migration Path
 
 ### When to Migrate (Cost Triggers)
+
 - Firebase monthly cost > $150
 - Need PostgreSQL features
 - Need custom backend logic
 - Want to self-host
 
 ### Migration Steps
+
 1. Read [MIGRATION_TO_NODEJS.md](MIGRATION_TO_NODEJS.md) or [MIGRATION_TO_SUPABASE.md](MIGRATION_TO_SUPABASE.md)
 2. Only `lib/core/di/service_locator.dart` needs significant changes
 3. `lib/data/models/user_model.dart` already has API conversion methods
@@ -497,27 +519,29 @@ testWidgets('UserCard displays user name', (WidgetTester tester) async {
 
 ## Common Issues & Solutions
 
-| Issue | Solution |
-|-------|----------|
-| Firebase not initialized | Call `Firebase.initializeApp()` in `main()` before `setupServiceLocator()` |
-| Service locator errors | Check `getIt.registerSingleton()` order - no circular dependencies |
-| Memory leaks from streams | Always cancel subscriptions in `BLoC.close()` |
-| High Firebase costs | Read [FIREBASE_BEST_PRACTICES.md](FIREBASE_BEST_PRACTICES.md) section 1 |
-| Firebase rules denying access | Test with Firebase Emulator, check rules in console |
-| Model conversion errors | Check field names match Firestore exactly |
-| BLoC state not updating | Make sure BLoCs extend `Bloc<Event, State>` and emit states |
-| API call failures | Check error handling, use `Either<Failure, Data>` pattern |
+| Issue                         | Solution                                                                   |
+| ----------------------------- | -------------------------------------------------------------------------- |
+| Firebase not initialized      | Call `Firebase.initializeApp()` in `main()` before `setupServiceLocator()` |
+| Service locator errors        | Check `getIt.registerSingleton()` order - no circular dependencies         |
+| Memory leaks from streams     | Always cancel subscriptions in `BLoC.close()`                              |
+| High Firebase costs           | Read [FIREBASE_BEST_PRACTICES.md](FIREBASE_BEST_PRACTICES.md) section 1    |
+| Firebase rules denying access | Test with Firebase Emulator, check rules in console                        |
+| Model conversion errors       | Check field names match Firestore exactly                                  |
+| BLoC state not updating       | Make sure BLoCs extend `Bloc<Event, State>` and emit states                |
+| API call failures             | Check error handling, use `Either<Failure, Data>` pattern                  |
 
 ---
 
 ## Git Workflow
 
 ### Branch Naming
+
 - Feature: `feature/user-authentication`
 - Bug fix: `fix/firebase-initialization`
 - Refactor: `refactor/repository-pattern`
 
 ### Commit Messages
+
 ```
 feature: add user authentication with Firebase
 fix: handle Firebase offline errors properly
@@ -526,6 +550,7 @@ refactor: clean up service locator setup
 ```
 
 ### Before Pushing
+
 ```bash
 # Format
 dart format lib/
@@ -595,9 +620,11 @@ dart run build_runner build
 Available skills for this project:
 
 ### `/design-system-skill`
+
 **Purpose:** Generate complete, production-ready screens that always follow your design system, include proper localization, BLoC state management, and integrate with your clean architecture.
 
-**Use when:** 
+**Use when:**
+
 - "Create a new screen for user profile"
 - "Generate a login screen"
 - "Build a product listing page"
@@ -606,6 +633,7 @@ Available skills for this project:
 - "Create this UI or screen that I have pasted"
 
 **What it does:**
+
 1. Asks which app (Admin or User)
 2. Accepts text description or Stitch/Figma design details
 3. Generates complete screen code with:
@@ -618,12 +646,14 @@ Available skills for this project:
    - Beautiful animations and UI polish
 
 **Output:** Complete file structure ready to use:
+
 - `lib/screens/[category]/[screen_name]_screen.dart`
 - `lib/bloc/[feature]/` (BLoC files if needed)
 - `lib/domain/repositories/` and `lib/data/` layers (if data needed)
 - Updated localization files (en_us.dart, hi_in.dart)
 
 **Guardrails:**
+
 - All user-visible strings are localized (with `// TODO: Add localisation` if pending)
 - All UI uses design system components
 - Asks about custom widgets and backend needs
@@ -631,9 +661,11 @@ Available skills for this project:
 - No scope limits on animation/polish complexity
 
 ### `/backend-skill`
+
 **Purpose:** Generate complete Firebase backend integration with caching, offline mode, security rules, data models, repositories, and seamless UI integration through BLoCs.
 
 **Use when:**
+
 - "Setup Firestore collection for products"
 - "Create user authentication with Firebase"
 - "Generate API datasource for product listing"
@@ -645,6 +677,7 @@ Available skills for this project:
 - "Update the backend as well"
 
 **What it does:**
+
 1. Asks what data needs CRUD operations
 2. Recommends caching/offline mode based on use case
 3. Reads existing code to understand patterns
@@ -662,6 +695,7 @@ Available skills for this project:
 5. Warns about N+1 queries, costs, inefficiencies
 
 **Output:** Complete backend files:
+
 - `lib/domain/entities/[feature].dart`
 - `lib/data/models/[feature]_model.dart`
 - `lib/data/datasources/firebase_[feature]_datasource.dart`
@@ -674,6 +708,7 @@ Available skills for this project:
 - Updated screen with offline UI indicators
 
 **Caching & Offline:**
+
 - Automatically recommends caching for lists, profiles, frequently accessed data
 - Automatically recommends offline mode for critical features, forms
 - Queues mutations (create/update/delete) when offline
@@ -682,6 +717,7 @@ Available skills for this project:
 - Cache-ready for future backend migration (dual serialization)
 
 **Guardrails:**
+
 - Never violates clean architecture (enforces layers)
 - Asks for clarification on data conflicts OR auto-resolves safely
 - Asks user to review security rules before creating
@@ -690,15 +726,18 @@ Available skills for this project:
 - Migration-ready (models support Firebase + API serialization)
 
 ### `/auth-skill`
+
 **Purpose:** Generate complete email/OTP authentication, social login (Google/Apple), role selection, and token management.
 
 **Use when:**
+
 - "Set up authentication for the app"
 - "Add Google and Apple login"
 - "Implement OTP-based signup"
 - "Create role selection after signup"
 
 **What it does:**
+
 1. Generates Firebase Auth setup
 2. Email/OTP flow (SendOTP → VerifyOTP → Role Selection)
 3. Google/Apple social login integration
@@ -709,15 +748,18 @@ Available skills for this project:
 **Output:** Auth screens, BLoCs, Firebase Cloud Functions for OTP
 
 ### `/payment-skill`
+
 **Purpose:** Generate complete payment integration (Razorpay + PhonePe), order management, and refund workflows.
 
 **Use when:**
+
 - "Set up payment processing"
 - "Create checkout flow"
 - "Add Razorpay integration"
 - "Generate payment history screen"
 
 **What it does:**
+
 1. Cart & Checkout BLoCs
 2. Razorpay/PhonePe integration
 3. Payment verification via Cloud Functions
@@ -728,15 +770,18 @@ Available skills for this project:
 **Output:** Payment screens, BLoCs, Cloud Functions for verification
 
 ### `/search-filter-skill`
+
 **Purpose:** Generate full-text search, advanced filters, autocomplete, and sorting with Firestore optimization.
 
 **Use when:**
+
 - "Add search to the marketplace"
 - "Create filters for designs (price, category, rating)"
 - "Build autocomplete search suggestions"
 - "Add sorting by price, popularity, rating"
 
 **What it does:**
+
 1. Full-text search on design titles/descriptions
 2. Filters (price range, category, rating, technique)
 3. Autocomplete suggestions
@@ -747,15 +792,18 @@ Available skills for this project:
 **Output:** Search screens, Search BLoC, filter dialogs
 
 ### `/image-processing-skill`
+
 **Purpose:** Generate image upload, watermarking, compression, and pinch-to-zoom preview viewer.
 
 **Use when:**
+
 - "Add design image upload"
 - "Create image preview viewer"
 - "Implement watermarking for preview images"
 - "Build high-res gallery for purchased designs"
 
 **What it does:**
+
 1. Firebase Storage upload with progress tracking
 2. Automatic watermarking (semi-transparent overlay)
 3. Image compression (preview 500px 80%, thumbnail 200px)
@@ -766,9 +814,11 @@ Available skills for this project:
 **Output:** Image upload screens, viewers, compression utilities
 
 ### `/analytics-skill`
+
 **Purpose:** Generate admin KPI dashboard, revenue charts, user metrics, and CSV/Excel export.
 
 **Use when:**
+
 - "Create admin dashboard with metrics"
 - "Add revenue trend charts"
 - "Generate user acquisition reports"
@@ -776,6 +826,7 @@ Available skills for this project:
 - "Export analytics data"
 
 **What it does:**
+
 1. KPI cards (users, transactions, revenue, pending approvals)
 2. Revenue trend charts (daily, weekly, monthly)
 3. User acquisition analytics
@@ -786,9 +837,11 @@ Available skills for this project:
 **Output:** Analytics BLoCs, dashboard screens, export utilities
 
 ### `/chat-skill`
+
 **Purpose:** Generate real-time messaging, typing indicators, online status, and message read receipts.
 
 **Use when:**
+
 - "Add messaging between users and designers"
 - "Create chat list and chat detail screens"
 - "Implement typing indicators"
@@ -796,6 +849,7 @@ Available skills for this project:
 - "Enable file sharing in chat"
 
 **What it does:**
+
 1. Real-time Firestore message listeners
 2. Typing indicators with 5-second auto-removal
 3. Online/offline status tracking
@@ -807,9 +861,11 @@ Available skills for this project:
 **Output:** Chat screens, Chat BLoC, Firestore structure
 
 ### `/wallet-payout-skill`
+
 **Purpose:** Generate designer wallet system with earnings tracking, payout requests, bank verification, and Razorpay Payouts.
 
 **Use when:**
+
 - "Create designer wallet/earnings system"
 - "Add payout request workflow"
 - "Implement bank account verification"
@@ -817,6 +873,7 @@ Available skills for this project:
 - "Track designer earnings and transactions"
 
 **What it does:**
+
 1. DesignerWallet with balance tracking
 2. Earnings from design sales, job completion, referrals
 3. Payout request workflow (pending→approved→processing→completed)
@@ -828,9 +885,11 @@ Available skills for this project:
 **Output:** Wallet screens, Payout BLoCs, Cloud Functions
 
 ### `/rating-review-skill`
+
 **Purpose:** Generate star ratings (1-5), verified reviews, admin moderation, and designer badges.
 
 **Use when:**
+
 - "Add review and rating system"
 - "Create design ratings from users"
 - "Set up admin review moderation"
@@ -838,6 +897,7 @@ Available skills for this project:
 - "Track designer ratings and reviews"
 
 **What it does:**
+
 1. Star rating (1-5) with text reviews
 2. Firestore trigger for approval workflow
 3. Admin moderation queue
@@ -849,15 +909,18 @@ Available skills for this project:
 **Output:** Review screens, Moderation BLoCs, admin queue
 
 ### `/approval-workflow-skill`
+
 **Purpose:** Generate designer verification, design approval queue, and admin moderation workflows.
 
 **Use when:**
+
 - "Set up designer onboarding/verification"
 - "Create design approval queue for admins"
 - "Generate moderation interface"
 - "Implement bulk approval actions"
 
 **What it does:**
+
 1. **Designer Verification:** Portfolio, ID proof submission → Admin review → Approve/Reject
 2. **Design Approval:** Designer upload → Admin queue → Approve for listing/Reject
 3. Rejection reasons and templates
@@ -868,15 +931,18 @@ Available skills for this project:
 **Output:** Approval screens, Admin queues, BLoCs, Cloud Functions
 
 ### `/notification-skill`
+
 **Purpose:** Generate push notifications, in-app notification center, email notifications, and user preferences.
 
 **Use when:**
+
 - "Add push notifications to the app"
 - "Create notification preference settings"
 - "Set up in-app notification center"
 - "Send notifications for orders, payouts, messages"
 
 **What it does:**
+
 1. Firebase Cloud Messaging (FCM) push notifications
 2. In-app notification center with history
 3. Notification types: new bid, job awarded, milestone, message, review, approval, payout
@@ -887,15 +953,18 @@ Available skills for this project:
 **Output:** Notification center screens, preferences BLoC, Cloud Functions
 
 ### `/responsive-ui-skill`
+
 **Purpose:** Generate responsive layouts for mobile (< 768px), tablet (768-1199px), and desktop (1200px+) with adaptive navigation.
 
 **Use when:**
+
 - "Make this screen responsive for web"
 - "Build a layout that works on mobile and desktop"
 - "Create adaptive navigation (drawer to sidebar)"
 - "Ensure the admin app works on all screen sizes"
 
 **What it does:**
+
 1. Mobile-first responsive design
 2. Tablet & desktop adaptations
 3. Responsive navigation (drawer ↔ sidebar)
@@ -908,9 +977,11 @@ Available skills for this project:
 **Output:** Responsive screens, breakpoint utilities, navigation components
 
 ### `/testing-skill`
+
 **Purpose:** Generate unit tests, widget tests, BLoC tests, integration tests with Firebase Emulator, and test coverage.
 
 **Use when:**
+
 - "Write unit tests for repositories"
 - "Add widget tests for screens"
 - "Test BLoC state transitions"
@@ -918,6 +989,7 @@ Available skills for this project:
 - "Generate test fixtures and mocks"
 
 **What it does:**
+
 1. Unit tests (repositories, use cases)
 2. Widget tests (screens, components)
 3. BLoC tests with bloc_test
@@ -929,9 +1001,11 @@ Available skills for this project:
 **Output:** Test files, fixtures, mock providers, GitHub Actions workflows
 
 ### `/deployment-skill`
+
 **Purpose:** Generate build and deployment pipeline for Android (Play Store), iOS (App Store), and web (Firebase Hosting).
 
 **Use when:**
+
 - "Build app for production"
 - "Set up App Store and Play Store uploads"
 - "Create CI/CD pipeline for releases"
@@ -939,6 +1013,7 @@ Available skills for this project:
 - "Set up automated testing before deployment"
 
 **What it does:**
+
 1. Android signing (keystore setup)
 2. iOS signing (certificates, provisioning profiles)
 3. APK/AAB builds for Play Store
@@ -951,9 +1026,11 @@ Available skills for this project:
 **Output:** Build scripts, GitHub Actions workflows, deployment guides
 
 ### `/security-skill`
+
 **Purpose:** Generate Firestore security rules, input validation, encryption, API key management, and OWASP protection.
 
 **Use when:**
+
 - "Set up Firestore security rules"
 - "Add input validation"
 - "Implement data encryption"
@@ -961,6 +1038,7 @@ Available skills for this project:
 - "Audit security vulnerabilities"
 
 **What it does:**
+
 1. Firestore security rules (role-based, document-level)
 2. Input validation & sanitization
 3. Secure token storage (flutter_secure_storage)
@@ -973,9 +1051,11 @@ Available skills for this project:
 **Output:** Security rules, validation utilities, encryption helpers, security checklist
 
 ### `/performance-optimization-skill`
+
 **Purpose:** Generate BLoC caching, Firestore query optimization, lazy loading, virtual scrolling, memory fixes, and profiling.
 
 **Use when:**
+
 - "Optimize list performance"
 - "Reduce Firestore costs"
 - "Fix memory leaks"
@@ -983,6 +1063,7 @@ Available skills for this project:
 - "Profile and improve app speed"
 
 **What it does:**
+
 1. BLoC caching (avoid redundant API calls)
 2. Persistent caching with Hive
 3. Firestore query optimization (indexes, limits, pagination)
@@ -1007,6 +1088,7 @@ The app supports multiple languages (en_US, hi_IN). Every visible string must be
 ### Rule: Use AppLocalization for ALL User-Visible Text
 
 ❌ **Bad** - Hardcoded:
+
 ```dart
 Text('Full Name'),
 TextField(
@@ -1015,6 +1097,7 @@ TextField(
 ```
 
 ✅ **Good** - Localized:
+
 ```dart
 Text(AppLocalization.strings.fullName),
 AppTextField(
@@ -1026,12 +1109,14 @@ AppTextField(
 ### Adding New Strings
 
 1. Add getter to `LocaleStrings` abstract class in `lib/localisations/locales/locale_base.dart`:
+
 ```dart
 String get fullName;
 String get emailAddress;
 ```
 
 2. Implement in `lib/localisations/locales/en_us.dart`:
+
 ```dart
 @override
 String get fullName => 'Full Name';
@@ -1040,6 +1125,7 @@ String get emailAddress => 'Email Address';
 ```
 
 3. Implement in `lib/localisations/locales/hi_in.dart`:
+
 ```dart
 @override
 String get fullName => 'पूरा नाम';
@@ -1048,6 +1134,7 @@ String get emailAddress => 'ईमेल पता';
 ```
 
 4. Use in screens:
+
 ```dart
 AppTextField(
   label: AppLocalization.strings.fullName,
@@ -1055,6 +1142,7 @@ AppTextField(
 ```
 
 ### Common Strings Already Available
+
 - `strings.appName`
 - `strings.confirm`, `strings.cancel`, `strings.ok`
 - `strings.done`, `strings.save`, `strings.edit`
@@ -1071,6 +1159,82 @@ AppTextField(
 
 ---
 
+## Responsive UI & Text Overflow Standards (MANDATORY)
+
+**EVERY new screen MUST be responsive from creation. NO exceptions.**
+
+### Rule 1: Responsive Design First
+
+- Build responsive layouts using `MediaQuery.of(context).size` and `LayoutBuilder`
+- Test on multiple screen sizes: **320px (small), 400px (medium), 600px+ (large/tablet)**
+- Use `Flexible`, `Expanded`, and `LayoutBuilder` for constraint-aware widgets
+- Apply adaptive padding/margins/heights based on available space
+- NO hardcoded fixed widths (except when truly necessary)
+
+✅ **Good** - Responsive card with constraint awareness:
+```dart
+LayoutBuilder(
+  builder: (context, constraints) {
+    final isSmallScreen = constraints.maxWidth < 400;
+    return Container(
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      child: Column(
+        children: [
+          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ],
+      ),
+    );
+  },
+)
+```
+
+### Rule 2: ALL Text Widgets Must Have Overflow Protection
+
+**EVERY `Text()` widget MUST have:**
+- `maxLines: <number>` (e.g., `maxLines: 1` for single-line, `maxLines: 2` for descriptions)
+- `overflow: TextOverflow.ellipsis` (truncate with "..." if doesn't fit)
+
+NO exceptions, even for "short" labels.
+
+✅ **Good** - All text protected:
+```dart
+Text(
+  label,
+  maxLines: 1,
+  overflow: TextOverflow.ellipsis,
+  style: AppTextStyles.labelMedium(),
+)
+
+Text(
+  description,
+  maxLines: 2,
+  overflow: TextOverflow.ellipsis,
+  style: AppTextStyles.bodyMedium(),
+)
+```
+
+❌ **Bad** - Text can overflow:
+```dart
+Text(label, style: AppTextStyles.labelMedium())  // No maxLines, no overflow!
+Text(description)  // Will overflow on small screens
+```
+
+### Responsive UI & Text Overflow Checklist
+
+**For EVERY new screen, validate ALL items:**
+
+- [ ] ✅ All `Text()` widgets have `maxLines: <number>`
+- [ ] ✅ All `Text()` widgets have `overflow: TextOverflow.ellipsis`
+- [ ] ✅ Responsive padding/margins applied (adaptive based on screen width)
+- [ ] ✅ Works on 320px width screens (smallest phones)
+- [ ] ✅ Works on tablet/large screens (600px+)
+- [ ] ✅ No hardcoded fixed widths (except when necessary)
+- [ ] ✅ Uses `Flexible`/`Expanded` for flexible content
+- [ ] ✅ Uses `LayoutBuilder` for constraint-aware layouts
+- [ ] ✅ Tested on multiple screen sizes during development
+
+---
+
 ## Design System Usage Rules (CRITICAL)
 
 **ALL UI components MUST use design system components from `shree_krishna_design_system` package.**
@@ -1078,6 +1242,7 @@ AppTextField(
 ### Core Rule: Never Build Custom UI When Design System Component Exists
 
 ❌ **Bad** - Custom TextField:
+
 ```dart
 TextField(
   controller: controller,
@@ -1086,6 +1251,7 @@ TextField(
 ```
 
 ✅ **Good** - Design System Component:
+
 ```dart
 AppTextField(
   controller: controller,
@@ -1096,9 +1262,11 @@ AppTextField(
 ### Common Design System Components
 
 #### AppAppBar (for all navigation headers)
+
 **REQUIRED for every screen with navigation. Replaces Flutter's default AppBar.**
 
 Properties:
+
 - `title` (String, required) - Header title text
 - `onBack` (VoidCallback?) - Callback for back button (auto-shows if provided)
 - `subtitle` (String?) - Optional subtitle below title
@@ -1144,6 +1312,7 @@ Scaffold(
 ```
 
 #### AppTextField (for all text inputs)
+
 Required parameters: controller, label, hint
 Optional: validator, keyboardType, obscureText, prefixIcon, suffixIcon
 
@@ -1181,6 +1350,7 @@ AppTextField(
 ```
 
 #### Other Components (when available)
+
 - `AppButton` - for buttons
 - `AppSnackbar.show()` - for notifications (NOT ScaffoldMessenger)
 - `AppDialog` - for dialogs
@@ -1222,6 +1392,7 @@ Before submitting code:
 ## Contact & Questions
 
 If unclear:
+
 1. Check DESIGN_SYSTEM_GUIDE.md for component usage
 2. Look at existing screens (login_screen.dart, signup_screen.dart)
 3. Check relevant documentation file
