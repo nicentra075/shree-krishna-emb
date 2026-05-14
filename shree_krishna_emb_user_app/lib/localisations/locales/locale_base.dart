@@ -204,6 +204,7 @@ abstract class LocaleStrings {
   String get royalZardosiCollection;
   String get explore;
   String get authorizedSellers;
+  String get verifiedArtisansStudios;
   String get viewAll;
   String get verified;
   String get trendingDesigns;

@@ -345,6 +345,8 @@ class HiINStrings implements LocaleStrings {
   @override
   String get authorizedSellers => 'अधिकृत विक्रेता';
   @override
+  String get verifiedArtisansStudios => 'सत्यापित शिल्पकार और स्टूडियो';
+  @override
   String get viewAll => 'सभी देखें';
   @override
   String get verified => 'सत्यापित';

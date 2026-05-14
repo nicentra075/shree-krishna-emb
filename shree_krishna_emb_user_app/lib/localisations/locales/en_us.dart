@@ -2,7 +2,7 @@ import 'locale_base.dart';
 
 class EnUSStrings implements LocaleStrings {
   @override
-  String get appName => 'Shree Krishna Embroidery';
+  String get appName => 'Shree Krishna EMB';
   @override
   String get appVersion => 'v0.1.0';
   @override
@@ -344,6 +344,8 @@ class EnUSStrings implements LocaleStrings {
   String get explore => 'Explore';
   @override
   String get authorizedSellers => 'Authorized Sellers';
+  @override
+  String get verifiedArtisansStudios => 'Verified Artisans & Studios';
   @override
   String get viewAll => 'View All';
   @override

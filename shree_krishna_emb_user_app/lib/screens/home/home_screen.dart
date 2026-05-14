@@ -12,6 +12,7 @@ class HomeScreenContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 16),
           // Hero Banner
           _buildHeroBanner(context),
           const SizedBox(height: 24),
@@ -43,21 +44,28 @@ class HomeScreenContent extends StatelessWidget {
   static Widget _buildHeroBanner(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      height: 180,
+      height: 220,
       decoration: BoxDecoration(
-        color: AppTheme.secondaryLight,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Stack(
         children: [
+          // Gradient overlay background
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.secondaryDark,
-                    AppTheme.secondaryLight,
+                    AppTheme.secondaryDark.withValues(alpha: 0.6),
+                    AppTheme.secondaryLight.withValues(alpha: 0.3),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -65,8 +73,9 @@ class HomeScreenContent extends StatelessWidget {
               ),
             ),
           ),
+          // Content
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -78,8 +87,10 @@ class HomeScreenContent extends StatelessWidget {
                       AppLocalization.strings.newArrival2024,
                       style: AppTextStyles.labelSmall(
                         color: Colors.white,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(height: 8),
                     Text(
                       AppLocalization.strings.royalZardosiCollection,
                       style: AppTextStyles.headlineMedium(
@@ -95,8 +106,21 @@ class HomeScreenContent extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryLight,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                   ),
-                  child: Text(AppLocalization.strings.explore),
+                  child: Text(
+                    AppLocalization.strings.explore,
+                    style: AppTextStyles.labelMedium(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -115,9 +139,21 @@ class HomeScreenContent extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                AppLocalization.strings.authorizedSellers,
-                style: AppTextStyles.headlineMedium(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalization.strings.authorizedSellers,
+                    style: AppTextStyles.headlineMedium(),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    AppLocalization.strings.verifiedArtisansStudios,
+                    style: AppTextStyles.labelSmall(
+                      color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
               ),
               TextButton(
                 onPressed: () {
@@ -153,52 +189,52 @@ class HomeScreenContent extends StatelessWidget {
   }
 
   static Widget _buildSellerCard(String name, bool isVerified) {
-    return Container(
-      width: 140,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerLowestLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.borderLight,
-        ),
-      ),
+    return SizedBox(
+      width: 100,
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: AppTheme.secondaryLight,
-            child: Icon(
-              Icons.store,
-              color: Colors.white,
-            ),
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: AppTheme.primaryLight.withValues(alpha: 0.1),
+                child: Icon(
+                  Icons.store,
+                  color: AppTheme.primaryLight,
+                  size: 40,
+                ),
+              ),
+              if (isVerified)
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.secondaryLight,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 2,
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 12,
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 8),
           Text(
             name,
             textAlign: TextAlign.center,
-            style: AppTextStyles.labelMedium(),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
           ),
-          if (isVerified) ...[
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  size: 14,
-                  color: AppTheme.primaryLight,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  AppLocalization.strings.verified,
-                  style: AppTextStyles.labelSmall(
-                    color: AppTheme.primaryLight,
-                  ),
-                ),
-              ],
-            ),
-          ],
         ],
       ),
     );
@@ -222,17 +258,9 @@ class HomeScreenContent extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                _buildDesignCard(
-                  'Golden Peacock Mandala',
-                  '₹1,249',
-                  'Premium',
-                ),
+                _buildDesignCard('Golden Peacock Mandala', '₹1,249', 'Premium'),
                 const SizedBox(width: 12),
-                _buildDesignCard(
-                  'Silver Lotus Border',
-                  '₹899',
-                  'Classic',
-                ),
+                _buildDesignCard('Silver Lotus Border', '₹899', 'Classic'),
               ],
             ),
           ),
@@ -246,10 +274,14 @@ class HomeScreenContent extends StatelessWidget {
       width: 160,
       decoration: BoxDecoration(
         color: AppTheme.surfaceContainerLowestLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.borderLight,
-        ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,8 +291,8 @@ class HomeScreenContent extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppTheme.surfaceContainerLowLight,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
+                topLeft: Radius.circular(14),
+                topRight: Radius.circular(14),
               ),
             ),
             child: Icon(
@@ -269,7 +301,7 @@ class HomeScreenContent extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -277,9 +309,9 @@ class HomeScreenContent extends StatelessWidget {
                   name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.labelMedium(),
+                  style: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -297,20 +329,21 @@ class HomeScreenContent extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
+                    horizontal: 8,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.secondaryLight.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(4),
+                    color: AppTheme.secondaryLight.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     tier,
                     style: AppTextStyles.labelSmall(
                       color: AppTheme.secondaryDark,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -338,15 +371,9 @@ class HomeScreenContent extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
-              _buildSareeDesignCard(
-                'Banarasi Fusion',
-                '12,000+ Stitches',
-              ),
+              _buildSareeDesignCard('Banarasi Fusion', '12,000+ Stitches'),
               const SizedBox(height: 12),
-              _buildSareeDesignCard(
-                'Pastel Sequin Flora',
-                '8,500+ Stitches',
-              ),
+              _buildSareeDesignCard('Pastel Sequin Flora', '8,500+ Stitches'),
             ],
           ),
         ),
@@ -358,11 +385,15 @@ class HomeScreenContent extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerLowLight,
+        color: AppTheme.surfaceContainerLowestLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.borderLight,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -370,7 +401,7 @@ class HomeScreenContent extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppTheme.surfaceContainerLowestLight,
+              color: AppTheme.surfaceContainerLowLight,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -385,9 +416,7 @@ class HomeScreenContent extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: AppTextStyles.labelMedium(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -422,13 +451,9 @@ class HomeScreenContent extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Expanded(
-                    child: _buildCollectionCard('Multi-head Designs'),
-                  ),
+                  Expanded(child: _buildCollectionCard('Multi-head Designs')),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildCollectionCard('Cording Designs'),
-                  ),
+                  Expanded(child: _buildCollectionCard('Cording Designs')),
                 ],
               ),
               const SizedBox(height: 12),
@@ -438,9 +463,7 @@ class HomeScreenContent extends StatelessWidget {
                     child: _buildCollectionCard('Small Machine\nDesigns'),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildCollectionCard('Other\nCategories'),
-                  ),
+                  Expanded(child: _buildCollectionCard('Other\nCategories')),
                 ],
               ),
             ],
@@ -454,15 +477,26 @@ class HomeScreenContent extends StatelessWidget {
     return Container(
       height: 100,
       decoration: BoxDecoration(
-        color: AppTheme.secondaryLight.withValues(alpha: 0.2),
+        color: AppTheme.secondaryLight.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Center(
-        child: Text(
-          name,
-          textAlign: TextAlign.center,
-          style: AppTextStyles.labelMedium(
-            fontWeight: FontWeight.w600,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            name,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.labelMedium(
+              fontWeight: FontWeight.w600,
+              color: AppTheme.onSurfaceLight,
+            ),
           ),
         ),
       ),
@@ -507,6 +541,13 @@ class HomeScreenContent extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surfaceContainerLowLight,
         borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Icon(
         Icons.image,
