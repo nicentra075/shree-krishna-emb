@@ -59,15 +59,21 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   PreferredSizeWidget? _buildAppBar(BuildContext context) {
-    // Hide AppBar when on Account screen
-    if (_selectedBottomNav == 2) {
-      return null;
-    }
-
     // Get screen name based on selected tab
-    String screenName = _selectedBottomNav == 0
-        ? AppLocalization.strings.home
-        : AppLocalization.strings.myWork;
+    String screenName;
+    switch (_selectedBottomNav) {
+      case 0:
+        screenName = AppLocalization.strings.home;
+        break;
+      case 1:
+        screenName = AppLocalization.strings.myWork;
+        break;
+      case 2:
+        screenName = AppLocalization.strings.profile;
+        break;
+      default:
+        screenName = AppLocalization.strings.home;
+    }
 
     return AppBar(
       backgroundColor: AppTheme.surfaceLight,
@@ -82,6 +88,7 @@ class _MainScreenState extends State<MainScreen> {
             screenName,
             style: AppTextStyles.headlineMedium(
               fontWeight: FontWeight.bold,
+              color: AppTheme.primaryLight,
             ),
           ),
         ),

@@ -13,6 +13,10 @@ class ProfileScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Branding Section
+            _buildBrandingSection(),
+            const SizedBox(height: 24),
+
             // User Header
             _buildUserHeader(),
             const SizedBox(height: 24),
@@ -38,6 +42,31 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  static Widget _buildBrandingSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalization.strings.appName,
+            style: AppTextStyles.headlineLarge(
+              color: AppTheme.primaryLight,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            AppLocalization.strings.appTagline,
+            style: AppTextStyles.bodyMedium(
+              color: AppTheme.onSurfaceLight.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
       ),
     );
   }
