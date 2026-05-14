@@ -45,7 +45,8 @@ class _MainScreenState extends State<MainScreen> {
   /// Shows toast on first press, exits app on second press within 2 seconds
   Future<bool> _onWillPop() async {
     final now = DateTime.now();
-    final isDoublePress = _lastBackPressTime != null &&
+    final isDoublePress =
+        _lastBackPressTime != null &&
         now.difference(_lastBackPressTime!) < const Duration(seconds: 2);
 
     if (!isDoublePress) {
@@ -70,6 +71,7 @@ class _MainScreenState extends State<MainScreen> {
       titleSpacing: 16,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           FadeInDown(
             duration: const Duration(milliseconds: 500),
