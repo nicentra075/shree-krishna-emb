@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -51,7 +48,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDH3PA36UjBS0_0j2RWp1GwyxOzfrwHWNA',
-    appId: '1:879320012130:android:6ec1a05e0b37ce34d8083b',
+    appId: '1:879320012130:android:ea7f7a3abf5e4402d8083b',
     messagingSenderId: '879320012130',
     projectId: 'shree-krishna-emb',
     storageBucket: 'shree-krishna-emb.firebasestorage.app',
@@ -59,11 +56,22 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyC4p5-QTEHRrJxIRwLCcPqToN4fSPX6ncs',
-    appId: '1:879320012130:ios:99cf6a44d6abd146d8083b',
+    appId: '1:879320012130:ios:94f3300b15949cfbd8083b',
     messagingSenderId: '879320012130',
     projectId: 'shree-krishna-emb',
     storageBucket: 'shree-krishna-emb.firebasestorage.app',
-    iosBundleId: 'com.example.shreeKrishnaEmbUserApp',
+    androidClientId: '879320012130-fjot0jajuvac7e77gfu1764p7c3052uu.apps.googleusercontent.com',
+    iosClientId: '879320012130-l27pn2odufibdl8g8si5f2pjr9v0c0ua.apps.googleusercontent.com',
+    iosBundleId: 'com.example.shreeKrishnaEmbAdmin',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAvtoGKeocf0SYsQg1SYZJP0pv8zkn8iUg',
+    appId: '1:879320012130:web:faf2d7b99c6f1630d8083b',
+    messagingSenderId: '879320012130',
+    projectId: 'shree-krishna-emb',
+    authDomain: 'shree-krishna-emb.firebaseapp.com',
+    storageBucket: 'shree-krishna-emb.firebasestorage.app',
   );
 
 }

@@ -1,15 +1,18 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shree_krishna_emb_admin/domain/repositories/admin_auth_repository.dart';
 
 part 'admin_auth_event.dart';
 part 'admin_auth_state.dart';
 
+/// AdminAuthBloc handles all admin authentication events
+/// Depends on AdminAuthRepository (injected, no Firebase imports)
+/// Follows clean architecture: repository is a contract, not implementation
 class AdminAuthBloc extends Bloc<AdminAuthEvent, AdminAuthState> {
-  final FirebaseAuth _firebaseAuth;
+  final AdminAuthRepository _repository;
 
-  AdminAuthBloc({FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+  AdminAuthBloc({required AdminAuthRepository repository})
+      : _repository = repository,
         super(const AdminAuthInitial()) {
     on<AdminSignInEvent>(_onSignIn);
     on<AdminSignOutEvent>(_onSignOut);
@@ -21,52 +24,51 @@ class AdminAuthBloc extends Bloc<AdminAuthEvent, AdminAuthState> {
     Emitter<AdminAuthState> emit,
   ) async {
     emit(const AdminAuthLoading());
-    try {
-      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: event.email,
-        password: event.password,
-      );
 
-      final user = userCredential.user;
-      if (user != null) {
-        emit(AdminAuthAuthenticated(
-          adminId: user.uid,
-          email: user.email ?? '',
-        ));
-      } else {
-        emit(const AdminAuthError('Sign in failed'));
-      }
-    } on FirebaseAuthException catch (e) {
-      emit(AdminAuthError(e.message ?? 'Authentication error'));
-    } catch (e) {
-      emit(AdminAuthError(e.toString()));
-    }
+    final result = await _repository.signIn(
+      email: event.email,
+      password: event.password,
+    );
+
+    result.fold(
+      (failure) => emit(AdminAuthError(failure.message)),
+      (success) => emit(AdminAuthAuthenticated(
+        adminId: success.adminId,
+        email: success.email,
+      )),
+    );
   }
 
   Future<void> _onSignOut(
     AdminSignOutEvent event,
     Emitter<AdminAuthState> emit,
   ) async {
-    try {
-      await _firebaseAuth.signOut();
-      emit(const AdminAuthUnauthenticated());
-    } catch (e) {
-      emit(AdminAuthError(e.toString()));
-    }
+    final result = await _repository.signOut();
+
+    result.fold(
+      (failure) => emit(AdminAuthError(failure.message)),
+      (_) => emit(const AdminAuthUnauthenticated()),
+    );
   }
 
   Future<void> _onCheckAuthStatus(
     AdminCheckAuthStatusEvent event,
     Emitter<AdminAuthState> emit,
   ) async {
-    final currentUser = _firebaseAuth.currentUser;
-    if (currentUser != null) {
-      emit(AdminAuthAuthenticated(
-        adminId: currentUser.uid,
-        email: currentUser.email ?? '',
-      ));
-    } else {
-      emit(const AdminAuthUnauthenticated());
-    }
+    final result = await _repository.checkAuthStatus();
+
+    result.fold(
+      (failure) => emit(AdminAuthError(failure.message)),
+      (success) {
+        if (success != null) {
+          emit(AdminAuthAuthenticated(
+            adminId: success.adminId,
+            email: success.email,
+          ));
+        } else {
+          emit(const AdminAuthUnauthenticated());
+        }
+      },
+    );
   }
 }

@@ -4,6 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
+import 'package:shree_krishna_emb_admin/data/datasources/firebase_admin_auth_datasource.dart';
+import 'package:shree_krishna_emb_admin/data/repositories/admin_auth_repository_impl.dart';
+import 'package:shree_krishna_emb_admin/domain/repositories/admin_auth_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -25,9 +29,25 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
   // Register SharedPreferences instance
   getIt.registerSingleton<SharedPreferences>(prefs);
 
+  // ADMIN AUTH - Clean Architecture Pattern
+  // Data Layer
+  getIt.registerSingleton<AdminAuthDataSource>(
+    FirebaseAdminAuthDataSource(firebaseAuth: getIt<FirebaseAuth>()),
+  );
+
+  // Repository Layer (switches backends here if needed)
+  getIt.registerSingleton<AdminAuthRepository>(
+    AdminAuthRepositoryImpl(dataSource: getIt<AdminAuthDataSource>()),
+  );
+
+  // Presentation Layer (BLoC)
+  getIt.registerSingleton<AdminAuthBloc>(
+    AdminAuthBloc(repository: getIt<AdminAuthRepository>()),
+  );
+
   // Register future admin-specific data sources, repositories, and services here
-  // TODO: Register admin-specific datasources
-  // TODO: Register admin repositories
+  // TODO: Register admin-specific datasources for other features
+  // TODO: Register admin repositories for other features
   // TODO: Register admin use cases
-  // TODO: Register admin BLoCs
+  // TODO: Register admin BLoCs for other features
 }

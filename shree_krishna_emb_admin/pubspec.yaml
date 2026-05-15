@@ -58,6 +58,9 @@ dependencies:
   equatable: ^2.0.5
   uuid: ^4.0.0
 
+  # Animations
+  animate_do: ^3.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

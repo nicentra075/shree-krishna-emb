@@ -1,0 +1,32 @@
+import 'package:equatable/equatable.dart';
+import 'package:shree_krishna_core/utils/either.dart';
+import 'package:shree_krishna_emb_admin/core/errors/failures.dart';
+
+/// Success model returned on successful authentication
+class AdminAuthSuccess extends Equatable {
+  final String adminId;
+  final String email;
+
+  const AdminAuthSuccess({required this.adminId, required this.email});
+
+  @override
+  List<Object?> get props => [adminId, email];
+}
+
+/// Abstract repository interface for admin authentication
+/// Backend-agnostic contract that can be implemented by Firebase or any future backend
+abstract class AdminAuthRepository {
+  /// Sign in admin with email and password
+  /// Returns Either[Failure, AdminAuthSuccess] following clean architecture pattern
+  Future<Either<Failure, AdminAuthSuccess>> signIn({
+    required String email,
+    required String password,
+  });
+
+  /// Sign out current admin
+  Future<Either<Failure, void>> signOut();
+
+  /// Check current authentication status
+  /// Returns null if no user is authenticated
+  Future<Either<Failure, AdminAuthSuccess?>> checkAuthStatus();
+}

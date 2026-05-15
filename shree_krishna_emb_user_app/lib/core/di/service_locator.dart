@@ -22,6 +22,18 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
   getIt.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
   getIt.registerSingleton<FirebaseStorage>(FirebaseStorage.instance);
 
+  // Initialize GoogleSignIn (v7.2.0+) with proper credentials
+  // NOTE: clientId and serverClientId should be configured from Firebase config
+  // For web: from your Firebase Console OAuth configuration
+  // For mobile: flutterfire configure handles this from google-services.json/GoogleService-Info.plist
+  final googleSignIn = GoogleSignIn.instance;
+  await googleSignIn.initialize(
+    // These can be null - GoogleSignIn will use platform defaults from config files
+    clientId: null,
+    serverClientId: null,
+  );
+  getIt.registerSingleton<GoogleSignIn>(googleSignIn);
+
   // Initialize Hive for local caching
   await Hive.initFlutter();
   final userCacheBox = await Hive.openBox<String>('user_cache');
@@ -44,7 +56,7 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
     FirebaseAuthDataSourceImpl(
       firebaseAuth: getIt(),
       firestore: getIt(),
-      googleSignIn: GoogleSignIn.instance,
+      googleSignIn: getIt(),
     ),
   );
 

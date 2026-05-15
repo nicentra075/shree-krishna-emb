@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ui_toolbox/flutter_ui_toolbox.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
@@ -20,6 +21,9 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     {'label': 'Special Offer', 'title': 'Premium Embroidery Designs'},
     {'label': 'Limited Edition', 'title': 'Exclusive Collections'},
   ];
+
+  // Authorized sellers data
+  final List<String> _sellers = ['V. Textiles', 'Surat Kraft', 'Elite Motif'];
 
   @override
   void initState() {
@@ -52,12 +56,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
-          // Branding Section
-          _buildBrandingSection(context),
-          const SizedBox(height: 24),
-
-          // Hero Banner
+          //Hero Banner
           _buildHeroBanner(context),
           const SizedBox(height: 32),
 
@@ -125,6 +124,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     final carouselHeight = screenSize.width < 600 ? 180.0 : 220.0;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
           height: carouselHeight,
@@ -169,7 +169,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
       builder: (context, constraints) {
         final isSmallScreen = constraints.maxWidth < 360;
         final padding = isSmallScreen ? 16.0 : 24.0;
-
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
@@ -263,7 +262,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     );
   }
 
-  static Widget _buildAuthorizedSellers(BuildContext context) {
+  Widget _buildAuthorizedSellers(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -272,21 +271,9 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalization.strings.authorizedSellers,
-                    style: AppTextStyles.headlineMedium(),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    AppLocalization.strings.verifiedArtisansStudios,
-                    style: AppTextStyles.labelSmall(
-                      color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
+              Text(
+                AppLocalization.strings.authorizedSellers,
+                style: AppTextStyles.headlineMedium(),
               ),
               TextButton(
                 onPressed: () {
@@ -302,19 +289,21 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
             ],
           ),
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Padding(
+
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _buildSellerCard('V. Textiles', true),
-                const SizedBox(width: 12),
-                _buildSellerCard('Surat Kraft', true),
-                const SizedBox(width: 12),
-                _buildSellerCard('Elite Motif', true),
-              ],
-            ),
+            itemCount: _sellers.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  right: index < _sellers.length - 1 ? 12 : 0,
+                ),
+                child: _buildSellerCard(_sellers[index], true),
+              );
+            },
           ),
         ),
       ],
@@ -328,8 +317,9 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
         final avatarRadius = isSmallScreen ? 32.0 : 40.0;
 
         return SizedBox(
-          width: constraints.maxWidth > 0 ? constraints.maxWidth : 100,
+          width: constraints.maxWidth.isFinite ? constraints.maxWidth : 100,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Stack(
                 children: [

@@ -143,35 +143,132 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   @override
   Future<AuthResult> signInWithGoogle() async {
     try {
-      AppLogger.logOperation('signInWithGoogle', status: 'starting authentication');
+      AppLogger.logOperation('signInWithGoogle', status: 'initiating');
 
-      // v7.x API: authenticate() returns GoogleSignInAuthentication directly
-      final googleAuth = await _googleSignIn.authenticate();
+      // v7.2.0: Stream-based authentication pattern from official demo
+      final userCompleter = Completer<GoogleSignInAccount?>();
 
-      if (googleAuth == null) {
+      late StreamSubscription<GoogleSignInAuthenticationEvent> subscription;
+      subscription = _googleSignIn.authenticationEvents.listen(
+        (GoogleSignInAuthenticationEvent event) {
+          AppLogger.logOperation(
+            'signInWithGoogle',
+            status: 'authentication event received',
+          );
+
+          // v7.2.0 pattern match: switch on event type
+          final GoogleSignInAccount? user = switch (event) {
+            GoogleSignInAuthenticationEventSignIn() => event.user,
+            GoogleSignInAuthenticationEventSignOut() => null,
+          };
+
+          if (!userCompleter.isCompleted) {
+            userCompleter.complete(user);
+          }
+          subscription.cancel();
+        },
+        onError: (Object error) {
+          AppLogger.logError(
+            'signInWithGoogle',
+            error: 'Authentication event stream error: $error',
+          );
+          if (!userCompleter.isCompleted) {
+            userCompleter.completeError(error);
+          }
+          subscription.cancel();
+        },
+      );
+
+      // v7.2.0: Use authenticate() if supported (recommended path)
+      AppLogger.logOperation(
+        'signInWithGoogle',
+        status: 'calling authenticate()',
+      );
+      if (_googleSignIn.supportsAuthenticate()) {
+        await _googleSignIn.authenticate();
+      } else {
+        // Platform doesn't support authenticate() - shouldn't happen on modern platforms
+        throw ServerException(
+          message: 'Platform does not support Google authentication',
+        );
+      }
+
+      // Wait for authentication event (with timeout safety)
+      final googleUser = await userCompleter.future.timeout(
+        const Duration(seconds: 30),
+      );
+
+      if (googleUser == null) {
+        AppLogger.logOperation(
+          'signInWithGoogle',
+          status: 'user cancelled sign in',
+        );
         throw ServerException(message: 'Google sign in cancelled');
       }
 
-      // In v7.x, the authentication object has accessToken and idToken directly
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      AppLogger.logOperation(
+        'signInWithGoogle',
+        status: 'user account obtained',
       );
 
+      // v7.2.0: Get authentication object
+      // In v7.2.0, try to get idToken from authentication
+      final googleAuth = googleUser.authentication;
+
+      AppLogger.logOperation(
+        'signInWithGoogle',
+        status: 'authentication object retrieved',
+      );
+
+      // Try to extract ID token (this may work even if accessToken doesn't)
+      final idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        AppLogger.logError(
+          'signInWithGoogle',
+          error: 'Failed to retrieve ID token from authentication',
+        );
+        throw ServerException(
+          message: 'Failed to retrieve authentication token',
+        );
+      }
+
+      AppLogger.logOperation('signInWithGoogle', status: 'ID token obtained');
+
+      // Create Firebase credential with ID token
+      // For v7.2.0, we use only idToken (accessToken is optional)
+      final credential = GoogleAuthProvider.credential(idToken: idToken);
+
+      AppLogger.logOperation(
+        'signInWithGoogle',
+        status: 'Firebase credential created',
+      );
+
+      // Sign in with Firebase
       final userCredential = await _firebaseAuth.signInWithCredential(
         credential,
       );
 
       if (userCredential.user == null) {
+        AppLogger.logError(
+          'signInWithGoogle',
+          error: 'Firebase authentication failed',
+        );
         throw ServerException(message: 'Failed to sign in with Google');
       }
 
+      AppLogger.logOperation(
+        'signInWithGoogle',
+        status: 'Firebase authentication successful',
+      );
+
       final uid = userCredential.user!.uid;
       final userDoc = await _firestore.collection('users').doc(uid).get();
-
       final isNewUser = !userDoc.exists;
 
       if (isNewUser) {
+        AppLogger.logOperation('signInWithGoogle', status: 'creating new user');
+
         final user = UserModel(
           id: uid,
           email: userCredential.user!.email ?? '',
@@ -190,17 +287,45 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
             .doc(uid)
             .set(user.toFirebaseJson());
 
+        AppLogger.logOperation(
+          'signInWithGoogle',
+          status: 'new user created in Firestore',
+        );
+
         return AuthResult(user: user, isNewUser: true);
       } else {
+        AppLogger.logOperation(
+          'signInWithGoogle',
+          status: 'existing user login',
+        );
+
         final user = UserModel.fromFirebaseJson(userDoc.data()!, uid);
 
         await _firestore.collection('users').doc(uid).update({
           'loginAt': DateTime.now().toIso8601String(),
         });
 
+        AppLogger.logOperation(
+          'signInWithGoogle',
+          status: 'user login timestamp updated',
+        );
+
         return AuthResult(user: user, isNewUser: false);
       }
+    } on TimeoutException {
+      AppLogger.logError('signInWithGoogle', error: 'Authentication timed out');
+      throw ServerException(message: 'Google sign in timed out');
+    } on FirebaseAuthException catch (e) {
+      AppLogger.logError(
+        'signInWithGoogle',
+        error: 'Firebase error: ${e.code} - ${e.message}',
+      );
+      throw ServerException(message: _handleAuthException(e));
     } catch (e) {
+      AppLogger.logError(
+        'signInWithGoogle',
+        error: 'Unexpected error: ${e.toString()}',
+      );
       throw ServerException(message: 'Google sign in failed: ${e.toString()}');
     }
   }
@@ -208,7 +333,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   @override
   Future<String> sendPhoneOtp(String phoneNumber) async {
     try {
-      AppLogger.logOperation('sendPhoneOtp', data: phoneNumber);
+      print(
+        '🟡 [FirebaseAuthDataSource] sendPhoneOtp called with: $phoneNumber',
+      );
 
       final completer = Completer<String>();
       bool isCompleted = false;
@@ -216,7 +343,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          AppLogger.logOperation('verificationCompleted', status: 'Auto-signing in with credential');
+          print(
+            '🟢 [FirebaseAuthDataSource] verificationCompleted - Auto-signing in with credential',
+          );
           if (!isCompleted) {
             isCompleted = true;
             await _firebaseAuth.signInWithCredential(credential);
@@ -231,7 +360,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
         },
         verificationFailed: (FirebaseAuthException e) {
-          AppLogger.logError('verificationFailed', error: '${e.code} - ${e.message}');
+          print(
+            '🔴 [FirebaseAuthDataSource] verificationFailed - Error: ${e.code} - ${e.message}',
+          );
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -242,7 +373,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
         },
         codeSent: (String vId, int? resendToken) {
-          AppLogger.logOperation('codeSent', data: 'VerificationID: $vId, ResendToken: $resendToken');
+          print(
+            '🟢 [FirebaseAuthDataSource] codeSent - Verification ID: $vId, ResendToken: $resendToken',
+          );
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -251,7 +384,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
         },
         codeAutoRetrievalTimeout: (String vId) {
-          AppLogger.logOperation('codeAutoRetrievalTimeout', data: 'VerificationID: $vId');
+          print(
+            '🟠 [FirebaseAuthDataSource] codeAutoRetrievalTimeout - Verification ID: $vId',
+          );
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -263,10 +398,14 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       );
 
       final verificationId = await completer.future;
-      AppLogger.logOperation('sendPhoneOtp', status: 'completed', data: 'VerificationID: $verificationId');
+      print(
+        '🟢 [FirebaseAuthDataSource] sendPhoneOtp completed successfully with ID: $verificationId',
+      );
       return verificationId;
     } catch (e) {
-      AppLogger.logError('sendPhoneOtp Exception', error: e.toString());
+      print(
+        '🔴 [FirebaseAuthDataSource] sendPhoneOtp Exception: ${e.toString()}',
+      );
       throw ServerException(
         message: 'Failed to send phone OTP: ${e.toString()}',
       );

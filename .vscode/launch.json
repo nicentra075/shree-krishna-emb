@@ -12,18 +12,11 @@
             "type": "dart"
         },
         {
-            "name": "shree_krishna_emb_admin (profile mode)",
+            "name": "shree_krishna_emb_admin (web)",
             "cwd": "shree_krishna_emb_admin",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "shree_krishna_emb_admin (release mode)",
-            "cwd": "shree_krishna_emb_admin",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
+            "args": ["-d", "chrome", "--web-port=2000"]
         },
         {
             "name": "shree_krishna_emb_user_app",
@@ -32,18 +25,12 @@
             "type": "dart"
         },
         {
-            "name": "shree_krishna_emb_user_app (profile mode)",
+            "name": "shree_krishna_emb_user_app (web)",
             "cwd": "shree_krishna_emb_user_app",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
-        },
-        {
-            "name": "shree_krishna_emb_user_app (release mode)",
-            "cwd": "shree_krishna_emb_user_app",
-            "request": "launch",
-            "type": "dart",
-            "flutterMode": "release"
+            "args": ["-d", "chrome", "--web-port=2001"]
         }
+
     ]
 }
