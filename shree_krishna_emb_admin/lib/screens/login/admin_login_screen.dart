@@ -51,6 +51,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           if (state is AdminAuthAuthenticated) {
             ResponsiveSnackbar.showSuccess(
               AppLocalization.strings.adminWelcomeSuccess,
+              context,
             );
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted && context.mounted) {
@@ -58,7 +59,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               }
             });
           } else if (state is AdminAuthError) {
-            ResponsiveSnackbar.showError(state.message);
+            ResponsiveSnackbar.showError(state.message, context);
           }
         },
         child: isSmallScreen
@@ -524,15 +525,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_resetEmailController.text.isEmpty) {
-                    ResponsiveSnackbar.showError(strings.fieldRequired);
+                    ResponsiveSnackbar.showError(strings.fieldRequired, context);
                     return;
                   }
                   if (!_resetEmailController.text.contains('@')) {
-                    ResponsiveSnackbar.showError(strings.invalidEmail);
+                    ResponsiveSnackbar.showError(strings.invalidEmail, context);
                     return;
                   }
                   // TODO: Call reset password API
-                  ResponsiveSnackbar.showSuccess(strings.resetLinkSentMessage);
+                  ResponsiveSnackbar.showSuccess(strings.resetLinkSentMessage, context);
                   Future.delayed(const Duration(milliseconds: 500), () {
                     if (mounted) {
                       setState(() {
@@ -635,17 +636,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     final strings = AppLocalization.strings;
 
     if (email.isEmpty) {
-      ResponsiveSnackbar.showError(strings.fieldRequired);
+      ResponsiveSnackbar.showError(strings.fieldRequired, context);
       return;
     }
 
     if (!email.contains('@')) {
-      ResponsiveSnackbar.showError(strings.invalidEmail);
+      ResponsiveSnackbar.showError(strings.invalidEmail, context);
       return;
     }
 
     if (password.isEmpty) {
-      ResponsiveSnackbar.showError(strings.fieldRequired);
+      ResponsiveSnackbar.showError(strings.fieldRequired, context);
       return;
     }
 

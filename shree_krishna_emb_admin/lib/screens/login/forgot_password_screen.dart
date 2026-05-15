@@ -71,7 +71,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 label: AppLocalization.strings.sendResetLink,
                 onPressed: () {
                   // TODO: Implement forgot password logic
-                  ResponsiveSnackbar.showSuccess(AppLocalization.strings.resetLinkSentMessage);
+                  ResponsiveSnackbar.showSuccess(AppLocalization.strings.resetLinkSentMessage, context);
                   Navigator.pop(context);
                 },
                 variant: AppButtonVariant.primary,
