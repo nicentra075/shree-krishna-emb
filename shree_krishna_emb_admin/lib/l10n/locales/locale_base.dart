@@ -36,6 +36,7 @@ abstract class LocaleStrings {
 
   // ========== Dashboard ==========
   String get dashboard;
+  String get adminDashboard;
   String get dashboardWelcome;
   String get totalOrders;
   String get totalRevenue;

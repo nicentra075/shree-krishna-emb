@@ -64,6 +64,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get dashboard => 'Dashboard';
   @override
+  String get adminDashboard => 'Admin Dashboard';
+  @override
   String get dashboardWelcome => 'Welcome to Admin Dashboard';
   @override
   String get totalOrders => 'Total Orders';

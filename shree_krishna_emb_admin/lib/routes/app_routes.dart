@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/screens/splash/splash_screen.dart';
+import 'package:shree_krishna_emb_admin/screens/login/admin_login_screen.dart';
+import 'package:shree_krishna_emb_admin/screens/login/forgot_password_screen.dart';
 
 class AppRoutes {
   // Route names
   static const String splash = '/splash';
+  static const String login = '/login';
+  static const String forgotPassword = '/forgot-password';
   static const String home = '/home';
 
   // Route generation
@@ -12,6 +18,16 @@ class AppRoutes {
       case splash:
         return MaterialPageRoute(
           builder: (_) => const SplashScreen(),
+          settings: settings,
+        );
+      case login:
+        return MaterialPageRoute(
+          builder: (_) => const AdminLoginScreen(),
+          settings: settings,
+        );
+      case forgotPassword:
+        return MaterialPageRoute(
+          builder: (_) => const ForgotPasswordScreen(),
           settings: settings,
         );
       case home:
@@ -34,23 +50,28 @@ class AdminHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalization.strings;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Dashboard'),
-        centerTitle: true,
+      appBar: AppAppBar(
+        title: strings.adminDashboard,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Shree Krishna Embroidery',
+              strings.appName,
               style: Theme.of(context).textTheme.displaySmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Admin Panel - Coming Soon',
-              style: TextStyle(fontSize: 16),
+            Text(
+              'Coming Soon',
+              style: Theme.of(context).textTheme.bodyLarge,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

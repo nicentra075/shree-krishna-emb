@@ -64,6 +64,8 @@ class HiINStrings implements LocaleStrings {
   @override
   String get dashboard => 'डैशबोर्ड';
   @override
+  String get adminDashboard => 'एडमिन डैशबोर्ड';
+  @override
   String get dashboardWelcome => 'प्रशासन डैशबोर्ड में आपका स्वागत है';
   @override
   String get totalOrders => 'कुल ऑर्डर';
