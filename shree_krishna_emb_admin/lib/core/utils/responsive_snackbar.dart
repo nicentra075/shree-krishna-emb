@@ -62,25 +62,27 @@ class ResponsiveSnackbar {
 
     scaffoldMessenger.showSnackBar(
       SnackBar(
-        content: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(_getIconForType(type), color: textColor, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(color: textColor, fontSize: 14),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+        content: SizedBox(
+          width: 380,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(_getIconForType(type), color: textColor, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(color: textColor, fontSize: 14),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(bottom: 24, right: 24),
-        width: 400,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 3),
       ),
