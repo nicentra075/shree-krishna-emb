@@ -20,7 +20,7 @@ class SplashScreen extends StatelessWidget {
       child: BlocListener<SplashBloc, SplashState>(
         listener: (context, state) {
           if (state is SplashComplete) {
-            Navigator.of(context).pushReplacementNamed('/home');
+            Navigator.of(context).pushReplacementNamed('/login');
           }
         },
         child: BlocBuilder<SplashBloc, SplashState>(
