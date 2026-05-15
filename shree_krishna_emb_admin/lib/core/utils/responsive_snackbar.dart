@@ -3,43 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/core/utils/global_navigator.dart';
 
-/// Responsive snackbar utility that positions toasts based on screen size.
+/// Responsive snackbar wrapper that positions AppSnackbar based on screen size.
 /// On web/desktop (width >= 600), shows in bottom-right corner with max-width.
 /// On mobile (width < 600), shows full-width at bottom.
 class ResponsiveSnackbar {
-  static const _maxWidth = 400.0;
   static const _mobileThreshold = 600.0;
 
   /// Show success message with responsive positioning
   static void showSuccess(String message) {
-    _showSnackbar(
-      message,
-      type: _SnackbarType.success,
-    );
+    _showSnackbar(message, type: _SnackbarType.success);
   }
 
   /// Show error message with responsive positioning
   static void showError(String message) {
-    _showSnackbar(
-      message,
-      type: _SnackbarType.error,
-    );
+    _showSnackbar(message, type: _SnackbarType.error);
   }
 
   /// Show info message with responsive positioning
   static void showInfo(String message) {
-    _showSnackbar(
-      message,
-      type: _SnackbarType.info,
-    );
+    _showSnackbar(message, type: _SnackbarType.info);
   }
 
   /// Show warning message with responsive positioning
   static void showWarning(String message) {
-    _showSnackbar(
-      message,
-      type: _SnackbarType.warning,
-    );
+    _showSnackbar(message, type: _SnackbarType.warning);
   }
 
   static void _showSnackbar(
@@ -47,86 +34,61 @@ class ResponsiveSnackbar {
     required _SnackbarType type,
   }) {
     final context = _getContext();
-    if (context == null) return;
+    if (context == null) {
+      _callAppSnackbar(message, type);
+      return;
+    }
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final isWideScreen = screenWidth >= _mobileThreshold;
+    final isWideScreen = screenWidth >= _mobileThreshold && kIsWeb;
 
-    if (isWideScreen && kIsWeb) {
-      _showPositionedSnackbar(context, message, type);
+    if (isWideScreen) {
+      _showResponsiveSnackbar(context, message, type);
     } else {
-      _showDefaultSnackbar(message, type);
+      _callAppSnackbar(message, type);
     }
   }
 
-  /// Show snackbar at bottom-right with max-width for web/desktop
-  static void _showPositionedSnackbar(
+  /// Show snackbar at bottom-right for web/desktop
+  static void _showResponsiveSnackbar(
     BuildContext context,
     String message,
     _SnackbarType type,
   ) {
-    final theme = Theme.of(context);
-    final color = _getColorForType(type, theme);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    final color = _getColorForType(type);
     final textColor = _getTextColorForType(type);
 
-    final overlay = Overlay.of(context);
-    final entry = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 24,
-        right: 24,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: _maxWidth),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(_getIconForType(type), color: textColor, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: textColor, fontSize: 14),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  _getIconForType(type),
-                  color: textColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    message,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          ],
         ),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 24, right: 24),
+        width: 400,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        duration: const Duration(seconds: 3),
       ),
     );
-
-    overlay.insert(entry);
-
-    Future.delayed(const Duration(seconds: 3), () {
-      entry.remove();
-    });
   }
 
-  /// Show default full-width snackbar using AppSnackbar
-  static void _showDefaultSnackbar(String message, _SnackbarType type) {
+  /// Delegate to AppSnackbar for default behavior
+  static void _callAppSnackbar(String message, _SnackbarType type) {
     switch (type) {
       case _SnackbarType.success:
         AppSnackbar.showSuccess(message);
@@ -139,7 +101,7 @@ class ResponsiveSnackbar {
     }
   }
 
-  /// Get BuildContext from navigator
+  /// Get BuildContext from global navigator
   static BuildContext? _getContext() {
     try {
       return GlobalNavigator.navigatorKey.currentContext;
@@ -149,7 +111,7 @@ class ResponsiveSnackbar {
   }
 
   /// Get background color based on snackbar type
-  static Color _getColorForType(_SnackbarType type, ThemeData theme) {
+  static Color _getColorForType(_SnackbarType type) {
     return switch (type) {
       _SnackbarType.success => const Color(0xFF4CAF50),
       _SnackbarType.error => const Color(0xFFFF6B6B),
