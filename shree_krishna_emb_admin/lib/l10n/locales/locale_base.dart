@@ -183,4 +183,24 @@ abstract class LocaleStrings {
   String get contactSupport;
   String get help;
   String get documentation;
+
+  // ========== Splash Screen ==========
+  String get splashTitle;
+  String get splashWelcomeTo;
+  String get splashTagline;
+  String get splashInitializing;
+  String get madeWithLove;
+  String get byNicentra;
+
+  // ========== Admin Login Screen ==========
+  String get adminLoginTitle;
+  String get adminLoginSubtitle;
+  String get adminLoginTagline;
+  String get adminLoginWelcome;
+  String get adminEmail;
+  String get adminPassword;
+  String get adminRememberMe;
+  String get adminForgotPassword;
+  String get adminSignIn;
+  String get adminCopyright;
 }

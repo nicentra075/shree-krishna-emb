@@ -327,4 +327,38 @@ class HiINStrings implements LocaleStrings {
   String get help => 'मदद';
   @override
   String get documentation => 'प्रलेखन';
+
+  @override
+  String get splashTitle => 'श्री कृष्ण कढ़ाई';
+  @override
+  String get splashWelcomeTo => 'में आपका स्वागत है';
+  @override
+  String get splashTagline => 'आसानी से अपने कढ़ाई व्यवसाय का प्रबंधन करें';
+  @override
+  String get splashInitializing => 'प्रारंभ किया जा रहा है...';
+  @override
+  String get madeWithLove => 'द्वारा बनाया गया';
+  @override
+  String get byNicentra => 'Nicentra';
+
+  @override
+  String get adminLoginTitle => 'श्री कृष्ण कढ़ाई';
+  @override
+  String get adminLoginSubtitle => 'अपने कढ़ाई साम्राज्य को संभालें';
+  @override
+  String get adminLoginTagline => 'ऑपरेशन को सुव्यवस्थित करें, ऑर्डर ट्रैक करें, और हमारे शक्तिशाली एडमिन डैशबोर्ड के साथ अपने कढ़ाई व्यवसाय को बढ़ाएं।';
+  @override
+  String get adminLoginWelcome => 'स्वागत है एडमिन';
+  @override
+  String get adminEmail => 'एडमिन ईमेल';
+  @override
+  String get adminPassword => 'एडमिन पासवर्ड';
+  @override
+  String get adminRememberMe => 'मुझे याद रखें';
+  @override
+  String get adminForgotPassword => 'पासवर्ड भूल गए?';
+  @override
+  String get adminSignIn => 'साइन इन करें';
+  @override
+  String get adminCopyright => '© 2026 श्री कृष्ण कढ़ाई। सर्वाधिकार सुरक्षित।';
 }

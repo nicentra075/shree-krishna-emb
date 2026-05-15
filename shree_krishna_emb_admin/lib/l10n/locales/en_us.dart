@@ -327,4 +327,38 @@ class EnUSStrings implements LocaleStrings {
   String get help => 'Help';
   @override
   String get documentation => 'Documentation';
+
+  @override
+  String get splashTitle => 'Shree Krishna Embroidery';
+  @override
+  String get splashWelcomeTo => 'Welcome to';
+  @override
+  String get splashTagline => 'Manage Your Embroidery Business with Ease';
+  @override
+  String get splashInitializing => 'Initializing...';
+  @override
+  String get madeWithLove => 'Made with';
+  @override
+  String get byNicentra => 'by Nicentra';
+
+  @override
+  String get adminLoginTitle => 'Shree Krishna Embroidery';
+  @override
+  String get adminLoginSubtitle => 'Manage Your Embroidery Empire';
+  @override
+  String get adminLoginTagline => 'Streamline operations, track orders, and grow your embroidery business with our powerful admin dashboard.';
+  @override
+  String get adminLoginWelcome => 'Welcome Admin';
+  @override
+  String get adminEmail => 'Admin Email';
+  @override
+  String get adminPassword => 'Admin Password';
+  @override
+  String get adminRememberMe => 'Remember me';
+  @override
+  String get adminForgotPassword => 'Forgot Password?';
+  @override
+  String get adminSignIn => 'Sign In';
+  @override
+  String get adminCopyright => '© 2026 Shree Krishna Embroidery. All rights reserved.';
 }
