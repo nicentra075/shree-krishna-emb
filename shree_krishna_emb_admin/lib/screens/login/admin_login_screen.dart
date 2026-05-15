@@ -5,6 +5,7 @@ import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
+import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
@@ -48,21 +49,23 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       body: BlocListener<AdminAuthBloc, AdminAuthState>(
         listener: (context, state) {
           if (state is AdminAuthAuthenticated) {
-            AppSnackbar.showSuccess(AppLocalization.strings.adminWelcomeSuccess);
+            ResponsiveSnackbar.showSuccess(
+              AppLocalization.strings.adminWelcomeSuccess,
+            );
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted && context.mounted) {
                 Navigator.of(context).pushReplacementNamed('/home');
               }
             });
           } else if (state is AdminAuthError) {
-            AppSnackbar.showError(state.message);
+            ResponsiveSnackbar.showError(state.message);
           }
         },
         child: isSmallScreen
             ? _buildMobileLayout(context)
             : isTablet
-                ? _buildTabletLayout(context)
-                : _buildDesktopLayout(context),
+            ? _buildTabletLayout(context)
+            : _buildDesktopLayout(context),
       ),
     );
   }
@@ -72,15 +75,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     return Row(
       children: [
         // Left panel - Branding
-        Expanded(
-          flex: 40,
-          child: _buildBrandingPanel(),
-        ),
+        Expanded(flex: 40, child: _buildBrandingPanel()),
         // Right panel - Login form
-        Expanded(
-          flex: 60,
-          child: _buildLoginPanel(context),
-        ),
+        Expanded(flex: 60, child: _buildLoginPanel(context)),
       ],
     );
   }
@@ -243,8 +240,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   }
 
   // Login form panel (right side on desktop)
-  Widget _buildLoginPanel(BuildContext context,
-      {bool compact = false, bool mobileFull = false}) {
+  Widget _buildLoginPanel(
+    BuildContext context, {
+    bool compact = false,
+    bool mobileFull = false,
+  }) {
     final strings = AppLocalization.strings;
 
     return Container(
@@ -336,9 +336,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 });
               },
               child: Icon(
-                _obscurePassword
-                    ? Icons.visibility_off
-                    : Icons.visibility,
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
                 color: AppTheme.primaryDark.withValues(alpha: 0.5),
                 size: 20,
               ),
@@ -374,9 +372,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     },
                     child: Text(
                       strings.adminRememberMe,
-                      style: AppTextStyles.bodySmall(
-                        color: AppTheme.textBrown,
-                      ),
+                      style: AppTextStyles.bodySmall(color: AppTheme.textBrown),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -438,7 +434,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   }
 
   // Build reset password form
-  Widget _buildResetPasswordForm(BuildContext context, dynamic strings, bool compact) {
+  Widget _buildResetPasswordForm(
+    BuildContext context,
+    dynamic strings,
+    bool compact,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -524,15 +524,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_resetEmailController.text.isEmpty) {
-                    AppSnackbar.showError(strings.fieldRequired);
+                    ResponsiveSnackbar.showError(strings.fieldRequired);
                     return;
                   }
                   if (!_resetEmailController.text.contains('@')) {
-                    AppSnackbar.showError(strings.invalidEmail);
+                    ResponsiveSnackbar.showError(strings.invalidEmail);
                     return;
                   }
                   // TODO: Call reset password API
-                  AppSnackbar.showSuccess(strings.resetLinkSentMessage);
+                  ResponsiveSnackbar.showSuccess(strings.resetLinkSentMessage);
                   Future.delayed(const Duration(milliseconds: 500), () {
                     if (mounted) {
                       setState(() {
@@ -596,10 +596,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  AppTheme.primaryDark,
-                  const Color(0xFFFF9933),
-                ],
+                colors: [AppTheme.primaryDark, const Color(0xFFFF9933)],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -638,22 +635,22 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     final strings = AppLocalization.strings;
 
     if (email.isEmpty) {
-      AppSnackbar.showError(strings.fieldRequired);
+      ResponsiveSnackbar.showError(strings.fieldRequired);
       return;
     }
 
     if (!email.contains('@')) {
-      AppSnackbar.showError(strings.invalidEmail);
+      ResponsiveSnackbar.showError(strings.invalidEmail);
       return;
     }
 
     if (password.isEmpty) {
-      AppSnackbar.showError(strings.fieldRequired);
+      ResponsiveSnackbar.showError(strings.fieldRequired);
       return;
     }
 
     context.read<AdminAuthBloc>().add(
-          AdminSignInEvent(email: email, password: password),
-        );
+      AdminSignInEvent(email: email, password: password),
+    );
   }
 }

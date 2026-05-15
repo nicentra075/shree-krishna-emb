@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
+import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -70,7 +71,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 label: AppLocalization.strings.sendResetLink,
                 onPressed: () {
                   // TODO: Implement forgot password logic
-                  AppSnackbar.showSuccess(AppLocalization.strings.resetLinkSentMessage);
+                  ResponsiveSnackbar.showSuccess(AppLocalization.strings.resetLinkSentMessage);
                   Navigator.pop(context);
                 },
                 variant: AppButtonVariant.primary,
