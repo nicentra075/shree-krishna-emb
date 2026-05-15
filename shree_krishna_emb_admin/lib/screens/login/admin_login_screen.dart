@@ -75,9 +75,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     return Row(
       children: [
         // Left panel - Branding
-        Expanded(flex: 40, child: _buildBrandingPanel()),
+        Expanded(flex: 60, child: _buildBrandingPanel()),
         // Right panel - Login form
-        Expanded(flex: 60, child: _buildLoginPanel(context)),
+        Expanded(flex: 40, child: _buildLoginPanel(context)),
       ],
     );
   }
