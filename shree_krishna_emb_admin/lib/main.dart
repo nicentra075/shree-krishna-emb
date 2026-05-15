@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/firebase_options.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
@@ -8,6 +9,7 @@ import 'package:shree_krishna_emb_admin/core/utils/global_navigator.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
+import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,18 +46,21 @@ class _AdminAppState extends State<AdminApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Shree Krishna Embroidery - Admin',
-      // Apply custom theme with dark mode support
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      // Global navigator key for accessing context anywhere in the app
-      navigatorKey: GlobalNavigator.navigatorKey,
-      // Centralized routing system
-      initialRoute: AppRoutes.splash,
-      onGenerateRoute: AppRoutes.onGenerateRoute,
+    return BlocProvider<AdminAuthBloc>(
+      create: (context) => getIt<AdminAuthBloc>(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Shree Krishna Embroidery - Admin',
+        // Apply custom theme with dark mode support
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+        // Global navigator key for accessing context anywhere in the app
+        navigatorKey: GlobalNavigator.navigatorKey,
+        // Centralized routing system
+        initialRoute: AppRoutes.splash,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
+      ),
     );
   }
 
