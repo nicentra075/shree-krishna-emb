@@ -150,7 +150,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             padding: EdgeInsets.all(compact ? 32 : 48),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Logo
                 ZoomIn(
@@ -193,7 +193,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   duration: const Duration(milliseconds: 800),
                   delay: const Duration(milliseconds: 200),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         strings.adminLoginTitle,
@@ -204,6 +204,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -214,6 +215,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -230,6 +232,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     ),
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
