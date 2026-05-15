@@ -3,9 +3,14 @@ import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
+  @override
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+}
+
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalization.strings;
@@ -16,6 +21,14 @@ class AdminDashboardScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF8F7F5),
       appBar: AppAppBar(
         title: strings.adminDashboard,
+        leading: isMobile
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              )
+            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
@@ -27,58 +40,261 @@ class AdminDashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(isMobile ? 16 : 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Section
-            _buildHeader(),
-            SizedBox(height: isMobile ? 24 : 32),
-
-            // KPI Cards
-            _buildKPISection(isMobile),
-            SizedBox(height: isMobile ? 24 : 32),
-
-            // Main Content Grid
-            if (isMobile)
-              Column(
-                children: [
-                  _buildRevenueSection(isMobile),
-                  const SizedBox(height: 24),
-                  _buildApprovalCard(),
-                  const SizedBox(height: 24),
-                  _buildRecentActivitySection(),
-                ],
-              )
-            else
-              Row(
+      drawer: isMobile ? _buildSidebar() : null,
+      body: Row(
+        children: [
+          if (!isMobile) _buildSidebar(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(isMobile ? 16 : 24),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    flex: 65,
-                    child: Column(
+                  // Header Section
+                  _buildHeader(),
+                  SizedBox(height: isMobile ? 24 : 32),
+
+                  // KPI Cards
+                  _buildKPISection(isMobile),
+                  SizedBox(height: isMobile ? 24 : 32),
+
+                  // Main Content Grid
+                  if (isMobile)
+                    Column(
                       children: [
                         _buildRevenueSection(isMobile),
                         const SizedBox(height: 24),
-                        _buildRecentActivitySection(),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    flex: 35,
-                    child: Column(
-                      children: [
                         _buildApprovalCard(),
                         const SizedBox(height: 24),
-                        _buildSystemHealthCard(),
+                        _buildRecentActivitySection(),
+                      ],
+                    )
+                  else
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 65,
+                          child: Column(
+                            children: [
+                              _buildRevenueSection(isMobile),
+                              const SizedBox(height: 24),
+                              _buildRecentActivitySection(),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          flex: 35,
+                          child: Column(
+                            children: [
+                              _buildApprovalCard(),
+                              const SizedBox(height: 24),
+                              _buildSystemHealthCard(),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Sidebar Widget
+  Widget _buildSidebar() {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
+    return Container(
+      width: isMobile ? 280 : 260,
+      decoration: BoxDecoration(
+        color: AppTheme.primaryDark,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(2, 0),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Logo Section
+          Padding(
+            padding: EdgeInsets.all(isMobile ? 20 : 16),
+            child: Column(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryLight.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.spa,
+                    color: AppTheme.primaryLight,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Admin Panel',
+                  style: AppTextStyles.labelMedium(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const Divider(color: Colors.white24, height: 1),
+
+          // Menu Items
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                children: [
+                  _buildSidebarItem(
+                    icon: Icons.dashboard_outlined,
+                    label: 'Dashboard',
+                    isActive: true,
+                    onTap: () {},
+                  ),
+                  _buildSidebarItem(
+                    icon: Icons.assignment_outlined,
+                    label: 'Approval Queue',
+                    isActive: false,
+                    onTap: () {},
+                  ),
+                  _buildSidebarItem(
+                    icon: Icons.store_outlined,
+                    label: 'Design Store',
+                    isActive: false,
+                    onTap: () {},
+                  ),
+                  _buildSidebarItem(
+                    icon: Icons.people_outline,
+                    label: 'User Management',
+                    isActive: false,
+                    onTap: () {},
+                  ),
+                  _buildSidebarItem(
+                    icon: Icons.swap_horiz,
+                    label: 'Transactions',
+                    isActive: false,
+                    onTap: () {},
+                  ),
+                  _buildSidebarItem(
+                    icon: Icons.trending_up,
+                    label: 'Platform Fees',
+                    isActive: false,
+                    onTap: () {},
+                  ),
+                  _buildSidebarItem(
+                    icon: Icons.account_balance_wallet,
+                    label: 'Payouts',
+                    isActive: false,
+                    onTap: () {},
+                  ),
+                  _buildSidebarItem(
+                    icon: Icons.assessment_outlined,
+                    label: 'Reports',
+                    isActive: false,
+                    onTap: () {},
                   ),
                 ],
               ),
-          ],
+            ),
+          ),
+
+          const Divider(color: Colors.white24, height: 1),
+
+          // Footer
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _buildSidebarItem(
+                  icon: Icons.support_agent_outlined,
+                  label: 'Support',
+                  isActive: false,
+                  onTap: () {},
+                ),
+                const SizedBox(height: 12),
+                _buildSidebarItem(
+                  icon: Icons.logout,
+                  label: 'Sign Out',
+                  isActive: false,
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Sidebar Menu Item
+  Widget _buildSidebarItem({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      color: isActive
+          ? Colors.white.withValues(alpha: 0.1)
+          : Colors.transparent,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: isActive ? Colors.white : Colors.white70,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: AppTextStyles.bodyMedium(
+                      color: isActive ? Colors.white : Colors.white70,
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (isActive)
+                  Container(
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryLight,
+                      borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(2),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -190,11 +406,7 @@ class AdminDashboardScreen extends StatelessWidget {
               color: AppTheme.primaryLight.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: AppTheme.primaryDark,
-              size: 20,
-            ),
+            child: Icon(icon, color: AppTheme.primaryDark, size: 20),
           ),
           const SizedBox(height: 16),
           Text(
@@ -276,7 +488,10 @@ class AdminDashboardScreen extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -295,29 +510,20 @@ class AdminDashboardScreen extends StatelessWidget {
           SizedBox(height: isMobile ? 20 : 24),
 
           // Simple revenue chart
-          SizedBox(
-            height: 120,
-            child: _buildRevenueChart(),
-          ),
+          SizedBox(height: 120, child: _buildRevenueChart()),
           SizedBox(height: isMobile ? 16 : 20),
 
           // Revenue metrics row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMetricBadge(
-                label: 'Platform Fees',
-                value: '8.5%',
-              ),
+              _buildMetricBadge(label: 'Platform Fees', value: '8.5%'),
               _buildMetricBadge(
                 label: 'Weekly Growth',
                 value: '14.2%',
                 isPositive: true,
               ),
-              _buildMetricBadge(
-                label: 'Monthly Target',
-                value: '₹5.2L',
-              ),
+              _buildMetricBadge(label: 'Monthly Target', value: '₹5.2L'),
             ],
           ),
         ],
@@ -467,9 +673,7 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
               child: Text(
                 'Launch Approval Queue',
-                style: AppTextStyles.button(
-                  color: AppTheme.primaryDark,
-                ),
+                style: AppTextStyles.button(color: AppTheme.primaryDark),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -520,9 +724,7 @@ class AdminDashboardScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'Operational',
-                style: AppTextStyles.bodyMedium(
-                  color: AppTheme.textDark,
-                ),
+                style: AppTextStyles.bodyMedium(color: AppTheme.textDark),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -585,9 +787,7 @@ class AdminDashboardScreen extends StatelessWidget {
               onPressed: () {},
               child: Text(
                 'View All Feed →',
-                style: AppTextStyles.labelMedium(
-                  color: AppTheme.primaryDark,
-                ),
+                style: AppTextStyles.labelMedium(color: AppTheme.primaryDark),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -649,11 +849,7 @@ class AdminDashboardScreen extends StatelessWidget {
               color: AppTheme.primaryLight.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: AppTheme.primaryDark,
-              size: 20,
-            ),
+            child: Icon(icon, color: AppTheme.primaryDark, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
