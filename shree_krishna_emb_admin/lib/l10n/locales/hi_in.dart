@@ -358,7 +358,11 @@ class HiINStrings implements LocaleStrings {
   @override
   String get adminPassword => 'एडमिन पासवर्ड';
   @override
+  String get adminPasswordHint => 'अपना पासवर्ड दर्ज करें';
+  @override
   String get adminRememberMe => 'मुझे याद रखें';
+  @override
+  String get adminWelcomeSuccess => 'स्वागत है एडमिन!';
   @override
   String get adminForgotPassword => 'पासवर्ड भूल गए?';
   @override

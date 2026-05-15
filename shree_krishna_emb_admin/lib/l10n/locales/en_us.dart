@@ -358,7 +358,11 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get adminPassword => 'Admin Password';
   @override
+  String get adminPasswordHint => 'Enter your password';
+  @override
   String get adminRememberMe => 'Remember me';
+  @override
+  String get adminWelcomeSuccess => 'Welcome Admin!';
   @override
   String get adminForgotPassword => 'Forgot Password?';
   @override

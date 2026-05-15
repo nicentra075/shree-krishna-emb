@@ -201,9 +201,11 @@ abstract class LocaleStrings {
   String get adminLoginWelcome;
   String get adminEmail;
   String get adminPassword;
+  String get adminPasswordHint;
   String get adminRememberMe;
   String get adminForgotPassword;
   String get adminSignIn;
+  String get adminWelcomeSuccess;
   String get adminCopyright;
 
   // ========== Forgot Password Screen ==========
