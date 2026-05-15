@@ -65,9 +65,14 @@ class ResponsiveSnackbar {
     _SnackbarType type,
   ) {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     final color = _getColorForType(type);
     final textColor = _getTextColorForType(type);
+
+    // Calculate left margin dynamically to push snackbar to right side
+    // Content width (380) + right margin (24) + padding (24) = 428
+    final leftMargin = screenWidth - 428;
 
     scaffoldMessenger.showSnackBar(
       SnackBar(
@@ -91,7 +96,7 @@ class ResponsiveSnackbar {
         ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.only(bottom: 24, right: 24),
+        margin: EdgeInsets.only(bottom: 24, right: 24, left: leftMargin),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 3),
         elevation: 6.0,
