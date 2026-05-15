@@ -203,4 +203,9 @@ abstract class LocaleStrings {
   String get adminForgotPassword;
   String get adminSignIn;
   String get adminCopyright;
+
+  // ========== Forgot Password Screen ==========
+  String get enterYourEmail;
+  String get resetLinkMessage;
+  String get sendResetLink;
 }

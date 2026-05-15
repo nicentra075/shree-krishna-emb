@@ -20,7 +20,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     InitializeSplashEvent event,
     Emitter<SplashState> emit,
   ) async {
-    emit(SplashLoading(elapsed: Duration.zero));
+    emit(SplashLoading(elapsed: splashDuration));
 
     _splashTimer = Timer(splashDuration, () {
       add(const SplashDurationCompleteEvent());

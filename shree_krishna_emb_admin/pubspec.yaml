@@ -1,11 +1,11 @@
 name: shree_krishna_emb_admin
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
   sdk: ^3.10.7
-  
+
 dependencies:
   flutter:
     sdk: flutter
@@ -15,13 +15,13 @@ dependencies:
     path: ../core
 
   # Firebase
-  firebase_core: ^4.7.0
-  cloud_firestore: ^6.3.0
-  firebase_auth: ^6.4.0
-  firebase_storage: ^13.3.0
+  firebase_core: ^4.9.0
+  cloud_firestore: ^6.4.1
+  firebase_auth: ^6.5.1
+  firebase_storage: ^13.4.1
 
   # State Management
-  flutter_bloc: ^8.1.4
+  flutter_bloc: ^9.1.1
   bloc: ^8.1.2
   get_it: ^7.6.0
 

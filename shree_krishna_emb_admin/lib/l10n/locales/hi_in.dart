@@ -361,4 +361,11 @@ class HiINStrings implements LocaleStrings {
   String get adminSignIn => 'साइन इन करें';
   @override
   String get adminCopyright => '© 2026 श्री कृष्ण कढ़ाई। सर्वाधिकार सुरक्षित।';
+
+  @override
+  String get enterYourEmail => 'अपना ईमेल पता दर्ज करें';
+  @override
+  String get resetLinkMessage => 'हम आपको पासवर्ड रीसेट करने के लिए एक लिंक भेजेंगे';
+  @override
+  String get sendResetLink => 'रीसेट लिंक भेजें';
 }

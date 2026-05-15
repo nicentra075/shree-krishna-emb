@@ -361,4 +361,11 @@ class EnUSStrings implements LocaleStrings {
   String get adminSignIn => 'Sign In';
   @override
   String get adminCopyright => '© 2026 Shree Krishna Embroidery. All rights reserved.';
+
+  @override
+  String get enterYourEmail => 'Enter your email address';
+  @override
+  String get resetLinkMessage => 'We\'ll send you a link to reset your password';
+  @override
+  String get sendResetLink => 'Send Reset Link';
 }

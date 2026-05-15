@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppAppBar(
-        title: 'Reset Password',
+        title: AppLocalization.strings.resetPassword,
         onBack: () => Navigator.pop(context),
       ),
       body: SingleChildScrollView(
@@ -38,7 +39,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Enter your email address',
+                AppLocalization.strings.enterYourEmail,
                 style: AppTextStyles.headlineMedium(
                   color: AppTheme.textDark,
                 ),
@@ -47,7 +48,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'We\'ll send you a link to reset your password',
+                AppLocalization.strings.resetLinkMessage,
                 style: AppTextStyles.bodyMedium(
                   color: AppTheme.textBrown,
                 ),
@@ -56,7 +57,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 32),
               AppTextField(
-                label: 'Email Address',
+                label: AppLocalization.strings.adminEmail,
                 hint: 'admin@example.com',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -68,25 +69,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AppButton(
                   onPressed: () {
                     // TODO: Implement forgot password logic
                     AppSnackbar.showSuccess('Reset link sent to email');
                     Navigator.pop(context);
                   },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppTheme.primaryDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'Send Reset Link',
-                    style: AppTextStyles.button(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  text: AppLocalization.strings.sendResetLink,
+                  type: AppButtonType.primary,
                 ),
               ),
             ],
