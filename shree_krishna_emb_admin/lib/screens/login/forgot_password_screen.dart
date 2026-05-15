@@ -67,17 +67,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: AppButton(
-                  onPressed: () {
-                    // TODO: Implement forgot password logic
-                    AppSnackbar.showSuccess('Reset link sent to email');
-                    Navigator.pop(context);
-                  },
-                  text: AppLocalization.strings.sendResetLink,
-                  type: AppButtonType.primary,
-                ),
+              AppButton(
+                label: AppLocalization.strings.sendResetLink,
+                onPressed: () {
+                  // TODO: Implement forgot password logic
+                  AppSnackbar.showSuccess('Reset link sent to email');
+                  Navigator.pop(context);
+                },
+                variant: AppButtonVariant.primary,
+                isFullWidth: true,
+                size: AppButtonSize.large,
               ),
             ],
           ),
