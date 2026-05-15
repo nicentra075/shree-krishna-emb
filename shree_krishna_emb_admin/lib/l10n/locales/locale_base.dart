@@ -196,6 +196,7 @@ abstract class LocaleStrings {
   // ========== Admin Login Screen ==========
   String get adminLoginTitle;
   String get adminLoginSubtitle;
+  String get adminLoginDescription;
   String get adminLoginTagline;
   String get adminLoginWelcome;
   String get adminEmail;

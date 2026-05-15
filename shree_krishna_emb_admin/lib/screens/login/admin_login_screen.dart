@@ -271,7 +271,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Sign in to access the admin dashboard',
+                      strings.adminLoginDescription,
                       style: AppTextStyles.bodyLarge(
                         color: AppTheme.textBrown.withValues(alpha: 0.7),
                       ),
@@ -476,19 +476,20 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   void _handleSignIn(BuildContext context) {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+    final strings = AppLocalization.strings;
 
     if (email.isEmpty) {
-      AppSnackbar.showError('Email is required');
+      AppSnackbar.showError(strings.fieldRequired);
       return;
     }
 
     if (!email.contains('@')) {
-      AppSnackbar.showError('Please enter a valid email');
+      AppSnackbar.showError(strings.invalidEmail);
       return;
     }
 
     if (password.isEmpty) {
-      AppSnackbar.showError('Password is required');
+      AppSnackbar.showError(strings.fieldRequired);
       return;
     }
 

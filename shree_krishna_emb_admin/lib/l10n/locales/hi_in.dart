@@ -348,6 +348,8 @@ class HiINStrings implements LocaleStrings {
   @override
   String get adminLoginSubtitle => 'अपने कढ़ाई साम्राज्य को संभालें';
   @override
+  String get adminLoginDescription => 'एडमिन डैशबोर्ड एक्सेस करने के लिए साइन इन करें';
+  @override
   String get adminLoginTagline => 'ऑपरेशन को सुव्यवस्थित करें, ऑर्डर ट्रैक करें, और हमारे शक्तिशाली एडमिन डैशबोर्ड के साथ अपने कढ़ाई व्यवसाय को बढ़ाएं।';
   @override
   String get adminLoginWelcome => 'स्वागत है एडमिन';

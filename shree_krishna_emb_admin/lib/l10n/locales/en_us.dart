@@ -348,6 +348,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get adminLoginSubtitle => 'Manage Your Embroidery Empire';
   @override
+  String get adminLoginDescription => 'Sign in to access the admin dashboard';
+  @override
   String get adminLoginTagline => 'Streamline operations, track orders, and grow your embroidery business with our powerful admin dashboard.';
   @override
   String get adminLoginWelcome => 'Welcome Admin';
