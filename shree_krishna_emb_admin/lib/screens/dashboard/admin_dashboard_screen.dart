@@ -15,203 +15,220 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final screenSize = MediaQuery.of(context).size;
     final isMobile = screenSize.width < 768;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F7F5),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
+    // Mobile layout with drawer
+    if (isMobile) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8F7F5),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(70),
+          child: _buildAppBar(isMobile),
+        ),
+        drawer: _buildSidebar(),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 24),
+              _buildKPISection(isMobile),
+              const SizedBox(height: 24),
+              _buildRevenueSection(isMobile),
+              const SizedBox(height: 24),
+              _buildApprovalCard(),
+              const SizedBox(height: 24),
+              _buildRecentActivitySection(),
             ],
           ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 12 : 24,
-              vertical: 8,
-            ),
-            child: Row(
+        ),
+      );
+    }
+
+    // Desktop layout with fixed sidebar
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F7F5),
+      body: Row(
+        children: [
+          // Sidebar (fixed left)
+          _buildSidebar(),
+          // Main content area (right side)
+          Expanded(
+            child: Column(
               children: [
-                if (isMobile)
-                  IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () {
-                      Scaffold.of(context).openDrawer();
-                    },
-                  ),
-                if (!isMobile) const SizedBox(width: 8),
+                // App bar
+                _buildAppBar(isMobile),
+                // Main content
                 Expanded(
-                  child: Container(
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Colors.grey.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 32),
+                        _buildKPISection(isMobile),
+                        const SizedBox(height: 32),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 65,
+                              child: Column(
+                                children: [
+                                  _buildRevenueSection(isMobile),
+                                  const SizedBox(height: 24),
+                                  _buildRecentActivitySection(),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              flex: 35,
+                              child: Column(
+                                children: [
+                                  _buildApprovalCard(),
+                                  const SizedBox(height: 24),
+                                  _buildSystemHealthCard(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search designers, designs or transactions...',
-                        hintStyle: AppTextStyles.bodyMedium(
-                          color: Colors.grey.withValues(alpha: 0.5),
-                        ),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Colors.grey.withValues(alpha: 0.5),
-                          size: 20,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      style: AppTextStyles.bodyMedium(
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                IconButton(
-                  icon: const Icon(
-                    Icons.notifications_outlined,
-                    size: 24,
-                  ),
-                  color: Colors.grey.withValues(alpha: 0.6),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.settings_outlined,
-                    size: 24,
-                  ),
-                  color: Colors.grey.withValues(alpha: 0.6),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Row(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Admin User',
-                            style: AppTextStyles.labelMedium(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            'LEAD AUDITOR',
-                            style: AppTextStyles.labelSmall(
-                              color: Colors.grey.withValues(alpha: 0.6),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppTheme.primaryDark,
-                        ),
-                        child: Center(
-                          child: Text(
-                            'AU',
-                            style: AppTextStyles.labelMedium(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
-      drawer: isMobile ? _buildSidebar() : null,
-      body: Row(
-        children: [
-          if (!isMobile) _buildSidebar(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(isMobile ? 16 : 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header Section
-                  _buildHeader(),
-                  SizedBox(height: isMobile ? 24 : 32),
+    );
+  }
 
-                  // KPI Cards
-                  _buildKPISection(isMobile),
-                  SizedBox(height: isMobile ? 24 : 32),
-
-                  // Main Content Grid
-                  if (isMobile)
-                    Column(
-                      children: [
-                        _buildRevenueSection(isMobile),
-                        const SizedBox(height: 24),
-                        _buildApprovalCard(),
-                        const SizedBox(height: 24),
-                        _buildRecentActivitySection(),
-                      ],
-                    )
-                  else
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 65,
-                          child: Column(
-                            children: [
-                              _buildRevenueSection(isMobile),
-                              const SizedBox(height: 24),
-                              _buildRecentActivitySection(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          flex: 35,
-                          child: Column(
-                            children: [
-                              _buildApprovalCard(),
-                              const SizedBox(height: 24),
-                              _buildSystemHealthCard(),
-                            ],
-                          ),
-                        ),
-                      ],
+  // App Bar Widget
+  Widget _buildAppBar(bool isMobile) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 12 : 24,
+          vertical: 8,
+        ),
+        child: Row(
+          children: [
+            if (isMobile)
+              IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+            if (!isMobile) const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.grey.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search designers, designs or transactions...',
+                    hintStyle: AppTextStyles.bodyMedium(
+                      color: Colors.grey.withValues(alpha: 0.5),
                     ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Colors.grey.withValues(alpha: 0.5),
+                      size: 20,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  style: AppTextStyles.bodyMedium(color: Colors.black87),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined, size: 24),
+              color: Colors.grey.withValues(alpha: 0.6),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings_outlined, size: 24),
+              color: Colors.grey.withValues(alpha: 0.6),
+              onPressed: () {},
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Admin User',
+                        style: AppTextStyles.labelMedium(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        'LEAD AUDITOR',
+                        style: AppTextStyles.labelSmall(
+                          color: Colors.grey.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.primaryDark,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'AU',
+                        style: AppTextStyles.labelMedium(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
