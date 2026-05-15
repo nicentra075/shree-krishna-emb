@@ -10,41 +10,46 @@ class ResponsiveSnackbar {
   static const _mobileThreshold = 600.0;
 
   /// Show success message with responsive positioning
-  static void showSuccess(String message) {
-    _showSnackbar(message, type: _SnackbarType.success);
+  /// Pass context for reliable snackbar positioning
+  static void showSuccess(String message, [BuildContext? context]) {
+    _showSnackbar(message, type: _SnackbarType.success, context: context);
   }
 
   /// Show error message with responsive positioning
-  static void showError(String message) {
-    _showSnackbar(message, type: _SnackbarType.error);
+  /// Pass context for reliable snackbar positioning
+  static void showError(String message, [BuildContext? context]) {
+    _showSnackbar(message, type: _SnackbarType.error, context: context);
   }
 
   /// Show info message with responsive positioning
-  static void showInfo(String message) {
-    _showSnackbar(message, type: _SnackbarType.info);
+  /// Pass context for reliable snackbar positioning
+  static void showInfo(String message, [BuildContext? context]) {
+    _showSnackbar(message, type: _SnackbarType.info, context: context);
   }
 
   /// Show warning message with responsive positioning
-  static void showWarning(String message) {
-    _showSnackbar(message, type: _SnackbarType.warning);
+  /// Pass context for reliable snackbar positioning
+  static void showWarning(String message, [BuildContext? context]) {
+    _showSnackbar(message, type: _SnackbarType.warning, context: context);
   }
 
   static void _showSnackbar(
     String message, {
     required _SnackbarType type,
+    BuildContext? context,
   }) {
-    final context = _getContext();
-    if (context == null) {
+    final ctx = context ?? _getContext();
+    if (ctx == null) {
       _callAppSnackbar(message, type);
       return;
     }
 
     try {
-      final screenWidth = MediaQuery.of(context).size.width;
+      final screenWidth = MediaQuery.of(ctx).size.width;
       final isWideScreen = screenWidth >= _mobileThreshold && kIsWeb;
 
       if (isWideScreen) {
-        _showResponsiveSnackbar(context, message, type);
+        _showResponsiveSnackbar(ctx, message, type);
       } else {
         _callAppSnackbar(message, type);
       }
