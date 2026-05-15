@@ -368,4 +368,6 @@ class HiINStrings implements LocaleStrings {
   String get resetLinkMessage => 'हम आपको पासवर्ड रीसेट करने के लिए एक लिंक भेजेंगे';
   @override
   String get sendResetLink => 'रीसेट लिंक भेजें';
+  @override
+  String get resetLinkSentMessage => 'रीसेट लिंक ईमेल पर भेजा गया';
 }

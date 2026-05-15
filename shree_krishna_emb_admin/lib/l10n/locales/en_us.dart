@@ -368,4 +368,6 @@ class EnUSStrings implements LocaleStrings {
   String get resetLinkMessage => 'We\'ll send you a link to reset your password';
   @override
   String get sendResetLink => 'Send Reset Link';
+  @override
+  String get resetLinkSentMessage => 'Reset link sent to email';
 }

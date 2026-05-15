@@ -58,7 +58,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 32),
               AppTextField(
                 label: AppLocalization.strings.adminEmail,
-                hint: 'admin@example.com',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: Icon(
@@ -71,7 +70,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 label: AppLocalization.strings.sendResetLink,
                 onPressed: () {
                   // TODO: Implement forgot password logic
-                  AppSnackbar.showSuccess('Reset link sent to email');
+                  AppSnackbar.showSuccess(AppLocalization.strings.resetLinkSentMessage);
                   Navigator.pop(context);
                 },
                 variant: AppButtonVariant.primary,

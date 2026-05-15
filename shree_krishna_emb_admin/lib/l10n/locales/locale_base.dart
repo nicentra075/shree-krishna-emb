@@ -208,4 +208,5 @@ abstract class LocaleStrings {
   String get enterYourEmail;
   String get resetLinkMessage;
   String get sendResetLink;
+  String get resetLinkSentMessage;
 }
