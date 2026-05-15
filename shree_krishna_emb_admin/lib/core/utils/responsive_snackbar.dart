@@ -39,12 +39,16 @@ class ResponsiveSnackbar {
       return;
     }
 
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isWideScreen = screenWidth >= _mobileThreshold && kIsWeb;
+    try {
+      final screenWidth = MediaQuery.of(context).size.width;
+      final isWideScreen = screenWidth >= _mobileThreshold && kIsWeb;
 
-    if (isWideScreen) {
-      _showResponsiveSnackbar(context, message, type);
-    } else {
+      if (isWideScreen) {
+        _showResponsiveSnackbar(context, message, type);
+      } else {
+        _callAppSnackbar(message, type);
+      }
+    } catch (_) {
       _callAppSnackbar(message, type);
     }
   }
@@ -62,14 +66,14 @@ class ResponsiveSnackbar {
 
     scaffoldMessenger.showSnackBar(
       SnackBar(
-        content: SizedBox(
-          width: 380,
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 380),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(_getIconForType(type), color: textColor, size: 20),
               const SizedBox(width: 12),
-              Expanded(
+              Flexible(
                 child: Text(
                   message,
                   style: TextStyle(color: textColor, fontSize: 14),
@@ -85,6 +89,7 @@ class ResponsiveSnackbar {
         margin: const EdgeInsets.only(bottom: 24, right: 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 3),
+        elevation: 6.0,
       ),
     );
   }
