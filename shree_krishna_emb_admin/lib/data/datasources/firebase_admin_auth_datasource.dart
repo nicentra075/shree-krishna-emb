@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shree_krishna_emb_admin/core/errors/exceptions.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/admin_auth_repository.dart';
 
@@ -16,12 +17,16 @@ abstract class AdminAuthDataSource {
 }
 
 /// Firebase implementation of AdminAuthDataSource
-/// Handles all Firebase authentication logic
+/// Handles all Firebase authentication logic with role-based access control
 class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
   final FirebaseAuth _firebaseAuth;
+  final FirebaseFirestore _firestore;
 
-  FirebaseAdminAuthDataSource({FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+  FirebaseAdminAuthDataSource({
+    FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firestore,
+  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<AdminAuthSuccess> signIn({
@@ -37,6 +42,20 @@ class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
       final user = userCredential.user;
       if (user == null) {
         throw ServerException(message: 'Sign in failed: User is null');
+      }
+
+      // Check if user has admin role in Firestore
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      if (!userDoc.exists) {
+        await _firebaseAuth.signOut();
+        throw ServerException(message: 'User profile not found');
+      }
+
+      final userData = userDoc.data();
+      final userRole = userData?['role'] as String?;
+      if (userRole != 'admin') {
+        await _firebaseAuth.signOut();
+        throw ServerException(message: 'Access denied: Admin role required');
       }
 
       return AdminAuthSuccess(
@@ -70,6 +89,20 @@ class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
     try {
       final currentUser = _firebaseAuth.currentUser;
       if (currentUser == null) {
+        return null;
+      }
+
+      // Verify user still has admin role
+      final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
+      if (!userDoc.exists) {
+        await _firebaseAuth.signOut();
+        return null;
+      }
+
+      final userData = userDoc.data();
+      final userRole = userData?['role'] as String?;
+      if (userRole != 'admin') {
+        await _firebaseAuth.signOut();
         return null;
       }
 

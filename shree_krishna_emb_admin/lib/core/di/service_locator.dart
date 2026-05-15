@@ -32,7 +32,10 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
   // ADMIN AUTH - Clean Architecture Pattern
   // Data Layer
   getIt.registerSingleton<AdminAuthDataSource>(
-    FirebaseAdminAuthDataSource(firebaseAuth: getIt<FirebaseAuth>()),
+    FirebaseAdminAuthDataSource(
+      firebaseAuth: getIt<FirebaseAuth>(),
+      firestore: getIt<FirebaseFirestore>(),
+    ),
   );
 
   // Repository Layer (switches backends here if needed)
