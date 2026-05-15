@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
-import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/screens/splash/splash_screen.dart';
 import 'package:shree_krishna_emb_admin/screens/login/admin_login_screen.dart';
 import 'package:shree_krishna_emb_admin/screens/login/forgot_password_screen.dart';
+import 'package:shree_krishna_emb_admin/screens/dashboard/admin_dashboard_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -32,7 +31,7 @@ class AppRoutes {
         );
       case home:
         return MaterialPageRoute(
-          builder: (_) => const AdminHomePage(),
+          builder: (_) => const AdminDashboardScreen(),
           settings: settings,
         );
       default:
@@ -41,41 +40,5 @@ class AppRoutes {
           settings: settings,
         );
     }
-  }
-}
-
-// Temporary home page - replace with actual dashboard later
-class AdminHomePage extends StatelessWidget {
-  const AdminHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalization.strings;
-
-    return Scaffold(
-      appBar: AppAppBar(
-        title: strings.adminDashboard,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              strings.appName,
-              style: Theme.of(context).textTheme.displaySmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Coming Soon',
-              style: Theme.of(context).textTheme.bodyLarge,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
