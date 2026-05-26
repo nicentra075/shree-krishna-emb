@@ -32,29 +32,36 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     _searchQuery = null;
 
     final countResult = await repository.getUserCount();
-    countResult.fold(
-      (failure) => emit(UserListError(failure.message)),
-      (count) async {
-        _totalUsers = count;
-        final result = await repository.getUsers(
-          page: _currentPage,
-          pageSize: pageSize,
-          searchQuery: _searchQuery,
-        );
 
-        result.fold(
-          (failure) => emit(UserListError(failure.message)),
-          (users) {
-            final totalPages = (_totalUsers / pageSize).ceil();
-            emit(UserListLoaded(
-              users: users,
-              currentPage: _currentPage,
-              totalPages: totalPages,
-              totalUsers: _totalUsers,
-              searchQuery: _searchQuery,
-            ));
-          },
-        );
+    final count = countResult.fold(
+      (failure) {
+        emit(UserListError(failure.message));
+        return 0;
+      },
+      (count) => count,
+    );
+
+    if (count == 0) return;
+
+    _totalUsers = count;
+
+    final result = await repository.getUsers(
+      page: _currentPage,
+      pageSize: pageSize,
+      searchQuery: _searchQuery,
+    );
+
+    result.fold(
+      (failure) => emit(UserListError(failure.message)),
+      (users) {
+        final totalPages = (_totalUsers / pageSize).ceil();
+        emit(UserListLoaded(
+          users: users,
+          currentPage: _currentPage,
+          totalPages: totalPages,
+          totalUsers: _totalUsers,
+          searchQuery: _searchQuery,
+        ));
       },
     );
   }
@@ -71,29 +78,45 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       searchQuery: _searchQuery,
     );
 
-    countResult.fold(
-      (failure) => emit(UserListError(failure.message)),
-      (count) async {
-        _totalUsers = count;
-        final result = await repository.getUsers(
-          page: _currentPage,
-          pageSize: pageSize,
-          searchQuery: _searchQuery,
-        );
+    final count = countResult.fold(
+      (failure) {
+        emit(UserListError(failure.message));
+        return 0;
+      },
+      (count) => count,
+    );
 
-        result.fold(
-          (failure) => emit(UserListError(failure.message)),
-          (users) {
-            final totalPages = _totalUsers > 0 ? (_totalUsers / pageSize).ceil() : 1;
-            emit(UserListLoaded(
-              users: users,
-              currentPage: _currentPage,
-              totalPages: totalPages,
-              totalUsers: _totalUsers,
-              searchQuery: _searchQuery,
-            ));
-          },
-        );
+    if (count == 0) {
+      _totalUsers = 0;
+      emit(const UserListLoaded(
+        users: [],
+        currentPage: 1,
+        totalPages: 1,
+        totalUsers: 0,
+        searchQuery: null,
+      ));
+      return;
+    }
+
+    _totalUsers = count;
+
+    final result = await repository.getUsers(
+      page: _currentPage,
+      pageSize: pageSize,
+      searchQuery: _searchQuery,
+    );
+
+    result.fold(
+      (failure) => emit(UserListError(failure.message)),
+      (users) {
+        final totalPages = _totalUsers > 0 ? (_totalUsers / pageSize).ceil() : 1;
+        emit(UserListLoaded(
+          users: users,
+          currentPage: _currentPage,
+          totalPages: totalPages,
+          totalUsers: _totalUsers,
+          searchQuery: _searchQuery,
+        ));
       },
     );
   }
