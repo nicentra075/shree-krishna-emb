@@ -146,8 +146,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             ),
           ),
           // Content
-          Padding(
-            padding: EdgeInsets.all(compact ? 32 : 48),
+          Align(
+            alignment: .center,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -528,7 +528,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_resetEmailController.text.isEmpty) {
-                    ResponsiveSnackbar.showError(strings.fieldRequired, context);
+                    ResponsiveSnackbar.showError(
+                      strings.fieldRequired,
+                      context,
+                    );
                     return;
                   }
                   if (!_resetEmailController.text.contains('@')) {
@@ -536,7 +539,10 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     return;
                   }
                   // TODO: Call reset password API
-                  ResponsiveSnackbar.showSuccess(strings.resetLinkSentMessage, context);
+                  ResponsiveSnackbar.showSuccess(
+                    strings.resetLinkSentMessage,
+                    context,
+                  );
                   Future.delayed(const Duration(milliseconds: 500), () {
                     if (mounted) {
                       setState(() {
