@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
+import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
 import 'desktop_user_list_view.dart';
 import 'mobile_user_list_view.dart';
 
@@ -14,7 +16,7 @@ class UserManagementScreen extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => UserListBloc(
-        repository: context.read(),
+        repository: GetIt.instance<UserListRepository>(),
       ),
       child: isMobile ? const MobileUserListView() : const DesktopUserListView(),
     );
