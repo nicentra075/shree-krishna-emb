@@ -6,6 +6,8 @@ import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_event.dar
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_state.dart';
 import 'package:shree_krishna_emb_admin/data/models/user_list_item_model.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
+import 'dialogs/user_edit_dialog.dart';
+import 'dialogs/user_details_dialog.dart';
 
 class DesktopUserListView extends StatefulWidget {
   const DesktopUserListView({super.key});
@@ -49,42 +51,70 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Search field
-              Container(
-                width: 400,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.grey.withValues(alpha: 0.2),
+              // Search field and Add User button
+              Row(
+                children: [
+                  // Search field
+                  Container(
+                    width: 400,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.grey.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (query) {
+                        context
+                            .read<UserListBloc>()
+                            .add(SearchUsersEvent(query));
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search by name or email...',
+                        hintStyle: AppTextStyles.bodyMedium(
+                          color: Colors.grey.withValues(alpha: 0.5),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Colors.grey.withValues(alpha: 0.5),
+                          size: 20,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      style: AppTextStyles.bodyMedium(color: Colors.black87),
+                    ),
                   ),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (query) {
-                    context
-                        .read<UserListBloc>()
-                        .add(SearchUsersEvent(query));
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search by name or email...',
-                    hintStyle: AppTextStyles.bodyMedium(
-                      color: Colors.grey.withValues(alpha: 0.5),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: Colors.grey.withValues(alpha: 0.5),
-                      size: 20,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                  const SizedBox(width: 12),
+                  // Add User Button
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => const UserEditDialog(user: null),
+                      );
+                    },
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Add User'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryDark,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
-                  style: AppTextStyles.bodyMedium(color: Colors.black87),
-                ),
+                ],
               ),
             ],
           ),
@@ -103,19 +133,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
               builder: (context, state) {
                 if (state is UserListLoading) {
                   return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const AppLoader(),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Loading users...',
-                          style: AppTextStyles.bodyMedium(
-                            color: AppTheme.textBrown.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: const AppLoader(),
                   );
                 }
 
@@ -307,47 +325,43 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            // Role
+            // Role - Chip Style
             Expanded(
               flex: 15,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryLight.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
+              child: Chip(
+                label: Text(
                   user.role.replaceFirst(user.role[0], user.role[0].toUpperCase()),
                   style: AppTextStyles.labelSmall(
                     color: AppTheme.primaryDark,
+                    fontWeight: FontWeight.w600,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                ),
+                backgroundColor: AppTheme.primaryLight.withValues(alpha: 0.15),
+                side: BorderSide(
+                  color: AppTheme.primaryDark.withValues(alpha: 0.2),
                 ),
               ),
             ),
-            // Status
+            // Status - Chip Style
             Expanded(
               flex: 15,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: user.isActive
-                      ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
-                      : const Color(0xFFFF6B6B).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
+              child: Chip(
+                label: Text(
                   user.isActive ? 'Active' : 'Suspended',
                   style: AppTextStyles.labelSmall(
                     color: user.isActive
                         ? const Color(0xFF4CAF50)
                         : const Color(0xFFFF6B6B),
+                    fontWeight: FontWeight.w600,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                ),
+                backgroundColor: user.isActive
+                    ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
+                    : const Color(0xFFFF6B6B).withValues(alpha: 0.15),
+                side: BorderSide(
+                  color: user.isActive
+                      ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
+                      : const Color(0xFFFF6B6B).withValues(alpha: 0.3),
                 ),
               ),
             ),
@@ -359,16 +373,20 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to UserDetailsDialog when created
-                      debugPrint('View user: ${user.id}');
+                      showDialog(
+                        context: context,
+                        builder: (_) => UserDetailsDialog(user: user),
+                      );
                     },
                     child: const Text('View'),
                   ),
                   const SizedBox(width: 8),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to UserEditDialog when created
-                      debugPrint('Edit user: ${user.id}');
+                      showDialog(
+                        context: context,
+                        builder: (_) => UserEditDialog(user: user),
+                      );
                     },
                     child: const Text('Edit'),
                   ),

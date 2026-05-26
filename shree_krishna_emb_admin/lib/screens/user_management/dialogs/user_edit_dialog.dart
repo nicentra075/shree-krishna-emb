@@ -6,11 +6,11 @@ import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_event.dar
 import 'package:shree_krishna_emb_admin/data/models/user_list_item_model.dart';
 
 class UserEditDialog extends StatefulWidget {
-  final UserListItemModel user;
+  final UserListItemModel? user;
 
   const UserEditDialog({
     super.key,
-    required this.user,
+    this.user,
   });
 
   @override
@@ -25,9 +25,9 @@ class _UserEditDialogState extends State<UserEditDialog> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.user.name);
-    _emailController = TextEditingController(text: widget.user.email);
-    _selectedRole = widget.user.role;
+    _nameController = TextEditingController(text: widget.user?.name ?? '');
+    _emailController = TextEditingController(text: widget.user?.email ?? '');
+    _selectedRole = widget.user?.role ?? 'user';
   }
 
   @override
@@ -39,8 +39,10 @@ class _UserEditDialogState extends State<UserEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isCreateMode = widget.user == null;
+
     return AlertDialog(
-      title: const Text('Edit User'),
+      title: Text(isCreateMode ? 'Add User' : 'Edit User'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -93,21 +95,29 @@ class _UserEditDialogState extends State<UserEditDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            final updatedUser = UserListItemModel(
-              id: widget.user.id,
-              name: _nameController.text,
-              email: _emailController.text,
-              role: _selectedRole,
-              isActive: widget.user.isActive,
-              createdAt: widget.user.createdAt,
-            );
+            if (isCreateMode) {
+              // For add user: refresh the list (future: implement proper create)
+              AppSnackbar.showSuccess('User creation functionality coming soon');
+              context.read<UserListBloc>().add(const RefreshUsersEvent());
+              Navigator.pop(context);
+            } else {
+              // Edit existing user
+              final updatedUser = UserListItemModel(
+                id: widget.user!.id,
+                name: _nameController.text,
+                email: _emailController.text,
+                role: _selectedRole,
+                isActive: widget.user!.isActive,
+                createdAt: widget.user!.createdAt,
+              );
 
-            context
-                .read<UserListBloc>()
-                .add(EditUserEvent(updatedUser));
-            Navigator.pop(context);
+              context
+                  .read<UserListBloc>()
+                  .add(EditUserEvent(updatedUser));
+              Navigator.pop(context);
+            }
           },
-          child: const Text('Save'),
+          child: Text(isCreateMode ? 'Create' : 'Save'),
         ),
       ],
     );
