@@ -18,21 +18,39 @@ class UserListItemModel extends UserListItem {
 
   // Firebase conversion
   factory UserListItemModel.fromFirebaseJson(Map<String, dynamic> json) {
+    // Helper function to safely convert Firestore timestamps to DateTime
+    DateTime? parseTimestamp(dynamic timestamp) {
+      if (timestamp == null) return null;
+      if (timestamp is DateTime) return timestamp;
+      if (timestamp is String) return DateTime.tryParse(timestamp);
+      // Handle Firestore Timestamp object
+      try {
+        if (timestamp.runtimeType.toString().contains('Timestamp')) {
+          return (timestamp as dynamic).toDate() as DateTime;
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    // Helper function to safely convert to String
+    String? toStringOrNull(dynamic value) {
+      if (value == null) return null;
+      return value.toString();
+    }
+
     return UserListItemModel(
-      id: json['id'] as String? ?? json['uid'] as String,
-      name: json['name'] as String? ?? 'Unknown',
-      email: json['email'] as String,
-      role: json['role'] as String? ?? 'user',
+      id: toStringOrNull(json['id']) ?? toStringOrNull(json['uid']) ?? 'unknown',
+      name: toStringOrNull(json['name']) ?? 'Unknown',
+      email: toStringOrNull(json['email']) ?? 'unknown@example.com',
+      role: toStringOrNull(json['role']) ?? 'user',
       isActive: json['isActive'] as bool? ?? true,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : DateTime.now(),
-      userId: json['userId'] as String?,
-      phoneNumber: json['phoneNumber'] as String?,
-      loginMethod: json['loginMethod'] as String?,
-      photoUrl: json['photoUrl'] as String?,
-      loginAt: json['loginAt'] != null ? DateTime.parse(json['loginAt'] as String) : null,
-      logoutAt: json['logoutAt'] != null ? DateTime.parse(json['logoutAt'] as String) : null,
+      createdAt: parseTimestamp(json['createdAt']) ?? DateTime.now(),
+      userId: toStringOrNull(json['userId']),
+      phoneNumber: toStringOrNull(json['phoneNumber']),
+      loginMethod: toStringOrNull(json['loginMethod']),
+      photoUrl: toStringOrNull(json['photoUrl']),
+      loginAt: parseTimestamp(json['loginAt']),
+      logoutAt: parseTimestamp(json['logoutAt']),
     );
   }
 
