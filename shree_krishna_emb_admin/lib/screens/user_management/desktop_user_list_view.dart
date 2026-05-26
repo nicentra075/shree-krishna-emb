@@ -102,7 +102,21 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
             child: BlocBuilder<UserListBloc, UserListState>(
               builder: (context, state) {
                 if (state is UserListLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const AppLoader(),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Loading users...',
+                          style: AppTextStyles.bodyMedium(
+                            color: AppTheme.textBrown.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 if (state is UserListError) {
