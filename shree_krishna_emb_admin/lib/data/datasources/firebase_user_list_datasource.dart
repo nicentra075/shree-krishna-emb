@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shree_krishna_emb_admin/core/errors/exceptions.dart';
 import 'package:shree_krishna_emb_admin/data/models/user_list_item_model.dart';
 
@@ -16,6 +17,14 @@ abstract class UserListDataSource {
   Future<void> deleteUser(String userId);
 
   Future<int> getUserCount({String? searchQuery});
+
+  Future<void> createUser({
+    required String name,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String role,
+  });
 }
 
 class FirebaseUserListDataSource implements UserListDataSource {
@@ -149,6 +158,57 @@ class FirebaseUserListDataSource implements UserListDataSource {
     } on FirebaseException catch (e) {
       throw ServerException(
         message: e.message ?? 'Failed to get user count',
+      );
+    } catch (e) {
+      throw ServerException(message: 'Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<void> createUser({
+    required String name,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String role,
+  }) async {
+    try {
+      // Create Firebase Auth user
+      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final uid = userCredential.user!.uid;
+
+      // Create user document in Firestore
+      await _firestore.collection('users').doc(uid).set({
+        'id': uid,
+        'userId': uid,
+        'name': name,
+        'email': email,
+        'phoneNumber': phoneNumber,
+        'role': role,
+        'isActive': true,
+        'createdAt': DateTime.now().toIso8601String(),
+        'loginMethod': 'email',
+        'photoUrl': null,
+        'loginAt': null,
+        'logoutAt': null,
+      });
+    } on FirebaseAuthException catch (e) {
+      String message = 'Failed to create user';
+      if (e.code == 'weak-password') {
+        message = 'Password is too weak';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'Email already in use';
+      } else if (e.code == 'invalid-email') {
+        message = 'Invalid email format';
+      }
+      throw ServerException(message: message);
+    } on FirebaseException catch (e) {
+      throw ServerException(
+        message: e.message ?? 'Failed to create user',
       );
     } catch (e) {
       throw ServerException(message: 'Unexpected error: $e');

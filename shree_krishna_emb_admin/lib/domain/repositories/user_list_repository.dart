@@ -24,4 +24,14 @@ abstract class UserListRepository {
 
   /// Get total count of users with optional search filter
   Future<Either<Failure, int>> getUserCount({String? searchQuery});
+
+  /// Create new user with email and password
+  /// Also creates auth credentials in Firebase Auth
+  Future<Either<Failure, void>> createUser({
+    required String name,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String role,
+  });
 }

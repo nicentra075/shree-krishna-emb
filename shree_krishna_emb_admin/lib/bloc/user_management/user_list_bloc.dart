@@ -21,6 +21,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     on<SuspendUserEvent>(_onSuspendUser);
     on<DeleteUserEvent>(_onDeleteUser);
     on<RefreshUsersEvent>(_onRefreshUsers);
+    on<CreateUserEvent>(_onCreateUser);
   }
 
   Future<void> _onLoadUsers(
@@ -233,6 +234,29 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
           totalUsers: _totalUsers,
           searchQuery: _searchQuery,
         ));
+      },
+    );
+  }
+
+  Future<void> _onCreateUser(
+    CreateUserEvent event,
+    Emitter<UserListState> emit,
+  ) async {
+    emit(const UserActionLoading('create'));
+
+    final result = await repository.createUser(
+      name: event.name,
+      email: event.email,
+      password: event.password,
+      phoneNumber: event.phoneNumber,
+      role: event.role,
+    );
+
+    result.fold(
+      (failure) => emit(UserActionError(failure.message)),
+      (_) {
+        emit(const UserActionSuccess('User created successfully'));
+        add(RefreshUsersEvent());
       },
     );
   }

@@ -22,8 +22,12 @@ class _UserEditDialogState extends State<UserEditDialog> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
+  late TextEditingController _passwordController;
+  late TextEditingController _confirmPasswordController;
   late String _selectedRole;
   late bool _isActive;
+  late bool _showPassword;
+  late bool _showConfirmPassword;
 
   @override
   void initState() {
@@ -31,8 +35,12 @@ class _UserEditDialogState extends State<UserEditDialog> {
     _nameController = TextEditingController(text: widget.user?.name ?? '');
     _emailController = TextEditingController(text: widget.user?.email ?? '');
     _phoneController = TextEditingController(text: widget.user?.phoneNumber ?? '');
+    _passwordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
     _selectedRole = widget.user?.role ?? 'user';
     _isActive = widget.user?.isActive ?? true;
+    _showPassword = false;
+    _showConfirmPassword = false;
   }
 
   @override
@@ -40,6 +48,8 @@ class _UserEditDialogState extends State<UserEditDialog> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -95,6 +105,40 @@ class _UserEditDialogState extends State<UserEditDialog> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
+              // Password fields (only in create mode)
+              if (isCreateMode) ...[
+                AppTextField(
+                  label: 'Password',
+                  hint: 'Enter password',
+                  controller: _passwordController,
+                  obscureText: !_showPassword,
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: GestureDetector(
+                    onTap: () => setState(() => _showPassword = !_showPassword),
+                    child: Icon(
+                      _showPassword ? Icons.visibility : Icons.visibility_off,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Confirm Password',
+                  hint: 'Confirm password',
+                  controller: _confirmPasswordController,
+                  obscureText: !_showConfirmPassword,
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: GestureDetector(
+                    onTap: () =>
+                        setState(() => _showConfirmPassword = !_showConfirmPassword),
+                    child: Icon(
+                      _showConfirmPassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               // Role Dropdown
               Container(
                 decoration: BoxDecoration(
@@ -201,8 +245,36 @@ class _UserEditDialogState extends State<UserEditDialog> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (isCreateMode) {
-                          AppSnackbar.showSuccess('User creation functionality coming soon');
-                          context.read<UserListBloc>().add(const RefreshUsersEvent());
+                          // Validate form
+                          if (_nameController.text.isEmpty) {
+                            AppSnackbar.showError('Please enter user name');
+                            return;
+                          }
+                          if (_emailController.text.isEmpty) {
+                            AppSnackbar.showError('Please enter email');
+                            return;
+                          }
+                          if (_passwordController.text.isEmpty) {
+                            AppSnackbar.showError('Please enter password');
+                            return;
+                          }
+                          if (_passwordController.text.length < 6) {
+                            AppSnackbar.showError('Password must be at least 6 characters');
+                            return;
+                          }
+                          if (_passwordController.text != _confirmPasswordController.text) {
+                            AppSnackbar.showError('Passwords do not match');
+                            return;
+                          }
+
+                          // Create user
+                          context.read<UserListBloc>().add(CreateUserEvent(
+                            name: _nameController.text,
+                            email: _emailController.text,
+                            password: _passwordController.text,
+                            phoneNumber: _phoneController.text,
+                            role: _selectedRole,
+                          ));
                           Navigator.pop(context);
                         } else {
                           final updatedUser = UserListItemModel(

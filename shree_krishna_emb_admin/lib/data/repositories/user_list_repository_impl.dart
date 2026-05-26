@@ -81,4 +81,28 @@ class UserListRepositoryImpl implements UserListRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> createUser({
+    required String name,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String role,
+  }) async {
+    try {
+      await _dataSource.createUser(
+        name: name,
+        email: email,
+        password: password,
+        phoneNumber: phoneNumber,
+        role: role,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
 }

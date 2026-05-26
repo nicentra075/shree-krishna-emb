@@ -53,6 +53,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
               const SizedBox(height: 24),
               // Search field and Add User button
               Row(
+                mainAxisAlignment: .spaceBetween,
                 children: [
                   // Search field
                   Container(
@@ -217,22 +218,32 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                       ),
                                       Expanded(
                                         flex: 15,
-                                        child: Text(
-                                          'Role',
-                                          style: AppTextStyles.labelMedium(
-                                            color: AppTheme.textBrown,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        child: Row(
+                                          mainAxisAlignment: .center,
+                                          children: [
+                                            Text(
+                                              'Role',
+                                              style: AppTextStyles.labelMedium(
+                                                color: AppTheme.textBrown,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                       Expanded(
                                         flex: 15,
-                                        child: Text(
-                                          'Status',
-                                          style: AppTextStyles.labelMedium(
-                                            color: AppTheme.textBrown,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        child: Row(
+                                          mainAxisAlignment: .center,
+                                          children: [
+                                            Text(
+                                              'Status',
+                                              style: AppTextStyles.labelMedium(
+                                                color: AppTheme.textBrown,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                       Expanded(
@@ -324,56 +335,72 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
             // Role - Badge Style
             Expanded(
               flex: 15,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryLight.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: AppTheme.primaryDark.withValues(alpha: 0.2),
+              child: Row(
+                mainAxisAlignment: .center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryLight.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: AppTheme.primaryDark.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Text(
+                      user.role.replaceFirst(
+                        user.role[0],
+                        user.role[0].toUpperCase(),
+                      ),
+                      style: AppTextStyles.labelSmall(
+                        color: AppTheme.primaryDark,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                child: Text(
-                  user.role.replaceFirst(
-                    user.role[0],
-                    user.role[0].toUpperCase(),
-                  ),
-                  style: AppTextStyles.labelSmall(
-                    color: AppTheme.primaryDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                ],
               ),
             ),
             // Status - Badge Style
             Expanded(
               flex: 15,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: user.isActive
-                      ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
-                      : const Color(0xFFFF6B6B).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: user.isActive
-                        ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
-                        : const Color(0xFFFF6B6B).withValues(alpha: 0.3),
+              child: Row(
+                mainAxisAlignment: .center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: user.isActive
+                          ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
+                          : const Color(0xFFFF6B6B).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: user.isActive
+                            ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
+                            : const Color(0xFFFF6B6B).withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Text(
+                      user.isActive ? 'Active' : 'Suspended',
+                      style: AppTextStyles.labelSmall(
+                        color: user.isActive
+                            ? const Color(0xFF4CAF50)
+                            : const Color(0xFFFF6B6B),
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                child: Text(
-                  user.isActive ? 'Active' : 'Suspended',
-                  style: AppTextStyles.labelSmall(
-                    color: user.isActive
-                        ? const Color(0xFF4CAF50)
-                        : const Color(0xFFFF6B6B),
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                ],
               ),
             ),
             // Actions

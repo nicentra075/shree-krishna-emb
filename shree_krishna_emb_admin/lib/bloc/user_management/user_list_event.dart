@@ -69,3 +69,22 @@ class DeleteUserEvent extends UserListEvent {
 class RefreshUsersEvent extends UserListEvent {
   const RefreshUsersEvent();
 }
+
+class CreateUserEvent extends UserListEvent {
+  final String name;
+  final String email;
+  final String password;
+  final String phoneNumber;
+  final String role;
+
+  const CreateUserEvent({
+    required this.name,
+    required this.email,
+    required this.password,
+    required this.phoneNumber,
+    required this.role,
+  });
+
+  @override
+  List<Object?> get props => [name, email, password, phoneNumber, role];
+}
