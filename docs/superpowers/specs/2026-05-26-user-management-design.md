@@ -17,7 +17,7 @@
 **Location:** Main content panel when "User Management" is clicked in sidebar
 **Accessibility:** Admin-only feature (enforced at Firebase rules level)
 
-#### Screen Structure
+#### Screen Structure - Desktop (Width ≥ 768px)
 
 **Header**
 - Title: "User Management"
@@ -41,6 +41,45 @@ Columns:
 - Next button (disabled on last page)
 - Items per page: 10 (configurable, default)
 - Page info: "Page 1 of 5"
+
+#### Screen Structure - Mobile (Width < 768px)
+
+**Header**
+- Title: "User Management" (smaller font)
+- Search field (full width, below title)
+- Results counter: "X of Y users"
+
+**Card List View**
+Instead of table, display as vertical cards:
+```
+┌─────────────────────┐
+│ Name: John Doe      │
+│ Email: john@example │
+│ Role: Admin         │
+│ Status: Active      │
+│ [View] [Edit] [More]│
+└─────────────────────┘
+```
+
+**Card Details:**
+- Name (bold, large)
+- Email (secondary text)
+- Role badge and Status badge on same row
+- Three action buttons at bottom:
+  - View Details
+  - Edit
+  - More (dropdown menu with Suspend/Activate and Delete)
+
+**Pagination on Mobile**
+- Previous/Next buttons only (simpler, touch-friendly)
+- Page counter below: "Page 1 of 5"
+- Items per page: 8 on mobile (more compact)
+- Pagination buttons are larger for touch targets
+
+**Responsive Breakpoints:**
+- Desktop (≥ 768px): Table view, 10 items per page
+- Tablet (600-767px): Simplified table or card view
+- Mobile (< 600px): Card list view, 8 items per page, dropdown menu for secondary actions
 
 ---
 
@@ -172,6 +211,41 @@ class UserListItem {
 
 ---
 
+### 8. Responsive Design
+
+**Mobile-First Approach:**
+- All text must have `maxLines` and `overflow: TextOverflow.ellipsis` protection
+- Adaptive padding/margins based on screen width
+- Touch-friendly button sizes (min 44x44 dp on mobile)
+
+**Desktop (≥ 768px):**
+- Table view with all columns visible
+- 10 items per page
+- Action buttons displayed inline
+- Search field width: 400px
+
+**Mobile (< 768px):**
+- Card list view replaces table
+- Email truncated to 2 lines max
+- Action buttons: "View" + "Edit" visible, "Suspend/Delete" in dropdown menu
+- 8 items per page (better mobile performance)
+- Search field full-width
+- Padding: 12px instead of 24px
+
+**Tablet (600-767px):**
+- Can use simplified table or card view depending on orientation
+- 8-9 items per page
+- Action buttons: "View", "Edit" visible, secondary actions in menu
+
+**Testing Requirements:**
+- ✅ Works on 320px width (small phones)
+- ✅ Works on 600px width (tablets)
+- ✅ Works on 1200px width (desktop)
+- ✅ Text doesn't overflow on any screen size
+- ✅ All buttons are easily tappable on mobile
+
+---
+
 ### 8. Architecture Layers
 
 **Domain Layer:**
@@ -235,7 +309,8 @@ users collection
 
 ### 12. Success Criteria
 
-✅ Admins can view paginated list of users (10 per page)
+**Desktop:**
+✅ Admins can view paginated list of users in table format (10 per page)
 ✅ Search filters users by name or email in real-time
 ✅ Each user shows: name, email, role, status
 ✅ View Details opens modal with full profile
@@ -246,3 +321,20 @@ users collection
 ✅ Table maintains search filter across page navigation
 ✅ Error states display helpful messages
 ✅ Firebase Firestore integration complete
+
+**Mobile:**
+✅ Card list view displays users on mobile/tablet
+✅ All text properly truncated (maxLines + ellipsis)
+✅ 8 items per page on mobile (pagination)
+✅ Primary actions visible (View, Edit)
+✅ Secondary actions in dropdown menu (Suspend, Delete)
+✅ Search field works on mobile
+✅ All buttons touch-friendly (44x44 dp minimum)
+✅ Works on 320px, 600px, and 1200px screen widths
+✅ Responsive padding/margins adapt to screen size
+✅ Pagination simplified for mobile (Previous/Next only)
+
+**Cross-Platform:**
+✅ Consistent styling across desktop and mobile
+✅ Dark/light mode support
+✅ All user-visible text localized (AppLocalization)
