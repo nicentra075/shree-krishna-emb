@@ -10,7 +10,7 @@ class ResponsiveSnackbar {
   static const _mobileThreshold = 600.0;
 
   /// Show success message with responsive positioning
-  /// Pass context for reliable snackbar positioning
+  /// Pass context for reliable snackbar positioning. 
   static void showSuccess(String message, [BuildContext? context]) {
     _showSnackbar(message, type: _SnackbarType.success, context: context);
   }

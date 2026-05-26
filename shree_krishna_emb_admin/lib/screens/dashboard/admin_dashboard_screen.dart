@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
-import 'package:shree_krishna_emb_admin/screens/user_management/user_management_screen.dart';
+import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
+import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
+import 'package:shree_krishna_emb_admin/screens/user_management/desktop_user_list_view.dart';
+import 'package:shree_krishna_emb_admin/screens/user_management/mobile_user_list_view.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -11,6 +16,8 @@ class AdminDashboardScreen extends StatefulWidget {
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  String _selectedSection = 'dashboard'; // Track selected sidebar section
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -25,23 +32,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: _buildAppBar(isMobile),
         ),
         drawer: _buildSidebar(),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 24),
-              _buildKPISection(isMobile),
-              const SizedBox(height: 24),
-              _buildRevenueSection(isMobile),
-              const SizedBox(height: 24),
-              _buildApprovalCard(),
-              const SizedBox(height: 24),
-              _buildRecentActivitySection(),
-            ],
-          ),
-        ),
+        body: _buildContent(),
       );
     }
 
@@ -60,49 +51,94 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 _buildAppBar(isMobile),
                 // Main content
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(),
-                        const SizedBox(height: 32),
-                        _buildKPISection(isMobile),
-                        const SizedBox(height: 32),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 65,
-                              child: Column(
-                                children: [
-                                  _buildRevenueSection(isMobile),
-                                  const SizedBox(height: 24),
-                                  _buildRecentActivitySection(),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              flex: 35,
-                              child: Column(
-                                children: [
-                                  _buildApprovalCard(),
-                                  const SizedBox(height: 24),
-                                  _buildSystemHealthCard(),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: _buildContent(),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Build content based on selected section
+  Widget _buildContent() {
+    switch (_selectedSection) {
+      case 'user_management':
+        return _buildUserManagementContent();
+      default:
+        return _buildDashboardContent();
+    }
+  }
+
+  // Dashboard content
+  Widget _buildDashboardContent() {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(isMobile ? 16 : 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          SizedBox(height: isMobile ? 24 : 32),
+          _buildKPISection(isMobile),
+          SizedBox(height: isMobile ? 24 : 32),
+          if (!isMobile)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 65,
+                  child: Column(
+                    children: [
+                      _buildRevenueSection(isMobile),
+                      const SizedBox(height: 24),
+                      _buildRecentActivitySection(),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  flex: 35,
+                  child: Column(
+                    children: [
+                      _buildApprovalCard(),
+                      const SizedBox(height: 24),
+                      _buildSystemHealthCard(),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          else
+            Column(
+              children: [
+                _buildRevenueSection(isMobile),
+                const SizedBox(height: 24),
+                _buildApprovalCard(),
+                const SizedBox(height: 24),
+                _buildRecentActivitySection(),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  // User Management content with proper Material wrapper
+  Widget _buildUserManagementContent() {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
+    return Material(
+      color: const Color(0xFFF8F7F5),
+      child: BlocProvider(
+        create: (context) => UserListBloc(
+          repository: GetIt.instance<UserListRepository>(),
+        ),
+        child: isMobile
+            ? const MobileUserListView()
+            : const DesktopUserListView(),
       ),
     );
   }
@@ -294,57 +330,50 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   _buildSidebarItem(
                     icon: Icons.dashboard_outlined,
                     label: 'Dashboard',
-                    isActive: true,
-                    onTap: () {},
+                    isActive: _selectedSection == 'dashboard',
+                    onTap: () => setState(() => _selectedSection = 'dashboard'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.assignment_outlined,
                     label: 'Approval Queue',
-                    isActive: false,
-                    onTap: () {},
+                    isActive: _selectedSection == 'approval',
+                    onTap: () => setState(() => _selectedSection = 'approval'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.store_outlined,
                     label: 'Design Store',
-                    isActive: false,
-                    onTap: () {},
+                    isActive: _selectedSection == 'store',
+                    onTap: () => setState(() => _selectedSection = 'store'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.people_outline,
                     label: 'User Management',
-                    isActive: false,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const UserManagementScreen(),
-                        ),
-                      );
-                    },
+                    isActive: _selectedSection == 'user_management',
+                    onTap: () => setState(() => _selectedSection = 'user_management'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.swap_horiz,
                     label: 'Transactions',
-                    isActive: false,
-                    onTap: () {},
+                    isActive: _selectedSection == 'transactions',
+                    onTap: () => setState(() => _selectedSection = 'transactions'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.trending_up,
                     label: 'Platform Fees',
-                    isActive: false,
-                    onTap: () {},
+                    isActive: _selectedSection == 'fees',
+                    onTap: () => setState(() => _selectedSection = 'fees'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.account_balance_wallet,
                     label: 'Payouts',
-                    isActive: false,
-                    onTap: () {},
+                    isActive: _selectedSection == 'payouts',
+                    onTap: () => setState(() => _selectedSection = 'payouts'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.assessment_outlined,
                     label: 'Reports',
-                    isActive: false,
-                    onTap: () {},
+                    isActive: _selectedSection == 'reports',
+                    onTap: () => setState(() => _selectedSection = 'reports'),
                   ),
                 ],
               ),
