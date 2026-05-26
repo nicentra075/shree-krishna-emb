@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/screens/user_management/user_management_screen.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -312,7 +313,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     icon: Icons.people_outline,
                     label: 'User Management',
                     isActive: false,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UserManagementScreen(),
+                        ),
+                      );
+                    },
                   ),
                   _buildSidebarItem(
                     icon: Icons.swap_horiz,
