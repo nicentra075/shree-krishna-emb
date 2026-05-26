@@ -6,8 +6,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_admin_auth_datasource.dart';
+import 'package:shree_krishna_emb_admin/data/datasources/firebase_user_list_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/admin_auth_repository_impl.dart';
+import 'package:shree_krishna_emb_admin/data/repositories/user_list_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/admin_auth_repository.dart';
+import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -47,6 +50,19 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
   getIt.registerSingleton<AdminAuthBloc>(
     AdminAuthBloc(repository: getIt<AdminAuthRepository>()),
   );
+
+  // USER LIST MANAGEMENT - Clean Architecture Pattern
+  // Data Layer
+  getIt.registerSingleton<UserListDataSource>(
+    FirebaseUserListDataSource(firestore: getIt<FirebaseFirestore>()),
+  );
+
+  // Repository Layer
+  getIt.registerSingleton<UserListRepository>(
+    UserListRepositoryImpl(dataSource: getIt<UserListDataSource>()),
+  );
+
+  // Note: UserListBloc is registered per-screen in UserManagementScreen
 
   // Register future admin-specific data sources, repositories, and services here
   // TODO: Register admin-specific datasources for other features
