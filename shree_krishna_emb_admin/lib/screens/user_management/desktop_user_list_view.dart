@@ -68,9 +68,9 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                     child: TextField(
                       controller: _searchController,
                       onChanged: (query) {
-                        context
-                            .read<UserListBloc>()
-                            .add(SearchUsersEvent(query));
+                        context.read<UserListBloc>().add(
+                          SearchUsersEvent(query),
+                        );
                       },
                       decoration: InputDecoration(
                         hintText: 'Search by name or email...',
@@ -132,9 +132,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
             child: BlocBuilder<UserListBloc, UserListState>(
               builder: (context, state) {
                 if (state is UserListLoading) {
-                  return Center(
-                    child: const AppLoader(),
-                  );
+                  return Center(child: const AppLoader());
                 }
 
                 if (state is UserListError) {
@@ -142,15 +140,12 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          state.message,
-                          style: AppTextStyles.bodyMedium(),
-                        ),
+                        Text(state.message, style: AppTextStyles.bodyMedium()),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () => context
-                              .read<UserListBloc>()
-                              .add(const LoadUsersEvent()),
+                          onPressed: () => context.read<UserListBloc>().add(
+                            const LoadUsersEvent(),
+                          ),
                           child: const Text('Retry'),
                         ),
                       ],
@@ -179,7 +174,9 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: AppTheme.textBrown.withValues(alpha: 0.1),
+                                color: AppTheme.textBrown.withValues(
+                                  alpha: 0.1,
+                                ),
                               ),
                             ),
                             child: Column(
@@ -256,8 +253,11 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                 ...state.users.map((user) {
                                   final isLastItem =
                                       state.users.last.id == user.id;
-                                  return _buildUserRow(context, user,
-                                      isLast: isLastItem);
+                                  return _buildUserRow(
+                                    context,
+                                    user,
+                                    isLast: isLastItem,
+                                  );
                                 }),
                               ],
                             ),
@@ -271,9 +271,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                   );
                 }
 
-                return const Center(
-                  child: Text('No data'),
-                );
+                return const Center(child: Text('No data'));
               },
             ),
           ),
@@ -306,9 +304,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
               flex: 20,
               child: Text(
                 user.name,
-                style: AppTextStyles.bodyMedium(
-                  color: AppTheme.textDark,
-                ),
+                style: AppTextStyles.bodyMedium(color: AppTheme.textDark),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -325,28 +321,49 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            // Role - Chip Style
+            // Role - Badge Style
             Expanded(
               flex: 15,
-              child: Chip(
-                label: Text(
-                  user.role.replaceFirst(user.role[0], user.role[0].toUpperCase()),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryLight.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: AppTheme.primaryDark.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Text(
+                  user.role.replaceFirst(
+                    user.role[0],
+                    user.role[0].toUpperCase(),
+                  ),
                   style: AppTextStyles.labelSmall(
                     color: AppTheme.primaryDark,
                     fontWeight: FontWeight.w600,
                   ),
-                ),
-                backgroundColor: AppTheme.primaryLight.withValues(alpha: 0.15),
-                side: BorderSide(
-                  color: AppTheme.primaryDark.withValues(alpha: 0.2),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
-            // Status - Chip Style
+            // Status - Badge Style
             Expanded(
               flex: 15,
-              child: Chip(
-                label: Text(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: user.isActive
+                      ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
+                      : const Color(0xFFFF6B6B).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: user.isActive
+                        ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
+                        : const Color(0xFFFF6B6B).withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Text(
                   user.isActive ? 'Active' : 'Suspended',
                   style: AppTextStyles.labelSmall(
                     color: user.isActive
@@ -354,14 +371,8 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                         : const Color(0xFFFF6B6B),
                     fontWeight: FontWeight.w600,
                   ),
-                ),
-                backgroundColor: user.isActive
-                    ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
-                    : const Color(0xFFFF6B6B).withValues(alpha: 0.15),
-                side: BorderSide(
-                  color: user.isActive
-                      ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
-                      : const Color(0xFFFF6B6B).withValues(alpha: 0.3),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -394,8 +405,8 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                     onSelected: (value) {
                       if (value == 'suspend') {
                         context.read<UserListBloc>().add(
-                              SuspendUserEvent(user.id, user.isActive),
-                            );
+                          SuspendUserEvent(user.id, user.isActive),
+                        );
                       } else if (value == 'delete') {
                         _showDeleteConfirmation(context, user);
                       }
@@ -403,9 +414,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                     itemBuilder: (BuildContext context) => [
                       PopupMenuItem(
                         value: 'suspend',
-                        child: Text(
-                          user.isActive ? 'Suspend' : 'Activate',
-                        ),
+                        child: Text(user.isActive ? 'Suspend' : 'Activate'),
                       ),
                       const PopupMenuItem(
                         value: 'delete',
@@ -429,16 +438,15 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
         IconButton(
           onPressed: state.currentPage > 1
               ? () =>
-                  context.read<UserListBloc>().add(const PreviousPageEvent())
+                    context.read<UserListBloc>().add(const PreviousPageEvent())
               : null,
           icon: const Icon(Icons.chevron_left),
         ),
         ...List.generate(state.totalPages, (index) {
           final pageNum = index + 1;
           return GestureDetector(
-            onTap: () => context
-                .read<UserListBloc>()
-                .add(GoToPageEvent(pageNum)),
+            onTap: () =>
+                context.read<UserListBloc>().add(GoToPageEvent(pageNum)),
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -469,10 +477,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
     );
   }
 
-  void _showDeleteConfirmation(
-    BuildContext context,
-    UserListItemModel user,
-  ) {
+  void _showDeleteConfirmation(BuildContext context, UserListItemModel user) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -488,9 +493,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              context
-                  .read<UserListBloc>()
-                  .add(DeleteUserEvent(user.id));
+              context.read<UserListBloc>().add(DeleteUserEvent(user.id));
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),

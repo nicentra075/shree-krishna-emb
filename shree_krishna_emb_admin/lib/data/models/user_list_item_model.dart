@@ -8,6 +8,12 @@ class UserListItemModel extends UserListItem {
     required super.role,
     required super.isActive,
     required super.createdAt,
+    super.userId,
+    super.phoneNumber,
+    super.loginMethod,
+    super.photoUrl,
+    super.loginAt,
+    super.logoutAt,
   });
 
   // Firebase conversion
@@ -21,6 +27,12 @@ class UserListItemModel extends UserListItem {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
+      userId: json['userId'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      loginMethod: json['loginMethod'] as String?,
+      photoUrl: json['photoUrl'] as String?,
+      loginAt: json['loginAt'] != null ? DateTime.parse(json['loginAt'] as String) : null,
+      logoutAt: json['logoutAt'] != null ? DateTime.parse(json['logoutAt'] as String) : null,
     );
   }
 
@@ -32,6 +44,12 @@ class UserListItemModel extends UserListItem {
       'role': role,
       'isActive': isActive,
       'createdAt': createdAt.toIso8601String(),
+      'userId': userId,
+      'phoneNumber': phoneNumber,
+      'loginMethod': loginMethod,
+      'photoUrl': photoUrl,
+      'loginAt': loginAt?.toIso8601String(),
+      'logoutAt': logoutAt?.toIso8601String(),
     };
   }
 
@@ -44,6 +62,12 @@ class UserListItemModel extends UserListItem {
       role: json['role'] as String,
       isActive: json['isActive'] as bool,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      userId: json['userId'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      loginMethod: json['loginMethod'] as String?,
+      photoUrl: json['photoUrl'] as String?,
+      loginAt: json['loginAt'] != null ? DateTime.parse(json['loginAt'] as String) : null,
+      logoutAt: json['logoutAt'] != null ? DateTime.parse(json['logoutAt'] as String) : null,
     );
   }
 
@@ -55,6 +79,12 @@ class UserListItemModel extends UserListItem {
       'role': role,
       'isActive': isActive,
       'createdAt': createdAt.toIso8601String(),
+      'userId': userId,
+      'phoneNumber': phoneNumber,
+      'loginMethod': loginMethod,
+      'photoUrl': photoUrl,
+      'loginAt': loginAt?.toIso8601String(),
+      'logoutAt': logoutAt?.toIso8601String(),
     };
   }
 }

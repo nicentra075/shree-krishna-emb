@@ -53,41 +53,66 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 16),
-              // Search field
-              Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.grey.withValues(alpha: 0.2),
+              // Search field and Add User button
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.grey.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (query) {
+                          context
+                              .read<UserListBloc>()
+                              .add(SearchUsersEvent(query));
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Search by name or email',
+                          hintStyle: AppTextStyles.bodyMedium(
+                            color: Colors.grey.withValues(alpha: 0.5),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.grey.withValues(alpha: 0.5),
+                            size: 20,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                        ),
+                        style: AppTextStyles.bodyMedium(color: Colors.black87),
+                      ),
+                    ),
                   ),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (query) {
-                    context
-                        .read<UserListBloc>()
-                        .add(SearchUsersEvent(query));
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search by name or email',
-                    hintStyle: AppTextStyles.bodyMedium(
-                      color: Colors.grey.withValues(alpha: 0.5),
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 44,
+                    width: 44,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryDark,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: Colors.grey.withValues(alpha: 0.5),
-                      size: 20,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
+                    child: IconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => const UserEditDialog(user: null),
+                        );
+                      },
+                      icon: const Icon(Icons.add, size: 20, color: Colors.white),
+                      tooltip: 'Add User',
                     ),
                   ),
-                  style: AppTextStyles.bodyMedium(color: Colors.black87),
-                ),
+                ],
               ),
             ],
           ),
