@@ -98,7 +98,10 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                     onPressed: () {
                       showDialog(
                         context: context,
-                        builder: (_) => const UserEditDialog(user: null),
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<UserListBloc>(),
+                          child: const UserEditDialog(user: null),
+                        ),
                       );
                     },
                     icon: const Icon(Icons.add, size: 18),
@@ -423,7 +426,10 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                     onPressed: () {
                       showDialog(
                         context: context,
-                        builder: (_) => UserEditDialog(user: user),
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<UserListBloc>(),
+                          child: UserEditDialog(user: user),
+                        ),
                       );
                     },
                     child: const Text('Edit'),

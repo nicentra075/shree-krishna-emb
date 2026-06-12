@@ -105,7 +105,10 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                       onPressed: () {
                         showDialog(
                           context: context,
-                          builder: (_) => const UserEditDialog(user: null),
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<UserListBloc>(),
+                            child: const UserEditDialog(user: null),
+                          ),
                         );
                       },
                       icon: const Icon(Icons.add, size: 20, color: Colors.white),
@@ -322,7 +325,10 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                     onPressed: () {
                       showDialog(
                         context: context,
-                        builder: (_) => UserEditDialog(user: user),
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<UserListBloc>(),
+                          child: UserEditDialog(user: user),
+                        ),
                       );
                     },
                     child: const Text('Edit'),
