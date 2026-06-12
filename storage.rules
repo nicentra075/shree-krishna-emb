@@ -1,0 +1,62 @@
+rules_version = '2';
+
+// Phase 1 Storage rules — layout: docs/integration/FIRESTORE_SCHEMA.md §3
+//
+// - EMB/pattern sources and un-watermarked originals are NEVER client-readable.
+//   Purchased files are delivered exclusively via the getDesignDownloadUrl
+//   Cloud Function (15-minute signed URLs).
+// - Watermarked previews/thumbs under public/ are written only by the
+//   onDesignAssetUpload function (Admin SDK bypasses these rules).
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthed() && request.auth.token.role == 'admin';
+    }
+
+    // EMB/DST source files — admin upload only, no client read ever.
+    match /designs/{designId}/source/{fileName} {
+      allow read: if false;
+      allow write: if isAdmin() && request.resource.size < 50 * 1024 * 1024;
+    }
+
+    // Pristine un-watermarked images — admin only.
+    match /designs/{designId}/original/{fileName} {
+      allow read: if isAdmin();
+      allow write: if isAdmin() &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    // Watermarked previews + thumbnails — public read, function-written.
+    match /designs/{designId}/public/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Home banners — public read, admin write.
+    match /banners/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin() &&
+        request.resource.size < 2 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    // Profile photos — public read, owner write.
+    match /users/{uid}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthed() && request.auth.uid == uid &&
+        request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    // Default deny.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

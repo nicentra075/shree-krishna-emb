@@ -1,0 +1,148 @@
+rules_version = '2';
+
+// Phase 1 security rules — contract: docs/integration/FIRESTORE_SCHEMA.md
+//
+// Key principles:
+// - Admin checks use CUSTOM CLAIMS (request.auth.token.role), synced from
+//   users/{uid}.role by the onUserWrite Cloud Function. No billed get()s.
+// - orders, purchases, stats, statsDaily, adminOtps, counters are written
+//   ONLY by Cloud Functions (Admin SDK bypasses these rules).
+// - The user app may only read designs with status == 'active'.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthed() && request.auth.token.role == 'admin';
+    }
+
+    function isOwner(uid) {
+      return isAuthed() && request.auth.uid == uid;
+    }
+
+    // ==================== users ====================
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      // Self-signup may only claim 'user' or 'designer' — never 'admin'.
+      allow create: if isAdmin() ||
+        (isOwner(uid) &&
+          request.resource.data.role in ['user', 'designer']);
+      // Owners cannot touch role/isActive/purchaseCount.
+      allow update: if isAdmin() ||
+        (isOwner(uid) &&
+          !request.resource.data.diff(resource.data)
+            .affectedKeys()
+            .hasAny(['role', 'isActive', 'purchaseCount']));
+      allow delete: if isAdmin();
+
+      // Purchase index — written only by finalizeOrder / initiateRefund fns.
+      match /purchases/{designId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow write: if false;
+      }
+    }
+
+    // ==================== designs ====================
+    match /designs/{designId} {
+      // User app must filter status == 'active' in every query.
+      allow get, list: if isAdmin() ||
+        (isAuthed() && resource.data.status == 'active');
+      allow create, update: if isAdmin() &&
+        request.resource.data.price is int &&
+        request.resource.data.price > 0 &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0;
+      allow delete: if isAdmin();
+
+      // Reviews — doc id = reviewer uid; create/update gated on purchase.
+      match /reviews/{reviewerUid} {
+        allow read: if true;
+        allow create, update: if isOwner(reviewerUid) &&
+          exists(/databases/$(database)/documents/users/$(reviewerUid)/purchases/$(designId)) &&
+          request.resource.data.rating is int &&
+          request.resource.data.rating >= 1 &&
+          request.resource.data.rating <= 5 &&
+          request.resource.data.comment is string &&
+          request.resource.data.comment.size() <= 1000;
+        allow delete: if isOwner(reviewerUid) || isAdmin();
+      }
+    }
+
+    // ==================== categories ====================
+    match /categories/{categoryId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // ==================== orders (functions only) ====================
+    match /orders/{orderId} {
+      allow read: if isAdmin() ||
+        (isAuthed() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+
+    // ==================== carts / wishlists (owner only) ====================
+    match /carts/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    match /wishlists/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // ==================== config ====================
+    match /config/platform {
+      allow read: if isAuthed();
+      allow write: if isAdmin() &&
+        request.resource.data.platformFeePercent is number &&
+        request.resource.data.platformFeePercent >= 0 &&
+        request.resource.data.platformFeePercent <= 100 &&
+        request.resource.data.gstPercent is number &&
+        request.resource.data.gstPercent >= 0 &&
+        request.resource.data.gstPercent <= 100;
+    }
+
+    match /config/homeFeed {
+      allow read: if isAuthed();
+      allow write: if isAdmin() &&
+        request.resource.data.banners is list &&
+        request.resource.data.banners.size() <= 10;
+    }
+
+    // ==================== stats (functions only) ====================
+    match /stats/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /statsDaily/{dateKey} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ==================== activity ====================
+    match /activity/{activityId} {
+      allow read: if isAdmin();
+      // Admin client batches activity entries with design/category CRUD.
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // ==================== locked collections ====================
+    match /adminOtps/{uid} {
+      allow read, write: if false;
+    }
+
+    match /counters/{counterId} {
+      allow read, write: if false;
+    }
+
+    // Default deny for anything not matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

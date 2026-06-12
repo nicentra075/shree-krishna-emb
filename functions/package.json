@@ -1,0 +1,30 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Shree Krishna Embroidery (Phase 1)",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test \"lib/src/test/*.test.js\"",
+    "lint": "tsc --noEmit",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions",
+    "seed": "npm run build && node lib/scripts/seed.js",
+    "backfill-claims": "npm run build && node lib/scripts/backfillClaims.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.2",
+    "firebase-functions": "^6.3.2",
+    "nodemailer": "^6.10.0",
+    "razorpay": "^2.9.5",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/nodemailer": "^6.4.17",
+    "typescript": "^5.7.2"
+  }
+}
