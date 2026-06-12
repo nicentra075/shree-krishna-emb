@@ -30,6 +30,24 @@ class CacheConfig {
   /// TTL for search results (10 minutes - volatile)
   static const Duration searchResultsTtl = Duration(minutes: 10);
 
+  /// TTL for individual design docs (30 minutes)
+  static const Duration designTtl = Duration(minutes: 30);
+
+  /// TTL for paginated design lists (15 minutes)
+  static const Duration designListTtl = Duration(minutes: 15);
+
+  /// TTL for the category list (24 hours - rarely changes, ≤30 docs)
+  static const Duration categoryTtl = Duration(hours: 24);
+
+  /// TTL for the config/homeFeed banner doc (30 minutes)
+  static const Duration homeFeedTtl = Duration(minutes: 30);
+
+  /// TTL for the config/platform settings doc (6 hours)
+  static const Duration configTtl = Duration(hours: 6);
+
+  /// TTL for dashboard stats docs (5 minutes)
+  static const Duration statsTtl = Duration(minutes: 5);
+
   // ==== Cache Key Constants (for SharedPreferences) ====
 
   /// Key for storing whether user has seen the walkthrough onboarding
@@ -57,4 +75,19 @@ class CacheConfig {
 
   /// Hive box name for caching orders
   static const String orderBoxName = 'order_cache';
+
+  /// Hive box name for the offline cart mirror (Firestore is authoritative)
+  static const String cartBoxName = 'cart_cache';
+
+  /// Hive box name for the wishlist mirror
+  static const String wishlistBoxName = 'wishlist_cache';
+
+  /// Hive box name for the local-only recently-viewed LRU (max 20 designs)
+  static const String recentlyViewedBoxName = 'recently_viewed';
+
+  /// Hive box name for the home feed (banners/categories/rails) cache
+  static const String homeFeedBoxName = 'home_feed_cache';
+
+  /// Hive box name for caching the My Orders list
+  static const String orderListBoxName = 'order_list_cache';
 }

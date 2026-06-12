@@ -27,6 +27,14 @@ export 'models/user_model.dart';
 export 'models/category_model.dart';
 export 'models/design_model.dart';
 export 'models/banner_model.dart';
+export 'models/cart_model.dart';
+export 'models/wishlist_model.dart';
+export 'models/order_model.dart';
+export 'models/purchase_model.dart';
+export 'models/review_model.dart';
+export 'models/platform_settings_model.dart';
+export 'models/stats_model.dart';
+export 'models/activity_model.dart';
 
 // Entities (Domain Layer)
 // Add entity exports here as needed
