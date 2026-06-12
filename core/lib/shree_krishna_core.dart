@@ -5,8 +5,21 @@
 export 'errors/exceptions.dart';
 export 'errors/failures.dart';
 
+// Constants (Firestore/Storage contract — docs/integration/FIRESTORE_SCHEMA.md)
+export 'constants/firestore_collections.dart';
+export 'constants/storage_paths.dart';
+export 'constants/design_techniques.dart';
+
+// Enums
+export 'enums/user_role.dart';
+export 'enums/order_status.dart';
+export 'enums/design_status.dart';
+export 'enums/activity_type.dart';
+
 // Utilities
 export 'utils/either.dart';
+export 'utils/money.dart';
+export 'utils/keyword_builder.dart';
 
 // Models (Data Layer)
 export 'models/user_model.dart';

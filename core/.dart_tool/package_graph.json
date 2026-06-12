@@ -9,6 +9,7 @@
       "dependencies": [
         "equatable",
         "flutter",
+        "intl",
         "uuid"
       ],
       "devDependencies": [
@@ -39,6 +40,15 @@
         "stream_channel",
         "test_api",
         "vector_math"
+      ]
+    },
+    {
+      "name": "intl",
+      "version": "0.20.2",
+      "dependencies": [
+        "clock",
+        "meta",
+        "path"
       ]
     },
     {
