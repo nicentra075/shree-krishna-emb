@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_event.dart';
+import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_state.dart';
 import 'package:shree_krishna_emb_admin/data/models/user_list_item_model.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 
@@ -57,15 +58,21 @@ class _UserEditDialogState extends State<UserEditDialog> {
   Widget build(BuildContext context) {
     final isCreateMode = widget.user == null;
 
-    return Dialog(
-      child: Container(
-        width: 500,
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    return BlocListener<UserListBloc, UserListState>(
+      listener: (context, state) {
+        if (state is UserActionSuccess && isCreateMode) {
+          Navigator.pop(context);
+        }
+      },
+      child: Dialog(
+        child: Container(
+          width: 500,
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // Header
               Text(
                 isCreateMode ? 'Add New User' : 'Edit User',
@@ -316,6 +323,7 @@ class _UserEditDialogState extends State<UserEditDialog> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
