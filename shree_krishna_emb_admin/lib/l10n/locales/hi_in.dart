@@ -268,6 +268,29 @@ class HiINStrings implements LocaleStrings {
   String get languageChanged => 'भाषा बदल दी गई';
 
   @override
+  String get adminPanel => 'एडमिन पैनल';
+  @override
+  String get approvalQueue => 'अनुमोदन कतार';
+  @override
+  String get designStore => 'डिज़ाइन स्टोर';
+  @override
+  String get userManagement => 'उपयोगकर्ता प्रबंधन';
+  @override
+  String get transactions => 'लेन-देन';
+  @override
+  String get platformFees => 'प्लेटफ़ॉर्म शुल्क';
+  @override
+  String get payouts => 'भुगतान';
+  @override
+  String get support => 'सहायता';
+  @override
+  String get searchPlaceholder => 'डिज़ाइनर, डिज़ाइन या लेन-देन खोजें...';
+  @override
+  String get insightsTitle => 'श्री कृष्ण इनसाइट्स';
+  @override
+  String get approvedDesigns => 'अनुमोदित डिज़ाइन';
+
+  @override
   String get appSettings => 'ऐप सेटिंग्स';
   @override
   String get generalSettings => 'सामान्य सेटिंग्स';

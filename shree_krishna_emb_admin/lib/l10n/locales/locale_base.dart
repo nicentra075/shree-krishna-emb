@@ -149,6 +149,19 @@ abstract class LocaleStrings {
   String get languageHindi;
   String get languageChanged;
 
+  // ========== Dashboard Shell (sidebar / app bar) ==========
+  String get adminPanel;
+  String get approvalQueue;
+  String get designStore;
+  String get userManagement;
+  String get transactions;
+  String get platformFees;
+  String get payouts;
+  String get support;
+  String get searchPlaceholder;
+  String get insightsTitle;
+  String get approvedDesigns;
+
   // ========== Settings ==========
   String get appSettings;
   String get generalSettings;

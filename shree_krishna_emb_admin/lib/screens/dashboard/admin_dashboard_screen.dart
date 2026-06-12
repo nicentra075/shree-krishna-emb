@@ -7,6 +7,7 @@ import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
+import 'package:shree_krishna_emb_admin/screens/settings/settings_content_view.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/desktop_user_list_view.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/mobile_user_list_view.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
@@ -41,7 +42,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: isMobile
           // Mobile layout with drawer
           ? Scaffold(
-              backgroundColor: const Color(0xFFF8F7F5),
               appBar: PreferredSize(
                 preferredSize: const Size.fromHeight(70),
                 child: _buildAppBar(isMobile),
@@ -51,7 +51,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             )
           // Desktop layout with fixed sidebar
           : Scaffold(
-              backgroundColor: const Color(0xFFF8F7F5),
               body: Row(
                 children: [
                   // Sidebar (fixed left)
@@ -78,6 +77,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     switch (_selectedSection) {
       case 'user_management':
         return _buildUserManagementContent();
+      case 'settings':
+        return const SettingsContentView();
       default:
         return _buildDashboardContent();
     }
@@ -143,7 +144,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Material(
-      color: const Color(0xFFF8F7F5),
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: BlocProvider(
         create: (context) =>
             UserListBloc(repository: GetIt.instance<UserListRepository>()),
@@ -158,7 +159,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildAppBar(bool isMobile) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -186,7 +187,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               child: Container(
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: Colors.grey.withValues(alpha: 0.2),
@@ -195,7 +196,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Search designers, designs or transactions...',
+                    hintText: AppLocalization.strings.searchPlaceholder,
                     hintStyle: AppTextStyles.bodyMedium(
                       color: Colors.grey.withValues(alpha: 0.5),
                     ),
@@ -210,7 +211,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       vertical: 12,
                     ),
                   ),
-                  style: AppTextStyles.bodyMedium(color: Colors.black87),
+                  style: AppTextStyles.bodyMedium(color: Theme.of(context).colorScheme.onSurface),
                 ),
               ),
             ),
@@ -223,8 +224,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             IconButton(
               icon: const Icon(Icons.settings_outlined, size: 24),
               color: Colors.grey.withValues(alpha: 0.6),
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.settings),
+              onPressed: () => setState(() => _selectedSection = 'settings'),
             ),
             const SizedBox(width: 8),
             Container(
@@ -238,7 +238,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       Text(
                         'Admin User',
                         style: AppTextStyles.labelMedium(
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
@@ -320,7 +320,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Admin Panel',
+                  AppLocalization.strings.adminPanel,
                   style: AppTextStyles.labelMedium(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -341,51 +341,51 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 children: [
                   _buildSidebarItem(
                     icon: Icons.dashboard_outlined,
-                    label: 'Dashboard',
+                    label: AppLocalization.strings.dashboard,
                     isActive: _selectedSection == 'dashboard',
                     onTap: () => setState(() => _selectedSection = 'dashboard'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.assignment_outlined,
-                    label: 'Approval Queue',
+                    label: AppLocalization.strings.approvalQueue,
                     isActive: _selectedSection == 'approval',
                     onTap: () => setState(() => _selectedSection = 'approval'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.store_outlined,
-                    label: 'Design Store',
+                    label: AppLocalization.strings.designStore,
                     isActive: _selectedSection == 'store',
                     onTap: () => setState(() => _selectedSection = 'store'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.people_outline,
-                    label: 'User Management',
+                    label: AppLocalization.strings.userManagement,
                     isActive: _selectedSection == 'user_management',
                     onTap: () =>
                         setState(() => _selectedSection = 'user_management'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.swap_horiz,
-                    label: 'Transactions',
+                    label: AppLocalization.strings.transactions,
                     isActive: _selectedSection == 'transactions',
                     onTap: () =>
                         setState(() => _selectedSection = 'transactions'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.trending_up,
-                    label: 'Platform Fees',
+                    label: AppLocalization.strings.platformFees,
                     isActive: _selectedSection == 'fees',
                     onTap: () => setState(() => _selectedSection = 'fees'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.account_balance_wallet,
-                    label: 'Payouts',
+                    label: AppLocalization.strings.payouts,
                     isActive: _selectedSection == 'payouts',
                     onTap: () => setState(() => _selectedSection = 'payouts'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.assessment_outlined,
-                    label: 'Reports',
+                    label: AppLocalization.strings.reports,
                     isActive: _selectedSection == 'reports',
                     onTap: () => setState(() => _selectedSection = 'reports'),
                   ),
@@ -404,21 +404,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 _buildSidebarItem(
                   icon: Icons.settings_outlined,
                   label: AppLocalization.strings.settings,
-                  isActive: false,
-                  onTap: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.settings),
+                  isActive: _selectedSection == 'settings',
+                  onTap: () => setState(() => _selectedSection = 'settings'),
                 ),
                 const SizedBox(height: 12),
                 _buildSidebarItem(
                   icon: Icons.support_agent_outlined,
-                  label: 'Support',
+                  label: AppLocalization.strings.support,
                   isActive: false,
                   onTap: () {},
                 ),
                 const SizedBox(height: 12),
                 _buildSidebarItem(
                   icon: Icons.logout,
-                  label: 'Sign Out',
+                  label: AppLocalization.strings.logout,
                   isActive: false,
                   onTap: () {
                     // Clears Firebase session + cached login; navigation to
@@ -497,9 +496,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Shree Krishna Insights',
+          AppLocalization.strings.insightsTitle,
           style: AppTextStyles.headlineMedium(
-            color: AppTheme.primaryDark,
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w900,
           ),
           maxLines: 1,
@@ -507,9 +506,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Good Morning, Admin. Here\'s your embroidery business overview.',
+          AppLocalization.strings.dashboardWelcome,
           style: AppTextStyles.bodyMedium(
-            color: AppTheme.textBrown.withValues(alpha: 0.7),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -533,7 +532,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             _buildKPICard(
               width: cardWidth,
               icon: Icons.people_outline,
-              label: 'Total Orders',
+              label: AppLocalization.strings.totalOrders,
               value: '2,450',
               trend: '+12% vs last month',
               trendPositive: true,
@@ -541,7 +540,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             _buildKPICard(
               width: cardWidth,
               icon: Icons.trending_up,
-              label: 'Total Revenue',
+              label: AppLocalization.strings.totalRevenue,
               value: '\$45,320',
               trend: '+8% growth',
               trendPositive: true,
@@ -549,7 +548,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             _buildKPICard(
               width: cardWidth,
               icon: Icons.check_circle_outline,
-              label: 'Approved Designs',
+              label: AppLocalization.strings.approvedDesigns,
               value: '856',
               trend: '+24 this week',
               trendPositive: true,
@@ -573,10 +572,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       width: width,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.textBrown.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
@@ -594,16 +593,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppTheme.primaryLight.withValues(alpha: 0.15),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: AppTheme.primaryDark, size: 20),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
           ),
           const SizedBox(height: 16),
           Text(
             label,
             style: AppTextStyles.labelSmall(
-              color: AppTheme.textBrown.withValues(alpha: 0.6),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -612,7 +611,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Text(
             value,
             style: AppTextStyles.headlineMedium(
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w900,
             ),
             maxLines: 1,
@@ -639,7 +638,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -661,7 +660,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Text(
                     'Revenue Snapshot',
                     style: AppTextStyles.labelMedium(
-                      color: AppTheme.textBrown.withValues(alpha: 0.6),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -670,7 +669,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Text(
                     '\$142,509.30',
                     style: AppTextStyles.headlineMedium(
-                      color: AppTheme.textDark,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w900,
                     ),
                     maxLines: 1,
@@ -743,8 +742,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 width: 12,
                 decoration: BoxDecoration(
                   color: isHighest
-                      ? AppTheme.primaryDark
-                      : AppTheme.primaryLight.withValues(alpha: 0.6),
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(4),
                   ),
@@ -756,7 +755,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Text(
               days[index],
               style: AppTextStyles.labelSmall(
-                color: AppTheme.textBrown.withValues(alpha: 0.5),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -776,7 +775,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Text(
           label,
           style: AppTextStyles.labelSmall(
-            color: AppTheme.textBrown.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -785,7 +784,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         Text(
           value,
           style: AppTextStyles.labelMedium(
-            color: isPositive ? const Color(0xFF4CAF50) : AppTheme.textDark,
+            color: isPositive ? const Color(0xFF4CAF50) : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w700,
           ),
           maxLines: 1,
@@ -880,7 +879,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -896,7 +895,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Text(
             'System Status',
             style: AppTextStyles.labelMedium(
-              color: AppTheme.textBrown.withValues(alpha: 0.6),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -915,7 +914,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               const SizedBox(width: 8),
               Text(
                 'Operational',
-                style: AppTextStyles.bodyMedium(color: AppTheme.textDark),
+                style: AppTextStyles.bodyMedium(color: Theme.of(context).colorScheme.onSurface),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -934,7 +933,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Text(
                   'Payout Cycle',
                   style: AppTextStyles.labelSmall(
-                    color: AppTheme.textBrown.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -966,9 +965,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Recent Activity',
+              AppLocalization.strings.recentActivity,
               style: AppTextStyles.headlineMedium(
-                color: AppTheme.textDark,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w700,
               ),
               maxLines: 1,
@@ -978,7 +977,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               onPressed: () {},
               child: Text(
                 'View All Feed →',
-                style: AppTextStyles.labelMedium(color: AppTheme.primaryDark),
+                style: AppTextStyles.labelMedium(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1024,10 +1025,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.textBrown.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -1037,10 +1038,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppTheme.primaryLight.withValues(alpha: 0.15),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: AppTheme.primaryDark, size: 20),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1053,7 +1054,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Text(
                       type,
                       style: AppTextStyles.labelSmall(
-                        color: AppTheme.primaryDark,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                       maxLines: 1,
@@ -1062,7 +1063,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Text(
                       timestamp,
                       style: AppTextStyles.bodySmall(
-                        color: AppTheme.textBrown.withValues(alpha: 0.5),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1073,7 +1074,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Text(
                   title,
                   style: AppTextStyles.bodyMedium(
-                    color: AppTheme.textDark,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 1,
@@ -1083,7 +1084,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 Text(
                   description,
                   style: AppTextStyles.bodySmall(
-                    color: AppTheme.textBrown.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

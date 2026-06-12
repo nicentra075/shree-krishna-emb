@@ -268,6 +268,29 @@ class EnUSStrings implements LocaleStrings {
   String get languageChanged => 'Language updated';
 
   @override
+  String get adminPanel => 'Admin Panel';
+  @override
+  String get approvalQueue => 'Approval Queue';
+  @override
+  String get designStore => 'Design Store';
+  @override
+  String get userManagement => 'User Management';
+  @override
+  String get transactions => 'Transactions';
+  @override
+  String get platformFees => 'Platform Fees';
+  @override
+  String get payouts => 'Payouts';
+  @override
+  String get support => 'Support';
+  @override
+  String get searchPlaceholder => 'Search designers, designs or transactions...';
+  @override
+  String get insightsTitle => 'Shree Krishna Insights';
+  @override
+  String get approvedDesigns => 'Approved Designs';
+
+  @override
   String get appSettings => 'App Settings';
   @override
   String get generalSettings => 'General Settings';
