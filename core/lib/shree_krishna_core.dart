@@ -14,6 +14,7 @@ export 'constants/design_techniques.dart';
 export 'enums/user_role.dart';
 export 'enums/order_status.dart';
 export 'enums/design_status.dart';
+export 'enums/category_status.dart';
 export 'enums/activity_type.dart';
 
 // Utilities
@@ -23,6 +24,9 @@ export 'utils/keyword_builder.dart';
 
 // Models (Data Layer)
 export 'models/user_model.dart';
+export 'models/category_model.dart';
+export 'models/design_model.dart';
+export 'models/banner_model.dart';
 
 // Entities (Domain Layer)
 // Add entity exports here as needed
