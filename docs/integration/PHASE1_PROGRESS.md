@@ -10,7 +10,7 @@
 > Hotspot files (edit serially, LAST action of a step): both `service_locator.dart`, both
 > `app_routes.dart`, l10n files, package barrels, `pubspec.yaml`s.
 
-**Current step → S0.7**
+**Current step → S0.8**
 
 ---
 
@@ -22,7 +22,7 @@
 - [x] **S0.4** Core: commerce models (CartItem, WishlistItem, Order+OrderItem, Purchase, Review, PlatformSettings, GlobalStats+DailyStats, Activity) + CacheConfig TTLs/boxes
 - [x] **S0.5** ThemeCubit in core + admin theme wiring (persistent) + admin Settings screen + l10n `settings*`
 - [x] **S0.6** User app theme wiring + Settings screen + l10n `settings*`
-- [ ] **S0.7** Design system additions: AppSearchBar, AppDropdownField, AppDateRangeField, AppChip, AppRatingStars, AppNetworkImage, AppPriceText, AppStatusBadge
+- [x] **S0.7** Design system additions: AppSearchBar, AppDropdownField, AppDateRangeField, AppChip, AppRatingStars, AppNetworkImage, AppPriceText, AppStatusBadge
 - [ ] **S0.8** Firebase scaffold: root firebase.json/.firebaserc, firestore.rules, firestore.indexes.json (ALL indexes), storage.rules, functions/ skeleton (TS, compiles), seed + backfillClaims scripts; deploy rules+indexes+storage; emulators boot
 - [ ] **S0.9** Prerequisites (console/client — blocks M2/M4 only): Blaze ▢ • Razorpay TEST keys ▢ • secrets set ▢ • webhook registered ▢ • SMTP app password ▢ • OTP_PEPPER ▢ • Token Creator role ▢ • TTL policies ▢ • seed.ts run ▢ • backfillClaims run ▢
 
@@ -79,4 +79,6 @@
 |---|---|---|
 | 2026-06-12 | Plan + S0.1 | Phase 1 plan approved (Razorpay test+fns, all P2 in, backend+admin first). Created integration docs. Pre-existing uncommitted changes in admin (service_locator, admin auth datasource, splash, lib/core/constants/) left untouched — belong to user's in-progress work. |
 | 2026-06-12 | S0.2–S0.4 | Core package: contract constants + enums + Money/KeywordBuilder (9 golden tests) + all 11 catalog/commerce models with dual serialization + CacheConfig TTLs/boxes. Commits 30cc3dc, d373010, 38153f8. |
+| 2026-06-12 | UAT fix | User-reported issues fixed (52bf6da): settings embedded in dashboard content area via SettingsContentView (sidebar/header switch sections — no route push, kills splash-reload bug); settings UI redesigned (theme cards, language tiles, about card); dashboard fully theme-aware (colorScheme tokens replace hardcoded white/black/brown); sidebar + app bar + KPI labels localized (11 new keys). NOTE: login + user-management views still have hardcoded colors → S5.1 sweep. Requires FULL RESTART to test (not hot reload). |
+| 2026-06-12 | S0.7 | 8 DS components added + exported (135f252); design_system +cached_network_image; AppPriceText delegates to core Money. All 4 packages analyze clean (pre-existing warnings only). |
 | 2026-06-12 | S0.5–S0.6 | ThemeCubit in core (prefs key `theme_mode` from CacheConfig). Both apps: settings screen (theme light/dark/system + en/hi switcher + version), themeMode wired in main.dart, locale rebuild via AppLocalization.localeNotifier, /settings routes. Admin: dashboard header icon + sidebar entry. User: profile Settings tile + dark-mode switch wired. Both apps `flutter analyze` clean (user app: 36 pre-existing warnings, 0 errors). Commits 5d4965c, 627a3b6. Manual check pending: theme persistence across restart on device/web (S0.7 session can verify while testing DS components). |
