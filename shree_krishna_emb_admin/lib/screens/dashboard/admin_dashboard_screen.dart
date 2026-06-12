@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
+import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/desktop_user_list_view.dart';
@@ -222,7 +223,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             IconButton(
               icon: const Icon(Icons.settings_outlined, size: 24),
               color: Colors.grey.withValues(alpha: 0.6),
-              onPressed: () {},
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.settings),
             ),
             const SizedBox(width: 8),
             Container(
@@ -399,6 +401,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                _buildSidebarItem(
+                  icon: Icons.settings_outlined,
+                  label: AppLocalization.strings.settings,
+                  isActive: false,
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.settings),
+                ),
+                const SizedBox(height: 12),
                 _buildSidebarItem(
                   icon: Icons.support_agent_outlined,
                   label: 'Support',

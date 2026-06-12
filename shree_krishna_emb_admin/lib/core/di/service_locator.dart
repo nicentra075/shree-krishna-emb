@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_admin_auth_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_user_list_datasource.dart';
@@ -31,6 +32,9 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
 
   // Register SharedPreferences instance
   getIt.registerSingleton<SharedPreferences>(prefs);
+
+  // Shared theme state (persistent light/dark/system mode)
+  getIt.registerSingleton<ThemeCubit>(ThemeCubit(prefs));
 
   // ADMIN AUTH - Clean Architecture Pattern
   // Data Layer

@@ -257,6 +257,17 @@ class EnUSStrings implements LocaleStrings {
   String get noData => 'No data available';
 
   @override
+  String get appearance => 'Appearance';
+  @override
+  String get systemDefault => 'System Default';
+  @override
+  String get languageEnglish => 'English';
+  @override
+  String get languageHindi => 'हिन्दी (Hindi)';
+  @override
+  String get languageChanged => 'Language updated';
+
+  @override
   String get appSettings => 'App Settings';
   @override
   String get generalSettings => 'General Settings';

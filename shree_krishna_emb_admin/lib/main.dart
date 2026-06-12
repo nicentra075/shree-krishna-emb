@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/firebase_options.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
@@ -34,41 +35,39 @@ void main() async {
   runApp(const AdminApp());
 }
 
-class AdminApp extends StatefulWidget {
+class AdminApp extends StatelessWidget {
   const AdminApp({super.key});
 
   @override
-  State<AdminApp> createState() => _AdminAppState();
-}
-
-class _AdminAppState extends State<AdminApp> {
-  bool _isDarkMode = false;
-
-  @override
   Widget build(BuildContext context) {
-    return BlocProvider<AdminAuthBloc>(
-      create: (context) => getIt<AdminAuthBloc>(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Shree Krishna Embroidery - Admin',
-        // Apply custom theme with dark mode support
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-        // Global navigator key for accessing context anywhere in the app
-        navigatorKey: GlobalNavigator.navigatorKey,
-        // Centralized routing system
-        initialRoute: AppRoutes.splash,
-        onGenerateRoute: AppRoutes.onGenerateRoute,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AdminAuthBloc>(create: (context) => getIt<AdminAuthBloc>()),
+        // Persistent theme mode (light/dark/system), shared via core package
+        BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          // Rebuild the whole tree on locale change (strings are static)
+          return ValueListenableBuilder<String>(
+            valueListenable: AppLocalization.localeNotifier,
+            builder: (context, locale, _) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'Shree Krishna Embroidery - Admin',
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: themeMode,
+                // Global navigator key for accessing context anywhere in the app
+                navigatorKey: GlobalNavigator.navigatorKey,
+                // Centralized routing system
+                initialRoute: AppRoutes.splash,
+                onGenerateRoute: AppRoutes.onGenerateRoute,
+              );
+            },
+          );
+        },
       ),
     );
-  }
-
-  /// Toggle between light and dark mode
-  /// Usage: Get the AdminApp state and call this method
-  void toggleDarkMode() {
-    setState(() {
-      _isDarkMode = !_isDarkMode;
-    });
   }
 }

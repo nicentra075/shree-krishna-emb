@@ -142,6 +142,13 @@ abstract class LocaleStrings {
   String get download;
   String get noData;
 
+  // ========== Settings Screen ==========
+  String get appearance;
+  String get systemDefault;
+  String get languageEnglish;
+  String get languageHindi;
+  String get languageChanged;
+
   // ========== Settings ==========
   String get appSettings;
   String get generalSettings;

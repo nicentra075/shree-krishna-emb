@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'locales/locale_base.dart';
 import 'locales/en_us.dart';
@@ -7,6 +8,10 @@ class AppLocalization {
   static late SharedPreferences _prefs;
   static LocaleStrings _currentStrings = EnUSStrings();
   static const String _localeKey = 'app_locale';
+
+  /// Notifies on locale change so the root MaterialApp can rebuild the
+  /// whole widget tree (strings are accessed statically everywhere).
+  static final ValueNotifier<String> localeNotifier = ValueNotifier('en_US');
 
   static LocaleStrings get strings => _currentStrings;
 
@@ -19,6 +24,7 @@ class AppLocalization {
   static Future<void> setLocale(String locale) async {
     _currentStrings = _getStringsForLocale(locale);
     await _prefs.setString(_localeKey, locale);
+    localeNotifier.value = locale;
   }
 
   static LocaleStrings _getStringsForLocale(String locale) {

@@ -257,6 +257,17 @@ class HiINStrings implements LocaleStrings {
   String get noData => 'कोई डेटा उपलब्ध नहीं';
 
   @override
+  String get appearance => 'दिखावट';
+  @override
+  String get systemDefault => 'सिस्टम डिफ़ॉल्ट';
+  @override
+  String get languageEnglish => 'English';
+  @override
+  String get languageHindi => 'हिन्दी (Hindi)';
+  @override
+  String get languageChanged => 'भाषा बदल दी गई';
+
+  @override
   String get appSettings => 'ऐप सेटिंग्स';
   @override
   String get generalSettings => 'सामान्य सेटिंग्स';

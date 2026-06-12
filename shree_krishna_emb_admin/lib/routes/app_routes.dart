@@ -3,6 +3,7 @@ import 'package:shree_krishna_emb_admin/screens/splash/splash_screen.dart';
 import 'package:shree_krishna_emb_admin/screens/login/admin_login_screen.dart';
 import 'package:shree_krishna_emb_admin/screens/login/forgot_password_screen.dart';
 import 'package:shree_krishna_emb_admin/screens/dashboard/admin_dashboard_screen.dart';
+import 'package:shree_krishna_emb_admin/screens/settings/admin_settings_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -10,6 +11,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String forgotPassword = '/forgot-password';
   static const String home = '/home';
+  static const String settings = '/settings';
 
   // Route generation
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -32,6 +34,11 @@ class AppRoutes {
       case home:
         return MaterialPageRoute(
           builder: (_) => const AdminDashboardScreen(),
+          settings: settings,
+        );
+      case AppRoutes.settings:
+        return MaterialPageRoute(
+          builder: (_) => const AdminSettingsScreen(),
           settings: settings,
         );
       default:
