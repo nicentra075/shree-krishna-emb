@@ -270,6 +270,18 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get darkMode => 'Dark Mode';
   @override
+  String get lightMode => 'Light Mode';
+  @override
+  String get appearance => 'Appearance';
+  @override
+  String get systemDefault => 'System Default';
+  @override
+  String get languageEnglish => 'English';
+  @override
+  String get languageHindi => 'हिन्दी (Hindi)';
+  @override
+  String get languageChanged => 'Language updated';
+  @override
   String get notifications => 'Notifications';
   @override
   String get aboutUs => 'About Us';

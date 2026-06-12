@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
+import 'package:shree_krishna_emb/routes/app_routes.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -34,7 +37,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Settings
-            _buildSettingsSection(),
+            _buildSettingsSection(context),
             const SizedBox(height: 24),
 
             // Support & Resources
@@ -299,7 +302,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  static Widget _buildSettingsSection() {
+  static Widget _buildSettingsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -312,24 +315,29 @@ class ProfileScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _buildSettingsTile(
+          AppLocalization.strings.settings,
+          Icons.settings_outlined,
+          () => context.navigateToSettings(),
+        ),
+        _buildSettingsTile(
           AppLocalization.strings.notifications,
           Icons.notifications_outlined,
           () {
             // TODO: Navigate to notifications settings
           },
         ),
-        _buildSettingsTile(
-          AppLocalization.strings.darkMode,
-          Icons.dark_mode_outlined,
-          () {
-            // TODO: Toggle dark mode
+        BlocBuilder<ThemeCubit, ThemeMode>(
+          builder: (context, themeMode) {
+            return _buildSettingsTile(
+              AppLocalization.strings.darkMode,
+              Icons.dark_mode_outlined,
+              () => context.read<ThemeCubit>().toggle(),
+              trailing: Switch(
+                value: themeMode == ThemeMode.dark,
+                onChanged: (_) => context.read<ThemeCubit>().toggle(),
+              ),
+            );
           },
-          trailing: Switch(
-            value: false,
-            onChanged: (value) {
-              // TODO: Toggle dark mode
-            },
-          ),
         ),
         _buildSettingsTile(
           AppLocalization.strings.switchToDesigner,

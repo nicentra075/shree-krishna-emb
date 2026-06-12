@@ -11,6 +11,7 @@ import 'package:shree_krishna_emb/screens/auth/otp_verification_screen.dart';
 import 'package:shree_krishna_emb/screens/auth/forgot_password_screen.dart';
 import 'package:shree_krishna_emb/screens/auth/complete_profile_screen.dart';
 import 'package:shree_krishna_emb/screens/main/main_screen.dart';
+import 'package:shree_krishna_emb/screens/settings/settings_screen.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 
@@ -194,6 +195,13 @@ class AppRoutes {
         return _buildRoute(
           settings: settings,
           builder: (context) => const MainScreen(),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case AppRoutes.settings:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const SettingsScreen(),
           transitionType: _TransitionType.fadeInSlide,
         );
 
@@ -437,6 +445,11 @@ extension AppNavigationExtension on BuildContext {
   /// Navigate to Home
   Future<void> navigateToHome() {
     return AppRoutes.navigateToHome(this);
+  }
+
+  /// Navigate to Settings
+  Future<void> navigateToSettings() {
+    return AppRoutes.push(this, AppRoutes.settings);
   }
 }
 

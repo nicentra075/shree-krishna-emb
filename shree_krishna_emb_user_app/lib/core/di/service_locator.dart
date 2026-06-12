@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
 import 'package:shree_krishna_emb/bloc/splash/splash_bloc.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
@@ -50,6 +51,9 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
 
   // Register SharedPreferences singleton for direct BLoC access
   getIt.registerSingleton<SharedPreferences>(prefs);
+
+  // Shared theme state (persistent light/dark/system mode)
+  getIt.registerSingleton<ThemeCubit>(ThemeCubit(prefs));
 
   // Data sources (Firebase implementations)
   getIt.registerSingleton<FirebaseAuthDataSource>(

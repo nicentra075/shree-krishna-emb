@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/firebase_options.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
@@ -25,38 +27,36 @@ void main() async {
   runApp(const MainApp());
 }
 
-class MainApp extends StatefulWidget {
+class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   @override
-  State<MainApp> createState() => _MainAppState();
-}
-
-class _MainAppState extends State<MainApp> {
-  bool _isDarkMode = false;
-
-  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Shree Krishna Embroidery',
-      // Apply custom theme with dark mode support
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      // Global navigator key for accessing context anywhere in the app
-      navigatorKey: GlobalNavigator.navigatorKey,
-      // Centralized routing system
-      initialRoute: AppRoutes.splash,
-      onGenerateRoute: AppRoutes.onGenerateRoute,
+    // Persistent theme mode (light/dark/system), shared via core package
+    return BlocProvider<ThemeCubit>.value(
+      value: getIt<ThemeCubit>(),
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          // Rebuild the whole tree on locale change (strings are static)
+          return ValueListenableBuilder<String>(
+            valueListenable: AppLocalization.localeNotifier,
+            builder: (context, locale, _) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'Shree Krishna Embroidery',
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: themeMode,
+                // Global navigator key for accessing context anywhere in the app
+                navigatorKey: GlobalNavigator.navigatorKey,
+                // Centralized routing system
+                initialRoute: AppRoutes.splash,
+                onGenerateRoute: AppRoutes.onGenerateRoute,
+              );
+            },
+          );
+        },
+      ),
     );
-  }
-
-  /// Toggle between light and dark mode
-  /// Usage: Get the MainApp state and call this method
-  void toggleDarkMode() {
-    setState(() {
-      _isDarkMode = !_isDarkMode;
-    });
   }
 }

@@ -159,6 +159,12 @@ abstract class LocaleStrings {
   String get preferences;
   String get language;
   String get darkMode;
+  String get lightMode;
+  String get appearance;
+  String get systemDefault;
+  String get languageEnglish;
+  String get languageHindi;
+  String get languageChanged;
   String get notifications;
   String get aboutUs;
   String get contactUs;
