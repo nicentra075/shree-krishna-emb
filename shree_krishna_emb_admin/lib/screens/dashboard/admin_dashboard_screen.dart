@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
+import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/desktop_user_list_view.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/mobile_user_list_view.dart';
@@ -23,41 +25,50 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final screenSize = MediaQuery.of(context).size;
     final isMobile = screenSize.width < 768;
 
-    // Mobile layout with drawer
-    if (isMobile) {
-      return Scaffold(
-        backgroundColor: const Color(0xFFF8F7F5),
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(70),
-          child: _buildAppBar(isMobile),
-        ),
-        drawer: _buildSidebar(),
-        body: _buildContent(),
-      );
-    }
-
-    // Desktop layout with fixed sidebar
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F7F5),
-      body: Row(
-        children: [
-          // Sidebar (fixed left)
-          _buildSidebar(),
-          // Main content area (right side)
-          Expanded(
-            child: Column(
-              children: [
-                // App bar
-                _buildAppBar(isMobile),
-                // Main content
-                Expanded(
-                  child: _buildContent(),
-                ),
-              ],
+    // Leave the dashboard only after the session is actually cleared,
+    // so a refresh after sign-out can never restore it
+    return BlocListener<AdminAuthBloc, AdminAuthState>(
+      listener: (context, state) {
+        if (state is AdminAuthUnauthenticated) {
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+        } else if (state is AdminAuthError) {
+          AppSnackbar.showError(state.message);
+        }
+      },
+      child: isMobile
+          // Mobile layout with drawer
+          ? Scaffold(
+              backgroundColor: const Color(0xFFF8F7F5),
+              appBar: PreferredSize(
+                preferredSize: const Size.fromHeight(70),
+                child: _buildAppBar(isMobile),
+              ),
+              drawer: _buildSidebar(),
+              body: _buildContent(),
+            )
+          // Desktop layout with fixed sidebar
+          : Scaffold(
+              backgroundColor: const Color(0xFFF8F7F5),
+              body: Row(
+                children: [
+                  // Sidebar (fixed left)
+                  _buildSidebar(),
+                  // Main content area (right side)
+                  Expanded(
+                    child: Column(
+                      children: [
+                        // App bar
+                        _buildAppBar(isMobile),
+                        // Main content
+                        Expanded(child: _buildContent()),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -133,9 +144,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Material(
       color: const Color(0xFFF8F7F5),
       child: BlocProvider(
-        create: (context) => UserListBloc(
-          repository: GetIt.instance<UserListRepository>(),
-        ),
+        create: (context) =>
+            UserListBloc(repository: GetIt.instance<UserListRepository>()),
         child: isMobile
             ? const MobileUserListView()
             : const DesktopUserListView(),
@@ -349,13 +359,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     icon: Icons.people_outline,
                     label: 'User Management',
                     isActive: _selectedSection == 'user_management',
-                    onTap: () => setState(() => _selectedSection = 'user_management'),
+                    onTap: () =>
+                        setState(() => _selectedSection = 'user_management'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.swap_horiz,
                     label: 'Transactions',
                     isActive: _selectedSection == 'transactions',
-                    onTap: () => setState(() => _selectedSection = 'transactions'),
+                    onTap: () =>
+                        setState(() => _selectedSection = 'transactions'),
                   ),
                   _buildSidebarItem(
                     icon: Icons.trending_up,
@@ -399,7 +411,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   label: 'Sign Out',
                   isActive: false,
                   onTap: () {
-                    Navigator.pushReplacementNamed(context, '/login');
+                    // Clears Firebase session + cached login; navigation to
+                    // the login screen happens via the AdminAuthBloc listener
+                    context.read<AdminAuthBloc>().add(
+                      const AdminSignOutEvent(),
+                    );
                   },
                 ),
               ],

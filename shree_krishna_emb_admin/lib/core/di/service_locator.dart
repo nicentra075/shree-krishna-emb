@@ -38,6 +38,7 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
     FirebaseAdminAuthDataSource(
       firebaseAuth: getIt<FirebaseAuth>(),
       firestore: getIt<FirebaseFirestore>(),
+      prefs: getIt<SharedPreferences>(),
     ),
   );
 

@@ -2,12 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/splash/splash_bloc.dart';
+import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  bool _splashComplete = false;
+  bool _hasNavigated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Restore any cached session while the splash animation plays
+    context.read<AdminAuthBloc>().add(const AdminCheckAuthStatusEvent());
+  }
+
+  /// Navigate once both the splash duration has elapsed and the cached
+  /// session check has resolved — dashboard if a session was restored,
+  /// login otherwise.
+  void _navigateWhenReady(BuildContext context) {
+    if (!_splashComplete || _hasNavigated) return;
+
+    final authState = context.read<AdminAuthBloc>().state;
+    if (authState is AdminAuthAuthenticated) {
+      _hasNavigated = true;
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    } else if (authState is AdminAuthUnauthenticated ||
+        authState is AdminAuthError) {
+      _hasNavigated = true;
+      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+    }
+    // Still checking — the AdminAuthBloc listener retries when it resolves
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +52,20 @@ class SplashScreen extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => SplashBloc()..add(const InitializeSplashEvent()),
-      child: BlocListener<SplashBloc, SplashState>(
-        listener: (context, state) {
-          if (state is SplashComplete) {
-            Navigator.of(context).pushReplacementNamed('/login');
-          }
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<SplashBloc, SplashState>(
+            listener: (context, state) {
+              if (state is SplashComplete) {
+                _splashComplete = true;
+                _navigateWhenReady(context);
+              }
+            },
+          ),
+          BlocListener<AdminAuthBloc, AdminAuthState>(
+            listener: (context, state) => _navigateWhenReady(context),
+          ),
+        ],
         child: BlocBuilder<SplashBloc, SplashState>(
           builder: (context, state) {
             return Scaffold(
