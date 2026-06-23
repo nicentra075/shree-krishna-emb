@@ -11,6 +11,9 @@ import 'package:shree_krishna_emb/screens/auth/otp_verification_screen.dart';
 import 'package:shree_krishna_emb/screens/auth/forgot_password_screen.dart';
 import 'package:shree_krishna_emb/screens/auth/complete_profile_screen.dart';
 import 'package:shree_krishna_emb/screens/main/main_screen.dart';
+import 'package:shree_krishna_emb/screens/catalog/view_all_screen.dart';
+import 'package:shree_krishna_emb/screens/catalog/design_detail_screen.dart';
+import 'package:shree_krishna_emb/screens/catalog/favorites_screen.dart';
 import 'package:shree_krishna_emb/screens/settings/settings_screen.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/core/utils/app_logger.dart';
@@ -84,6 +87,15 @@ class AppRoutes {
 
   /// Settings screen (add later)
   static const String settings = '/settings';
+
+  /// View-All list screen (designs/collections/categories/sellers).
+  static const String viewAll = '/view-all';
+
+  /// Design detail screen.
+  static const String designDetail = '/design-detail';
+
+  /// Favorites (wishlist) screen.
+  static const String favorites = '/favorites';
 
   // Add more routes here as you build the app
   // Convention: use lowercase with forward slash prefix
@@ -205,6 +217,35 @@ class AppRoutes {
           transitionType: _TransitionType.fadeInSlide,
         );
 
+      case viewAll:
+        final args = settings.arguments;
+        // Supports both the legacy String argument and the {target,title} map.
+        final target = args is Map
+            ? (args['target'] as String? ?? 'designs')
+            : (args as String? ?? 'designs');
+        final title = args is Map ? args['title'] as String? : null;
+        return _buildRoute(
+          settings: settings,
+          builder: (context) =>
+              ViewAllScreen(target: target, titleOverride: title),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case designDetail:
+        final designId = settings.arguments as String? ?? '';
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => DesignDetailScreen(designId: designId),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
+      case favorites:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const FavoritesScreen(),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
       // Add more routes here:
       // case home:
       //   return _buildRoute(
@@ -278,6 +319,36 @@ class AppRoutes {
     return Navigator.of(
       context,
     ).pushNamedAndRemoveUntil(login, (route) => false);
+  }
+
+  /// Navigate to a View-All list. [target] e.g. `sellers`, `collections`,
+  /// `collection:<id>`, `category:<id>`, `designs?sort=popularity`. [title]
+  /// overrides the screen's app-bar title (e.g. the section's own title).
+  static Future<void> navigateToViewAll(BuildContext context, String target,
+      {String? title}) {
+    return Navigator.of(context)
+        .pushNamed(viewAll, arguments: {'target': target, 'title': title});
+  }
+
+  /// Navigate to a design's detail screen.
+  static Future<void> navigateToDesignDetail(
+      BuildContext context, String designId) {
+    return Navigator.of(context)
+        .pushNamed(designDetail, arguments: designId);
+  }
+
+  /// Routes a home/section target string to the right screen.
+  static void handleTarget(BuildContext context, String? target) {
+    if (target == null || target.isEmpty) return;
+    if (target.startsWith('design:')) {
+      navigateToDesignDetail(context, target.substring('design:'.length));
+    } else if (target.startsWith('seller:')) {
+      // No seller detail screen yet — show all sellers.
+      navigateToViewAll(context, 'sellers');
+    } else {
+      // sellers | collections | collection:<id> | category:<id> | designs...
+      navigateToViewAll(context, target);
+    }
   }
 
   //###############################################

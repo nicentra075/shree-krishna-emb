@@ -4,6 +4,7 @@ import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_event.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_state.dart';
+import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/data/models/user_list_item_model.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 import 'dialogs/user_edit_dialog.dart';
@@ -125,14 +126,23 @@ class _MobileUserListViewState extends State<MobileUserListView> {
           child: BlocListener<UserListBloc, UserListState>(
             listener: (context, state) {
               if (state is UserActionSuccess) {
-                AppSnackbar.showSuccess(state.message);
+                ResponsiveSnackbar.showSuccess(state.message, context);
               } else if (state is UserActionError) {
-                AppSnackbar.showError(state.message);
+                ResponsiveSnackbar.showError(state.message, context);
               }
             },
             child: BlocBuilder<UserListBloc, UserListState>(
+              // Show the loader while an action is in flight and keep the last
+              // list visible during transient action states, instead of
+              // flashing the "No data" fallback.
+              buildWhen: (previous, current) =>
+                  current is UserListInitial ||
+                  current is UserListLoading ||
+                  current is UserListLoaded ||
+                  current is UserListError ||
+                  current is UserActionLoading,
               builder: (context, state) {
-                if (state is UserListLoading) {
+                if (state is UserListLoading || state is UserActionLoading) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -226,72 +236,95 @@ class _MobileUserListViewState extends State<MobileUserListView> {
     BuildContext context,
     UserListItemModel user,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final activeColor = const Color(0xFF4CAF50);
+    final suspendedColor = const Color(0xFFFF6B6B);
+    final statusColor = user.isActive ? activeColor : suspendedColor;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Name and status badges
+            // Name + status badge
             Row(
               children: [
                 Expanded(
                   child: Text(
                     user.name,
                     style: AppTextStyles.bodyMedium(
-                      color: AppTheme.textDark,
+                      color: colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: user.isActive
-                        ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
-                        : const Color(0xFFFF6B6B).withValues(alpha: 0.15),
+                    color: statusColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     user.isActive ? 'Active' : 'Suspended',
                     style: AppTextStyles.labelSmall(
-                      color: user.isActive
-                          ? const Color(0xFF4CAF50)
-                          : const Color(0xFFFF6B6B),
+                      color: statusColor,
                       fontWeight: FontWeight.w500,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             // Email
             Text(
               user.email,
               style: AppTextStyles.bodySmall(
-                color: AppTheme.textBrown.withValues(alpha: 0.7),
+                color: colorScheme.onSurfaceVariant,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
-            // Role
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryLight.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                user.role.replaceFirst(user.role[0], user.role[0].toUpperCase()),
-                style: AppTextStyles.labelSmall(
-                  color: AppTheme.primaryDark,
+            const SizedBox(height: 8),
+            // Role badge + User ID
+            Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryLight.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    user.role
+                        .replaceFirst(user.role[0], user.role[0].toUpperCase()),
+                    style: AppTextStyles.labelSmall(
+                      color: AppTheme.primaryDark,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    'ID: ${user.userId ?? '-'}',
+                    style: AppTextStyles.labelSmall(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             // Action buttons
@@ -300,9 +333,10 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryLight.withValues(alpha: 0.2),
+                      backgroundColor:
+                          AppTheme.primaryLight.withValues(alpha: 0.2),
                       foregroundColor: AppTheme.primaryDark,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                     onPressed: () {
                       showDialog(
@@ -310,17 +344,20 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                         builder: (_) => UserDetailsDialog(user: user),
                       );
                     },
-                    child: const Text('View'),
+                    child: const Text(
+                      'View',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.primaryDark,
                       side: BorderSide(color: AppTheme.primaryDark),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                     onPressed: () {
                       showDialog(
@@ -331,7 +368,11 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                         ),
                       );
                     },
-                    child: const Text('Edit'),
+                    child: const Text(
+                      'Edit',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -356,17 +397,17 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                     ),
                   ],
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey.withValues(alpha: 0.3),
+                        color: colorScheme.outline.withValues(alpha: 0.4),
                       ),
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       Icons.more_vert,
                       size: 20,
-                      color: AppTheme.textBrown,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),

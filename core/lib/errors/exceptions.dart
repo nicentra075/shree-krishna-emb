@@ -5,14 +5,25 @@ class ServerException implements Exception {
   final String? code;
   final dynamic originalError;
 
-  ServerException({
-    required this.message,
-    this.code,
-    this.originalError,
+  ServerException({required this.message, this.code, this.originalError});
+
+  @override
+  String toString() =>
+      'ServerException: $message${code != null ? ' (Code: $code)' : ''}';
+}
+
+/// Thrown when a user authenticates successfully but their account has been
+/// suspended (isActive == false). Kept separate from [ServerException] so the
+/// presentation layer can show a dedicated "account suspended" message.
+class SuspendedAccountException implements Exception {
+  final String message;
+
+  SuspendedAccountException({
+    this.message = 'This account has been suspended.',
   });
 
   @override
-  String toString() => 'ServerException: $message${code != null ? ' (Code: $code)' : ''}';
+  String toString() => 'SuspendedAccountException: $message';
 }
 
 class CacheException implements Exception {

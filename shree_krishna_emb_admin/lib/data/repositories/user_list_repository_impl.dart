@@ -16,12 +16,16 @@ class UserListRepositoryImpl implements UserListRepository {
     required int page,
     required int pageSize,
     String? searchQuery,
+    String? roleFilter,
+    bool forceRefresh = false,
   }) async {
     try {
       final users = await _dataSource.getUsers(
         page: page,
         pageSize: pageSize,
         searchQuery: searchQuery,
+        roleFilter: roleFilter,
+        forceRefresh: forceRefresh,
       );
       return Right(users);
     } on ServerException catch (e) {
@@ -71,9 +75,17 @@ class UserListRepositoryImpl implements UserListRepository {
   }
 
   @override
-  Future<Either<Failure, int>> getUserCount({String? searchQuery}) async {
+  Future<Either<Failure, int>> getUserCount({
+    String? searchQuery,
+    String? roleFilter,
+    bool forceRefresh = false,
+  }) async {
     try {
-      final count = await _dataSource.getUserCount(searchQuery: searchQuery);
+      final count = await _dataSource.getUserCount(
+        searchQuery: searchQuery,
+        roleFilter: roleFilter,
+        forceRefresh: forceRefresh,
+      );
       return Right(count);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -89,6 +101,11 @@ class UserListRepositoryImpl implements UserListRepository {
     required String password,
     required String phoneNumber,
     required String role,
+    String? photoUrl,
+    String? storeName,
+    String? storeImageUrl,
+    String? storeDescription,
+    bool isAuthorisedSeller = false,
   }) async {
     try {
       await _dataSource.createUser(
@@ -97,7 +114,24 @@ class UserListRepositoryImpl implements UserListRepository {
         password: password,
         phoneNumber: phoneNumber,
         role: role,
+        photoUrl: photoUrl,
+        storeName: storeName,
+        storeImageUrl: storeImageUrl,
+        storeDescription: storeDescription,
+        isAuthorisedSeller: isAuthorisedSeller,
       );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendPasswordReset(String email) async {
+    try {
+      await _dataSource.sendPasswordReset(email);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

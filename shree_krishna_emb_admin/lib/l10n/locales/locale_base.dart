@@ -61,6 +61,26 @@ abstract class LocaleStrings {
   String get productStatus;
   String get active;
   String get inactive;
+  String get allLabel;
+  String get perPage;
+  String get mediaLibrary;
+  String get uploadImages;
+  String get uploading;
+  String get dragDropHint;
+  String get useImage;
+  String get chooseFromLibrary;
+  String get addImage;
+  String get changeImage;
+  String get uploadFromDevice;
+  String get selectFromDevice;
+  String get selected;
+  String get alsoDeleteCategoriesDesigns;
+  String get alsoDeleteDesigns;
+  String get deleteCollectionOnlyNote;
+  String get deleteCollectionCascadeNote;
+  String get deleteCategoryOnlyNote;
+  String get deleteCategoryCascadeNote;
+  String get deleteImpactTitle;
   String get noProducts;
   String get productAdded;
   String get productUpdated;
@@ -192,6 +212,8 @@ abstract class LocaleStrings {
 
   // ========== Admin Actions ==========
   String get logout;
+  String get logoutConfirmTitle;
+  String get logoutConfirmMessage;
   String get login;
   String get email;
   String get password;
@@ -233,4 +255,51 @@ abstract class LocaleStrings {
   String get resetLinkMessage;
   String get sendResetLink;
   String get resetLinkSentMessage;
+
+  // ========== Design Store ==========
+  String get collections;
+  String get designs;
+  String get homeLayout;
+  String get addSection;
+  String get addSectionSubtitle;
+  String get publish;
+  String get publishNow;
+  String get published;
+  String get unpublishedChanges;
+  String get unpublishedBannerMessage;
+  String get addCollection;
+  String get addDesign;
+  String get editCollection;
+  String get editCategory;
+  String get editDesign;
+  String get collectionName;
+  String get designName;
+  String get imageUrl;
+  String get descriptionLabel;
+  String get positionLabel;
+  String get isActiveLabel;
+  String get selectCollection;
+  String get selectCategory;
+  String get code;
+  String get authorName;
+  String get price;
+  String get discountAmount;
+  String get isFree;
+  String get finalPrice;
+  String get free;
+  String get colorOrNeedleCount;
+  String get designFormat;
+  String get stitchCount;
+  String get heightLabel;
+  String get widthLabel;
+  String get designImages;
+  String get addImageUrl;
+  String get noCollections;
+  String get noDesigns;
+  String get sortBy;
+  String get sortPopularity;
+  String get sortNewest;
+  String get sortPriceLowHigh;
+  String get sortPriceHighLow;
+  String get statusLabel;
 }

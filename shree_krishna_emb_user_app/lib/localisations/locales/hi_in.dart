@@ -184,6 +184,12 @@ class HiINStrings implements LocaleStrings {
   @override
   String get wishlist => 'विशलिस्ट';
   @override
+  String get favorites => 'पसंदीदा';
+  @override
+  String get noFavoritesYet => 'अभी कोई पसंदीदा नहीं';
+  @override
+  String get noFavoritesHint => 'किसी भी डिज़ाइन पर दिल दबाकर उसे यहाँ सहेजें।';
+  @override
   String get profile => 'प्रोफाइल';
   @override
   String get menu => 'मेनू';
@@ -293,6 +299,11 @@ class HiINStrings implements LocaleStrings {
   String get termsOfService => 'सेवा की शर्तें';
   @override
   String get logout => 'लॉगआउट करें';
+  @override
+  String get logoutConfirmMessage => 'क्या आप वाकई लॉगआउट करना चाहते हैं?';
+  @override
+  String get accountSuspendedMessage =>
+      'आपका खाता निलंबित कर दिया गया है। कृपया अपना खाता पुनः सक्रिय करने के लिए एडमिन से संपर्क करें।';
 
   @override
   String get enterEmail => 'अपनी ईमेल दर्ज करें';
@@ -363,11 +374,31 @@ class HiINStrings implements LocaleStrings {
   @override
   String get verified => 'सत्यापित';
   @override
+  String get free => 'निःशुल्क';
+  @override
+  String get designs => 'डिज़ाइन';
+  @override
+  String get code => 'कोड';
+  @override
+  String get authorName => 'लेखक';
+  @override
+  String get colorOrNeedleCount => 'रंग / सुई गिनती';
+  @override
+  String get designFormat => 'प्रारूप';
+  @override
+  String get stitchCount => 'टांके की संख्या';
+  @override
+  String get heightLabel => 'ऊंचाई';
+  @override
+  String get widthLabel => 'चौड़ाई';
+  @override
   String get trendingDesigns => 'ट्रेंडिंग डिज़ाइन';
   @override
   String get sareeDesigns => 'साड़ी डिज़ाइन';
   @override
   String get exploreCollections => 'संग्रह खोजें';
+  @override
+  String get categories => 'श्रेणियाँ';
   @override
   String get recentlyViewed => 'हाल ही में देखा गया';
 

@@ -101,6 +101,12 @@ class SignOutEvent extends AuthEvent {
   const SignOutEvent();
 }
 
+/// Re-checks the signed-in user's account status (e.g. suspension) against the
+/// backend. Dispatched periodically (once per day) from the home screen.
+class VerifyAccountStatusEvent extends AuthEvent {
+  const VerifyAccountStatusEvent();
+}
+
 class SendPasswordResetEmailEvent extends AuthEvent {
   final String email;
 

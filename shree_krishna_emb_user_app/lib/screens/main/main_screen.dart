@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
         await _onWillPop();
       },
       child: Scaffold(
-        backgroundColor: AppTheme.surfaceLight,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: _buildAppBar(context),
         body: _buildCurrentScreen(context),
         bottomNavigationBar: SlideInUp(
@@ -76,7 +76,7 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return AppBar(
-      backgroundColor: AppTheme.surfaceLight,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0,
       automaticallyImplyLeading: false,
       titleSpacing: 0,
@@ -184,7 +184,7 @@ class _MainScreenState extends State<MainScreen> {
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: AppTheme.onSurfaceLight.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -196,9 +196,9 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        backgroundColor: AppTheme.surfaceLight,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         selectedItemColor: AppTheme.primaryLight,
-        unselectedItemColor: AppTheme.onSurfaceLight.withValues(alpha: 0.5),
+        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),

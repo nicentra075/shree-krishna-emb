@@ -110,6 +110,9 @@ abstract class LocaleStrings {
   String get search;
   String get cart;
   String get wishlist;
+  String get favorites;
+  String get noFavoritesYet;
+  String get noFavoritesHint;
   String get profile;
   String get menu;
   String get settings;
@@ -171,6 +174,8 @@ abstract class LocaleStrings {
   String get privacyPolicy;
   String get termsOfService;
   String get logout;
+  String get logoutConfirmMessage;
+  String get accountSuspendedMessage;
 
   // ========== Form Placeholders ==========
   String get enterEmail;
@@ -213,9 +218,19 @@ abstract class LocaleStrings {
   String get verifiedArtisansStudios;
   String get viewAll;
   String get verified;
+  String get free;
+  String get designs;
+  String get code;
+  String get authorName;
+  String get colorOrNeedleCount;
+  String get designFormat;
+  String get stitchCount;
+  String get heightLabel;
+  String get widthLabel;
   String get trendingDesigns;
   String get sareeDesigns;
   String get exploreCollections;
+  String get categories;
   String get recentlyViewed;
 
   // ========== Profile Screen ==========

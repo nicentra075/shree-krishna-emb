@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shree_krishna_core/errors/failures.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
 import 'package:shree_krishna_emb/domain/usecases/auth_usecases.dart';
@@ -36,7 +37,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<CompleteGoogleProfileEvent>(_onCompleteGoogleProfile);
     on<CompletePhoneProfileEvent>(_onCompletePhoneProfile);
     on<SignOutEvent>(_onSignOut);
+    on<VerifyAccountStatusEvent>(_onVerifyAccountStatus);
     on<SendPasswordResetEmailEvent>(_onSendPasswordResetEmail);
+  }
+
+  /// Emits [AuthSuspended] for a suspended account, otherwise a generic
+  /// [AuthError]. Keeps the suspended case distinct so the UI can show a
+  /// dedicated message and route to login.
+  void _emitAuthFailure(Failure failure, Emitter<AuthState> emit) {
+    if (failure is SuspendedFailure) {
+      emit(const AuthSuspended());
+    } else {
+      emit(AuthError(message: failure.message));
+    }
+  }
+
+  /// Re-validates the current user's status against the backend. If the account
+  /// is suspended (or otherwise no longer valid) the datasource has already
+  /// signed out, so we emit [AuthSuspended] to route the user to login. A
+  /// transient failure (e.g. network) is ignored so we never log users out by
+  /// mistake.
+  Future<void> _onVerifyAccountStatus(
+    VerifyAccountStatusEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    final result = await getCurrentUserUseCase();
+
+    result.fold((failure) {}, (user) {
+      if (user == null) {
+        emit(const AuthSuspended());
+      }
+    });
   }
 
   Future<void> _onCheckAuthStatus(
@@ -46,22 +77,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoading());
     final result = await getCurrentUserUseCase();
 
-    result.fold(
-      (failure) => emit(const AuthUnauthenticated()),
-      (user) {
-        if (user != null) {
-          emit(AuthAuthenticated(user: user));
-        } else {
-          emit(const AuthUnauthenticated());
-        }
-      },
-    );
+    result.fold((failure) => emit(const AuthUnauthenticated()), (user) {
+      if (user != null) {
+        emit(AuthAuthenticated(user: user));
+      } else {
+        emit(const AuthUnauthenticated());
+      }
+    });
   }
 
-  Future<void> _onSignUp(
-    SignUpEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onSignUp(SignUpEvent event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     final result = await signUpUseCase(
       name: event.name,
@@ -76,10 +101,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onSignIn(
-    SignInEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onSignIn(SignInEvent event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     final result = await signInUseCase(
       email: event.email,
@@ -87,7 +109,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     result.fold(
-      (failure) => emit(AuthError(message: failure.message)),
+      (failure) => _emitAuthFailure(failure, emit),
       (user) => emit(AuthAuthenticated(user: user)),
     );
   }
@@ -99,23 +121,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoading());
     final result = await signInWithGoogleUseCase();
 
-    result.fold(
-      (failure) => emit(AuthError(message: failure.message)),
-      (authResult) {
-        if (authResult.isNewUser) {
-          emit(AuthNewGoogleUser(user: authResult.user));
-        } else {
-          emit(AuthAuthenticated(user: authResult.user));
-        }
-      },
-    );
+    result.fold((failure) => _emitAuthFailure(failure, emit), (authResult) {
+      if (authResult.isNewUser) {
+        emit(AuthNewGoogleUser(user: authResult.user));
+      } else {
+        emit(AuthAuthenticated(user: authResult.user));
+      }
+    });
   }
 
   Future<void> _onSendPhoneOtp(
     SendPhoneOtpEvent event,
     Emitter<AuthState> emit,
   ) async {
-    print('🔵 [AuthBloc] _onSendPhoneOtp event received - Phone: ${event.phoneNumber}');
+    print(
+      '🔵 [AuthBloc] _onSendPhoneOtp event received - Phone: ${event.phoneNumber}',
+    );
     emit(const AuthLoading());
     print('🔵 [AuthBloc] Emitted AuthLoading state');
     final result = await sendPhoneOtpUseCase(event.phoneNumber);
@@ -127,11 +148,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthError(message: failure.message));
       },
       (verificationId) {
-        print('🟢 [AuthBloc] SendPhoneOtp succeeded - VerificationId: $verificationId');
-        emit(AuthPhoneOtpSent(
-          verificationId: verificationId,
-          phoneNumber: event.phoneNumber,
-        ));
+        print(
+          '🟢 [AuthBloc] SendPhoneOtp succeeded - VerificationId: $verificationId',
+        );
+        emit(
+          AuthPhoneOtpSent(
+            verificationId: verificationId,
+            phoneNumber: event.phoneNumber,
+          ),
+        );
         print('🟢 [AuthBloc] Emitted AuthPhoneOtpSent state');
       },
     );
@@ -148,19 +173,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       phoneNumber: event.phoneNumber,
     );
 
-    result.fold(
-      (failure) => emit(AuthError(message: failure.message)),
-      (authResult) {
-        if (authResult.isNewUser) {
-          emit(AuthNewPhoneUser(
+    result.fold((failure) => _emitAuthFailure(failure, emit), (authResult) {
+      if (authResult.isNewUser) {
+        emit(
+          AuthNewPhoneUser(
             user: authResult.user,
             phoneNumber: event.phoneNumber,
-          ));
-        } else {
-          emit(AuthAuthenticated(user: authResult.user));
-        }
-      },
-    );
+          ),
+        );
+      } else {
+        emit(AuthAuthenticated(user: authResult.user));
+      }
+    });
   }
 
   Future<void> _onCompleteGoogleProfile(
@@ -196,10 +220,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onSignOut(
-    SignOutEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onSignOut(SignOutEvent event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     final result = await signOutUseCase('');
 

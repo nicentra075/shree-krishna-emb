@@ -5,11 +5,21 @@ import 'user_list_state.dart';
 
 class UserListBloc extends Bloc<UserListEvent, UserListState> {
   final UserListRepository repository;
-  static const int pageSize = 10;
+
+  /// Selectable page sizes for the user list.
+  static const List<int> pageSizeOptions = [25, 50, 100];
 
   int _currentPage = 1;
   int _totalUsers = 0;
   String? _searchQuery;
+  int _pageSize = 25;
+  String? _roleFilter;
+
+  /// Current page size (rows per page).
+  int get pageSize => _pageSize;
+
+  /// Current role filter (null = all roles).
+  String? get roleFilter => _roleFilter;
 
   UserListBloc({required this.repository}) : super(const UserListInitial()) {
     on<LoadUsersEvent>(_onLoadUsers);
@@ -22,6 +32,74 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     on<DeleteUserEvent>(_onDeleteUser);
     on<RefreshUsersEvent>(_onRefreshUsers);
     on<CreateUserEvent>(_onCreateUser);
+    on<SendPasswordResetEvent>(_onSendPasswordReset);
+    on<ChangePageSizeEvent>(_onChangePageSize);
+    on<FilterByRoleEvent>(_onFilterByRole);
+  }
+
+  Future<void> _onFilterByRole(
+    FilterByRoleEvent event,
+    Emitter<UserListState> emit,
+  ) async {
+    _roleFilter = event.role;
+    _currentPage = 1;
+    emit(const UserListLoading());
+
+    final countResult = await repository.getUserCount(
+      searchQuery: _searchQuery,
+      roleFilter: _roleFilter,
+    );
+    final count = countResult.fold(
+      (failure) {
+        emit(UserListError(failure.message));
+        return 0;
+      },
+      (count) => count,
+    );
+
+    if (count == 0) {
+      _totalUsers = 0;
+      emit(UserListLoaded(
+        users: const [],
+        currentPage: 1,
+        totalPages: 1,
+        totalUsers: 0,
+        searchQuery: _searchQuery,
+      ));
+      return;
+    }
+
+    _totalUsers = count;
+
+    final result = await repository.getUsers(
+      page: _currentPage,
+      pageSize: pageSize,
+      searchQuery: _searchQuery,
+      roleFilter: _roleFilter,
+    );
+    result.fold(
+      (failure) => emit(UserListError(failure.message)),
+      (users) {
+        final totalPages = (_totalUsers / pageSize).ceil();
+        emit(UserListLoaded(
+          users: users,
+          currentPage: _currentPage,
+          totalPages: totalPages,
+          totalUsers: _totalUsers,
+          searchQuery: _searchQuery,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onChangePageSize(
+    ChangePageSizeEvent event,
+    Emitter<UserListState> emit,
+  ) async {
+    if (event.pageSize == _pageSize) return;
+    _pageSize = event.pageSize;
+    _currentPage = 1;
+    add(LoadUsersEvent());
   }
 
   Future<void> _onLoadUsers(
@@ -32,7 +110,10 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     _currentPage = 1;
     _searchQuery = null;
 
-    final countResult = await repository.getUserCount();
+    final countResult = await repository.getUserCount(
+      roleFilter: _roleFilter,
+      forceRefresh: event.forceRefresh,
+    );
 
     final count = countResult.fold(
       (failure) {
@@ -42,7 +123,17 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       (count) => count,
     );
 
-    if (count == 0) return;
+    if (count == 0) {
+      _totalUsers = 0;
+      emit(UserListLoaded(
+        users: const [],
+        currentPage: 1,
+        totalPages: 1,
+        totalUsers: 0,
+        searchQuery: _searchQuery,
+      ));
+      return;
+    }
 
     _totalUsers = count;
 
@@ -50,6 +141,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       page: _currentPage,
       pageSize: pageSize,
       searchQuery: _searchQuery,
+      roleFilter: _roleFilter,
     );
 
     result.fold(
@@ -77,6 +169,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
 
     final countResult = await repository.getUserCount(
       searchQuery: _searchQuery,
+      roleFilter: _roleFilter,
     );
 
     final count = countResult.fold(
@@ -89,12 +182,12 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
 
     if (count == 0) {
       _totalUsers = 0;
-      emit(const UserListLoaded(
-        users: [],
+      emit(UserListLoaded(
+        users: const [],
         currentPage: 1,
         totalPages: 1,
         totalUsers: 0,
-        searchQuery: null,
+        searchQuery: _searchQuery,
       ));
       return;
     }
@@ -105,6 +198,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       page: _currentPage,
       pageSize: pageSize,
       searchQuery: _searchQuery,
+      roleFilter: _roleFilter,
     );
 
     result.fold(
@@ -167,7 +261,11 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
 
     final result = await repository.updateUser(event.user);
     result.fold(
-      (failure) => emit(UserActionError(failure.message)),
+      (failure) {
+        emit(UserActionError(failure.message));
+        // Restore the list so the action loader doesn't stay stuck on error.
+        add(RefreshUsersEvent());
+      },
       (_) {
         emit(const UserActionSuccess('User updated successfully'));
         add(RefreshUsersEvent());
@@ -187,7 +285,10 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     );
 
     result.fold(
-      (failure) => emit(UserActionError(failure.message)),
+      (failure) {
+        emit(UserActionError(failure.message));
+        add(RefreshUsersEvent());
+      },
       (_) {
         final message =
             event.suspend ? 'User suspended' : 'User activated';
@@ -205,7 +306,10 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
 
     final result = await repository.deleteUser(event.userId);
     result.fold(
-      (failure) => emit(UserActionError(failure.message)),
+      (failure) {
+        emit(UserActionError(failure.message));
+        add(RefreshUsersEvent());
+      },
       (_) {
         emit(const UserActionSuccess('User deleted successfully'));
         add(RefreshUsersEvent());
@@ -221,6 +325,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       page: _currentPage,
       pageSize: pageSize,
       searchQuery: _searchQuery,
+      roleFilter: _roleFilter,
     );
 
     result.fold(
@@ -250,12 +355,43 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       password: event.password,
       phoneNumber: event.phoneNumber,
       role: event.role,
+      photoUrl: event.photoUrl,
+      storeName: event.storeName,
+      storeImageUrl: event.storeImageUrl,
+      storeDescription: event.storeDescription,
+      isAuthorisedSeller: event.isAuthorisedSeller,
     );
 
     result.fold(
-      (failure) => emit(UserActionError(failure.message)),
+      (failure) {
+        emit(UserActionError(failure.message));
+        // Restore the list so the action loader doesn't stay stuck on error.
+        add(LoadUsersEvent());
+      },
       (_) {
         emit(const UserActionSuccess('User created successfully'));
+        // Reload from page 1 so the new user (newest createdAt) is visible and
+        // the total count is recomputed.
+        add(LoadUsersEvent());
+      },
+    );
+  }
+
+  Future<void> _onSendPasswordReset(
+    SendPasswordResetEvent event,
+    Emitter<UserListState> emit,
+  ) async {
+    emit(const UserActionLoading('reset-password'));
+
+    final result = await repository.sendPasswordReset(event.email);
+    result.fold(
+      (failure) {
+        emit(UserActionError(failure.message));
+        add(RefreshUsersEvent());
+      },
+      (_) {
+        emit(const UserActionSuccess('Password reset email sent'));
+        // Restore the list so the action loader doesn't stay stuck.
         add(RefreshUsersEvent());
       },
     );

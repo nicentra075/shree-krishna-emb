@@ -46,6 +46,42 @@ service firebase.storage {
         request.resource.contentType.matches('image/.*');
     }
 
+    // ===== PHASE 1 catalog images (Spark-friendly) =====
+    // Direct admin uploads for collections / categories / designs and the
+    // Media Library. Public read so the user app can render them.
+    //
+    // NOTE: Storage rules CANNOT read Firestore, so they can't use the same
+    // users/{uid}.role == 'admin' fallback that firestore.rules uses; only the
+    // custom claim is visible here. Until the admin role claim is set (Phase 3
+    // / Blaze functions), writes are gated on `isAuthed()` (only the admin app
+    // writes here). PHASE 1 — TIGHTEN TO isAdmin() IN PHASE 3.
+    match /collections/{fileName} {
+      allow read: if true;
+      allow write: if isAuthed() &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+    match /categories/{fileName} {
+      allow read: if true;
+      allow write: if isAuthed() &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+    // Flat design images uploaded from the admin dialog (distinct from the
+    // future function pipeline under designs/{designId}/{source|original|public}).
+    match /designs/{fileName} {
+      allow read: if true;
+      allow write: if isAuthed() &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+    match /media/{fileName} {
+      allow read: if true;
+      allow write: if isAuthed() &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
     // Profile photos — public read, owner write.
     match /users/{uid}/{fileName} {
       allow read: if true;

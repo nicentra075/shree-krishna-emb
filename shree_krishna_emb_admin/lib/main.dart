@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,33 +9,57 @@ import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/firebase_options.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
+import 'package:shree_krishna_emb_admin/core/utils/app_logger.dart';
 import 'package:shree_krishna_emb_admin/core/utils/global_navigator.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+void main() {
+  // Framework (build/layout/render) errors → console with stack trace.
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    AppLogger.logError(
+      details.exceptionAsString(),
+      error: details.exception,
+      stackTrace: details.stack,
     );
-  } catch (e) {
-    // Firebase not configured for this platform (e.g., web)
-    // This is expected for web - will be configured via FlutterFire CLI later
-  }
+  };
 
-  final prefs = await SharedPreferences.getInstance();
-  await AppLocalization.initialize(prefs);
+  // Uncaught async/platform errors → console with stack trace.
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLogger.logError('Uncaught error', error: error, stackTrace: stack);
+    return true;
+  };
 
-  await setupAdminServiceLocator(prefs);
+  // Run everything in a guarded zone so any other uncaught error is logged too.
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize snackbar with global navigator
-  AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (e, s) {
+      // Firebase not configured for this platform (e.g., web)
+      // This is expected for web - will be configured via FlutterFire CLI later
+      AppLogger.logError('Firebase.initializeApp failed',
+          error: e, stackTrace: s);
+    }
 
-  runApp(const AdminApp());
+    final prefs = await SharedPreferences.getInstance();
+    await AppLocalization.initialize(prefs);
+
+    await setupAdminServiceLocator(prefs);
+
+    // Initialize snackbar with global navigator
+    AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
+
+    runApp(const AdminApp());
+  }, (error, stack) {
+    AppLogger.logError('Uncaught zone error', error: error, stackTrace: stack);
+  });
 }
 
 class AdminApp extends StatelessWidget {

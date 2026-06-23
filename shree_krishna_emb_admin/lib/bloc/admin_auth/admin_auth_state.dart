@@ -18,11 +18,18 @@ class AdminAuthLoading extends AdminAuthState {
 class AdminAuthAuthenticated extends AdminAuthState {
   final String adminId;
   final String email;
+  final String name;
+  final String role;
 
-  const AdminAuthAuthenticated({required this.adminId, required this.email});
+  const AdminAuthAuthenticated({
+    required this.adminId,
+    required this.email,
+    this.name = '',
+    this.role = '',
+  });
 
   @override
-  List<Object?> get props => [adminId, email];
+  List<Object?> get props => [adminId, email, name, role];
 }
 
 class AdminAuthUnauthenticated extends AdminAuthState {

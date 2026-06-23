@@ -9,10 +9,25 @@ import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
 import 'package:shree_krishna_emb/bloc/splash/splash_bloc.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
+import 'package:shree_krishna_emb/bloc/home_feed/home_feed_cubit.dart';
+import 'package:shree_krishna_emb/bloc/sellers/authorised_sellers_cubit.dart';
+import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_wishlist_datasource.dart';
+import 'package:shree_krishna_emb/data/repositories/wishlist_repository_impl.dart';
+import 'package:shree_krishna_emb/domain/repositories/wishlist_repository.dart';
 import 'package:shree_krishna_emb/data/datasources/local_user_datasource.dart';
 import 'package:shree_krishna_emb/data/datasources/firebase_auth_datasource.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_catalog_query_datasource.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_home_feed_datasource.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_seller_datasource.dart';
+import 'package:shree_krishna_emb/data/datasources/local_home_feed_cache.dart';
+import 'package:shree_krishna_emb/data/datasources/local_recently_viewed_store.dart';
 import 'package:shree_krishna_emb/data/repositories/auth_repository_impl.dart';
+import 'package:shree_krishna_emb/data/repositories/home_feed_repository_impl.dart';
+import 'package:shree_krishna_emb/data/repositories/seller_repository_impl.dart';
 import 'package:shree_krishna_emb/domain/repositories/auth_repository.dart';
+import 'package:shree_krishna_emb/domain/repositories/home_feed_repository.dart';
+import 'package:shree_krishna_emb/domain/repositories/seller_repository.dart';
 import 'package:shree_krishna_emb/domain/usecases/auth_usecases.dart';
 
 final getIt = GetIt.instance;
@@ -39,6 +54,8 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
   await Hive.initFlutter();
   final userCacheBox = await Hive.openBox<String>('user_cache');
   final userListCacheBox = await Hive.openBox<String>('user_list_cache');
+  final homeFeedCacheBox = await Hive.openBox<String>('home_feed_cache');
+  final recentlyViewedBox = await Hive.openBox<String>('recently_viewed');
 
   // Local data sources (Hive implementations)
   getIt.registerSingleton<LocalUserDataSource>(
@@ -64,9 +81,59 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
     ),
   );
 
+  getIt.registerSingleton<SellerDataSource>(
+    FirebaseSellerDataSource(firestore: getIt()),
+  );
+
   // Repositories
   getIt.registerSingleton<AuthRepository>(
     AuthRepositoryImpl(dataSource: getIt()),
+  );
+  getIt.registerSingleton<SellerRepository>(
+    SellerRepositoryImpl(dataSource: getIt()),
+  );
+
+  // HOME FEED (server-driven UI) - Phase C
+  getIt.registerSingleton<RecentlyViewedStore>(
+    RecentlyViewedStore(recentlyViewedBox),
+  );
+  getIt.registerSingleton<LocalHomeFeedCache>(
+    LocalHomeFeedCache(homeFeedCacheBox),
+  );
+  getIt.registerSingleton<HomeFeedDataSource>(
+    FirebaseHomeFeedDataSource(
+      firestore: getIt(),
+      sellerDataSource: getIt(),
+      recentStore: getIt(),
+    ),
+  );
+  getIt.registerSingleton<HomeFeedRepository>(
+    HomeFeedRepositoryImpl(dataSource: getIt(), cache: getIt()),
+  );
+
+  // Catalog queries for View-All + design detail (Phase D)
+  getIt.registerSingleton<CatalogQueryDataSource>(
+    CatalogQueryDataSource(firestore: getIt(), sellerDataSource: getIt()),
+  );
+
+  // Favorites / wishlist
+  getIt.registerSingleton<WishlistDataSource>(
+    FirebaseWishlistDataSource(firestore: getIt(), auth: getIt()),
+  );
+  getIt.registerSingleton<WishlistRepository>(
+    WishlistRepositoryImpl(dataSource: getIt()),
+  );
+  // Singleton so heart state is shared app-wide.
+  getIt.registerSingleton<WishlistCubit>(
+    WishlistCubit(repository: getIt()),
+  );
+
+  // Cubits / Blocs
+  getIt.registerFactory<AuthorisedSellersCubit>(
+    () => AuthorisedSellersCubit(repository: getIt()),
+  );
+  getIt.registerFactory<HomeFeedCubit>(
+    () => HomeFeedCubit(repository: getIt()),
   );
 
   // Use cases

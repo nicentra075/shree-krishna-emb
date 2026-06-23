@@ -97,7 +97,7 @@ class UserModel extends UserEntity {
       name: json['name'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
       photoUrl: json['photoUrl'] as String?,
-      userId: json['userId'] as int?,
+      userId: _parseUserId(json['userId']),
       loginMethod: json['loginMethod'] as String? ?? 'email',
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
@@ -110,6 +110,17 @@ class UserModel extends UserEntity {
           : null,
       isActive: json['isActive'] as bool? ?? true,
     );
+  }
+
+  // Safely parse `userId`, which may be stored as an int (user-app signup) or
+  // a String (admin-panel edits). Tolerating both prevents type-cast crashes
+  // on login when the same document is written by different clients.
+  static int? _parseUserId(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 
   // Convert to Firebase Firestore JSON

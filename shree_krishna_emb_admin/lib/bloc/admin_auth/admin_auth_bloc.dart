@@ -35,6 +35,8 @@ class AdminAuthBloc extends Bloc<AdminAuthEvent, AdminAuthState> {
       (success) => emit(AdminAuthAuthenticated(
         adminId: success.adminId,
         email: success.email,
+        name: success.name,
+        role: success.role,
       )),
     );
   }
@@ -64,6 +66,8 @@ class AdminAuthBloc extends Bloc<AdminAuthEvent, AdminAuthState> {
           emit(AdminAuthAuthenticated(
             adminId: success.adminId,
             email: success.email,
+            name: success.name,
+            role: success.role,
           ));
         } else {
           emit(const AdminAuthUnauthenticated());

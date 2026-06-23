@@ -184,6 +184,12 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get wishlist => 'Wishlist';
   @override
+  String get favorites => 'Favorites';
+  @override
+  String get noFavoritesYet => 'No favorites yet';
+  @override
+  String get noFavoritesHint => 'Tap the heart on any design to save it here.';
+  @override
   String get profile => 'Profile';
   @override
   String get menu => 'Menu';
@@ -293,6 +299,11 @@ class EnUSStrings implements LocaleStrings {
   String get termsOfService => 'Terms of Service';
   @override
   String get logout => 'Logout';
+  @override
+  String get logoutConfirmMessage => 'Are you sure you want to logout?';
+  @override
+  String get accountSuspendedMessage =>
+      'Your account has been suspended. Please contact the admin to reactivate your account.';
 
   @override
   String get enterEmail => 'Enter your email';
@@ -363,11 +374,31 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get verified => 'Verified';
   @override
+  String get free => 'Free';
+  @override
+  String get designs => 'Designs';
+  @override
+  String get code => 'Code';
+  @override
+  String get authorName => 'Author';
+  @override
+  String get colorOrNeedleCount => 'Color / Needle Count';
+  @override
+  String get designFormat => 'Format';
+  @override
+  String get stitchCount => 'Stitch Count';
+  @override
+  String get heightLabel => 'Height';
+  @override
+  String get widthLabel => 'Width';
+  @override
   String get trendingDesigns => 'Trending Designs';
   @override
   String get sareeDesigns => 'Saree Designs';
   @override
   String get exploreCollections => 'Explore Collections';
+  @override
+  String get categories => 'Categories';
   @override
   String get recentlyViewed => 'Recently Viewed';
 

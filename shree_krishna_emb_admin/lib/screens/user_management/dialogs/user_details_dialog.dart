@@ -95,7 +95,10 @@ class UserDetailsDialog extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              Divider(color: AppTheme.textBrown.withValues(alpha: 0.1)),
+              Divider(
+                  color: Theme.of(context).colorScheme.outline.withValues(
+                        alpha: 0.2,
+                      )),
               const SizedBox(height: 24),
               // Account Details Section
               Text(
@@ -106,13 +109,43 @@ class UserDetailsDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _buildDetailRow('User ID', user.id),
+              _buildDetailRow(context, 'User ID', user.id),
               const SizedBox(height: 12),
-              _buildDetailRow('Email', user.email),
+              _buildDetailRow(context, 'Email', user.email),
               const SizedBox(height: 12),
-              _buildDetailRow('Phone Number', user.phoneNumber ?? 'N/A'),
+              _buildDetailRow(context, 'Phone Number', user.phoneNumber ?? 'N/A'),
+              // Designer store details
+              if (user.role == 'designer') ...[
+                const SizedBox(height: 24),
+                Divider(
+                    color: Theme.of(context).colorScheme.outline.withValues(
+                          alpha: 0.2,
+                        )),
+                const SizedBox(height: 24),
+                Text(
+                  'Designer Store',
+                  style: AppTextStyles.labelMedium(
+                    color: AppTheme.primaryDark,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildDetailRow(context, 'Store Name', user.storeName ?? 'N/A'),
+                const SizedBox(height: 12),
+                _buildDetailRow(
+                    context, 'Store Image URL', user.storeImageUrl ?? 'N/A'),
+                const SizedBox(height: 12),
+                _buildDetailRow(
+                    context, 'Store Description', user.storeDescription ?? 'N/A'),
+                const SizedBox(height: 12),
+                _buildDetailRow(context, 'Authorised Seller',
+                    user.isAuthorisedSeller ? 'Yes' : 'No'),
+              ],
               const SizedBox(height: 24),
-              Divider(color: AppTheme.textBrown.withValues(alpha: 0.1)),
+              Divider(
+                  color: Theme.of(context).colorScheme.outline.withValues(
+                        alpha: 0.2,
+                      )),
               const SizedBox(height: 24),
               // Activity Details Section
               Text(
@@ -123,19 +156,22 @@ class UserDetailsDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _buildDetailRow('Login Method', user.loginMethod ?? 'N/A'),
+              _buildDetailRow(context, 'Login Method', user.loginMethod ?? 'N/A'),
               const SizedBox(height: 12),
               _buildDetailRow(
+                context,
                 'First Login',
                 user.loginAt != null ? _formatDateTime(user.loginAt!) : 'Never',
               ),
               const SizedBox(height: 12),
               _buildDetailRow(
+                context,
                 'Last Logout',
                 user.logoutAt != null ? _formatDateTime(user.logoutAt!) : 'N/A',
               ),
               const SizedBox(height: 12),
               _buildDetailRow(
+                context,
                 'Account Created',
                 _formatDateTime(user.createdAt),
               ),
@@ -166,14 +202,15 @@ class UserDetailsDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: AppTextStyles.labelSmall(
-            color: AppTheme.textBrown.withValues(alpha: 0.6),
+            color: colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -181,7 +218,7 @@ class UserDetailsDialog extends StatelessWidget {
         Text(
           value,
           style: AppTextStyles.bodyMedium(
-            color: AppTheme.textDark,
+            color: colorScheme.onSurface,
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,

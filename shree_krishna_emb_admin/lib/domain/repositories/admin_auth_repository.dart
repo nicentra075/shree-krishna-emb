@@ -6,11 +6,18 @@ import 'package:shree_krishna_emb_admin/core/errors/failures.dart';
 class AdminAuthSuccess extends Equatable {
   final String adminId;
   final String email;
+  final String name;
+  final String role;
 
-  const AdminAuthSuccess({required this.adminId, required this.email});
+  const AdminAuthSuccess({
+    required this.adminId,
+    required this.email,
+    this.name = '',
+    this.role = '',
+  });
 
   @override
-  List<Object?> get props => [adminId, email];
+  List<Object?> get props => [adminId, email, name, role];
 }
 
 /// Abstract repository interface for admin authentication

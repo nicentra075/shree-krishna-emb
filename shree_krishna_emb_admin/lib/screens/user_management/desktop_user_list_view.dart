@@ -4,6 +4,7 @@ import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_event.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_state.dart';
+import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/data/models/user_list_item_model.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 import 'dialogs/user_edit_dialog.dart';
@@ -18,6 +19,9 @@ class DesktopUserListView extends StatefulWidget {
 
 class _DesktopUserListViewState extends State<DesktopUserListView> {
   late TextEditingController _searchController;
+
+  /// Selected role filter for the dropdown. 'all' = no filter.
+  String _selectedRoleFilter = 'all';
 
   @override
   void initState() {
@@ -34,6 +38,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -51,45 +56,64 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Search field and Add User button
+              // Search + role filter on the left, Add User on the right.
+              // The search field flexes (up to 400) so the row never overflows
+              // on narrow widths instead of wrapping onto new lines.
               Row(
-                mainAxisAlignment: .spaceBetween,
                 children: [
-                  // Search field
-                  Container(
-                    width: 400,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Colors.grey.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (query) {
-                        context.read<UserListBloc>().add(
-                          SearchUsersEvent(query),
-                        );
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search by name or email...',
-                        hintStyle: AppTextStyles.bodyMedium(
-                          color: Colors.grey.withValues(alpha: 0.5),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        // Search field
+                        Flexible(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 400),
+                            child: Container(
+                              height: 44,
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: colorScheme.outline.withValues(alpha: 0.2),
+                          ),
                         ),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Colors.grey.withValues(alpha: 0.5),
-                          size: 20,
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (query) {
+                            context.read<UserListBloc>().add(
+                              SearchUsersEvent(query),
+                            );
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Search by name or email...',
+                            hintStyle: AppTextStyles.bodyMedium(
+                              color: colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.6,
+                              ),
+                              size: 20,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          style: AppTextStyles.bodyMedium(
+                            color: colorScheme.onSurface,
+                          ),
                         ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                            ),
+                          ),
                         ),
-                      ),
-                      style: AppTextStyles.bodyMedium(color: Colors.black87),
+                        const SizedBox(width: 12),
+                        _buildRoleFilter(colorScheme),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -128,14 +152,24 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
           child: BlocListener<UserListBloc, UserListState>(
             listener: (context, state) {
               if (state is UserActionSuccess) {
-                AppSnackbar.showSuccess(state.message);
+                ResponsiveSnackbar.showSuccess(state.message, context);
               } else if (state is UserActionError) {
-                AppSnackbar.showError(state.message);
+                ResponsiveSnackbar.showError(state.message, context);
               }
             },
             child: BlocBuilder<UserListBloc, UserListState>(
+              // Keep the last list state visible during transient action
+              // states (success/error) and show the loader while an action
+              // (create/edit/etc.) is in flight — otherwise the screen would
+              // flash the "No data" fallback.
+              buildWhen: (previous, current) =>
+                  current is UserListInitial ||
+                  current is UserListLoading ||
+                  current is UserListLoaded ||
+                  current is UserListError ||
+                  current is UserActionLoading,
               builder: (context, state) {
-                if (state is UserListLoading) {
+                if (state is UserListLoading || state is UserActionLoading) {
                   return Center(child: const AppLoader());
                 }
 
@@ -164,22 +198,103 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Results info
-                          Text(
-                            'Showing ${state.users.length} of ${state.totalUsers} users',
-                            style: AppTextStyles.labelSmall(
-                              color: AppTheme.textBrown.withValues(alpha: 0.6),
-                            ),
+                          // Results info + rows-per-page selector
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Showing ${state.users.length} of ${state.totalUsers} users',
+                                  style: AppTextStyles.labelSmall(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Refresh',
+                                icon: const Icon(Icons.refresh, size: 20),
+                                color: colorScheme.onSurfaceVariant,
+                                onPressed: () =>
+                                    context.read<UserListBloc>().add(
+                                          const LoadUsersEvent(
+                                            forceRefresh: true,
+                                          ),
+                                        ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Rows per page:',
+                                style: AppTextStyles.labelSmall(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: colorScheme.outline.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: DropdownButton<int>(
+                                  value: context.read<UserListBloc>().pageSize,
+                                  underline: const SizedBox(),
+                                  isDense: true,
+                                  dropdownColor: colorScheme.surface,
+                                  items: UserListBloc.pageSizeOptions
+                                      .map(
+                                        (size) => DropdownMenuItem(
+                                          value: size,
+                                          child: Text(
+                                            '$size',
+                                            style: AppTextStyles.bodyMedium(
+                                              color: colorScheme.onSurface,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (size) {
+                                    if (size != null) {
+                                      context.read<UserListBloc>().add(
+                                        ChangePageSizeEvent(size),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 16),
-                          // Table
-                          Container(
+                          // Table — horizontally scrollable so columns never
+                          // overflow on narrow widths; a min width keeps the
+                          // Actions column readable.
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              const minTableWidth = 820.0;
+                              final tableWidth =
+                                  constraints.maxWidth < minTableWidth
+                                      ? minTableWidth
+                                      : constraints.maxWidth;
+                              return SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SizedBox(
+                                  width: tableWidth,
+                                  child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: colorScheme.surface,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: AppTheme.textBrown.withValues(
-                                  alpha: 0.1,
+                                color: colorScheme.outline.withValues(
+                                  alpha: 0.2,
                                 ),
                               ),
                             ),
@@ -192,7 +307,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                     vertical: 12,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF8F7F5),
+                                    color: colorScheme.surfaceContainerHighest,
                                     borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(8),
                                     ),
@@ -200,11 +315,23 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                   child: Row(
                                     children: [
                                       Expanded(
+                                        flex: 12,
+                                        child: Text(
+                                          'User ID',
+                                          style: AppTextStyles.labelMedium(
+                                            color: colorScheme.onSurfaceVariant,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Expanded(
                                         flex: 20,
                                         child: Text(
                                           'Name',
                                           style: AppTextStyles.labelMedium(
-                                            color: AppTheme.textBrown,
+                                            color: colorScheme.onSurfaceVariant,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
@@ -214,7 +341,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                         child: Text(
                                           'Email',
                                           style: AppTextStyles.labelMedium(
-                                            color: AppTheme.textBrown,
+                                            color: colorScheme.onSurfaceVariant,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
@@ -227,7 +354,8 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                             Text(
                                               'Role',
                                               style: AppTextStyles.labelMedium(
-                                                color: AppTheme.textBrown,
+                                                color: colorScheme
+                                                    .onSurfaceVariant,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
@@ -242,7 +370,8 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                             Text(
                                               'Status',
                                               style: AppTextStyles.labelMedium(
-                                                color: AppTheme.textBrown,
+                                                color: colorScheme
+                                                    .onSurfaceVariant,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
@@ -254,7 +383,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                         child: Text(
                                           'Actions',
                                           style: AppTextStyles.labelMedium(
-                                            color: AppTheme.textBrown,
+                                            color: colorScheme.onSurfaceVariant,
                                             fontWeight: FontWeight.w600,
                                           ),
                                           textAlign: TextAlign.right,
@@ -275,6 +404,10 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                 }),
                               ],
                             ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 24),
                           // Pagination
@@ -299,12 +432,13 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
     UserListItemModel user, {
     required bool isLast,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         border: !isLast
             ? Border(
                 bottom: BorderSide(
-                  color: AppTheme.textBrown.withValues(alpha: 0.1),
+                  color: colorScheme.outline.withValues(alpha: 0.15),
                 ),
               )
             : null,
@@ -313,12 +447,24 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
+            // User ID
+            Expanded(
+              flex: 12,
+              child: Text(
+                user.userId ?? '-',
+                style: AppTextStyles.bodyMedium(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             // Name
             Expanded(
               flex: 20,
               child: Text(
                 user.name,
-                style: AppTextStyles.bodyMedium(color: AppTheme.textDark),
+                style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -329,7 +475,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
               child: Text(
                 user.email,
                 style: AppTextStyles.bodyMedium(
-                  color: AppTheme.textBrown.withValues(alpha: 0.7),
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -464,6 +610,58 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
     );
   }
 
+  Widget _buildRoleFilter(ColorScheme colorScheme) {
+    const roles = [
+      ('all', 'All Roles'),
+      ('admin', 'Admin'),
+      ('user', 'User'),
+      ('designer', 'Designer'),
+    ];
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+      ),
+      child: Align(
+        alignment: .center,
+        child: DropdownButton<String>(
+          value: _selectedRoleFilter,
+          underline: const SizedBox(),
+          isDense: true,
+          dropdownColor: colorScheme.surface,
+          icon: Icon(
+            Icons.filter_list,
+            size: 18,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          items: roles
+              .map(
+                (r) => DropdownMenuItem(
+                  value: r.$1,
+                  child: Text(
+                    r.$2,
+                    style: AppTextStyles.bodyMedium(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() => _selectedRoleFilter = value);
+            context.read<UserListBloc>().add(
+              FilterByRoleEvent(value == 'all' ? null : value),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _buildPagination(BuildContext context, UserListLoaded state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -494,7 +692,7 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                 style: AppTextStyles.labelSmall(
                   color: state.currentPage == pageNum
                       ? Colors.white
-                      : AppTheme.textBrown,
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),

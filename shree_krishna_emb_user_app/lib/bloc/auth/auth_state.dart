@@ -76,3 +76,9 @@ class AuthError extends AuthState {
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
 }
+
+/// The account authenticated but has been suspended by an admin. The session
+/// has already been torn down; the UI should route to login with a message.
+class AuthSuspended extends AuthState {
+  const AuthSuspended();
+}

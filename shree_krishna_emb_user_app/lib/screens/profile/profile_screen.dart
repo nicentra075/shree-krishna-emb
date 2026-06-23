@@ -5,86 +5,106 @@ import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
+import 'package:shree_krishna_emb/core/di/service_locator.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.surfaceLight,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Branding Section
-            _buildBrandingSection(),
-            const SizedBox(height: 24),
+    return BlocProvider<AuthBloc>.value(
+      value: getIt<AuthBloc>(),
+      child: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthUnauthenticated) {
+            AppRoutes.navigateToLogin(context);
+          } else if (state is AuthError) {
+            AppSnackbar.showError(state.message);
+          }
+        },
+        builder: (context, state) {
+          return Stack(
+            children: [
+              Scaffold(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                body: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
 
-            // User Header
-            _buildUserHeader(),
-            const SizedBox(height: 24),
+                      // User Header
+                      _buildUserHeader(context),
+                      const SizedBox(height: 24),
 
-            // Wallet Section
-            _buildWalletSection(),
-            const SizedBox(height: 24),
+                      // Wallet Section
+                      _buildWalletSection(context),
+                      const SizedBox(height: 24),
 
-            // Membership Status
-            _buildMembershipSection(),
-            const SizedBox(height: 24),
+                      // Membership Status
+                      _buildMembershipSection(context),
+                      const SizedBox(height: 24),
 
-            // My Work / My Selling Products
-            _buildStudioManagementSection(),
-            const SizedBox(height: 24),
+                      // My Work / My Selling Products
+                      _buildStudioManagementSection(context),
+                      const SizedBox(height: 24),
 
-            // Settings
-            _buildSettingsSection(context),
-            const SizedBox(height: 24),
+                      // Settings
+                      _buildSettingsSection(context),
+                      const SizedBox(height: 24),
 
-            // Support & Resources
-            _buildSupportSection(),
-            const SizedBox(height: 24),
+                      // Support & Resources
+                      _buildSupportSection(context),
+                      const SizedBox(height: 24),
+
+                      // Logout
+                      _buildLogoutSection(context),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+              ),
+              if (state is AuthLoading)
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    child: const Center(child: AppLoader()),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  static Widget _buildUserHeader(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.primaryLight.withValues(alpha: 0.12),
+            AppTheme.secondaryLight.withValues(alpha: 0.12),
           ],
         ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
-    );
-  }
-
-  static Widget _buildBrandingSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppLocalization.strings.appName,
-            style: AppTextStyles.headlineLarge(
-              color: AppTheme.primaryLight,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            AppLocalization.strings.appTagline,
-            style: AppTextStyles.bodyMedium(
-              color: AppTheme.onSurfaceLight.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildUserHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           CircleAvatar(
-            radius: 40,
+            radius: 36,
             backgroundColor: AppTheme.secondaryLight,
-            child: Icon(
+            child: const Icon(
               Icons.person,
-              size: 40,
+              size: 36,
               color: Colors.white,
             ),
           ),
@@ -95,31 +115,42 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      'Shree Krishna EMB',
-                      style: AppTextStyles.headlineMedium(
-                        fontWeight: FontWeight.bold,
+                    Flexible(
+                      child: Text(
+                        // TODO: Replace with authenticated user's name
+                        'Welcome back',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.headlineMedium(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Icon(
                       Icons.verified,
-                      size: 16,
+                      size: 18,
                       color: AppTheme.primaryLight,
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
+                  // TODO: Replace with authenticated user's phone
                   '+91 98765 43210',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelSmall(
-                    color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 Text(
+                  // TODO: Replace with authenticated user's email
                   'user@example.com',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelSmall(
-                    color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -130,12 +161,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  static Widget _buildWalletSection() {
+  static Widget _buildWalletSection(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerLowLight,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -143,28 +174,37 @@ class ProfileScreen extends StatelessWidget {
         children: [
           Text(
             AppLocalization.strings.wallet,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelMedium(),
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '₹4,250.00',
-                    style: AppTextStyles.headlineMedium(
-                      color: AppTheme.primaryLight,
-                      fontWeight: FontWeight.bold,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '₹4,250.00',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.headlineMedium(
+                        color: AppTheme.primaryLight,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                    AppLocalization.strings.availableBalance,
-                    style: AppTextStyles.labelSmall(),
-                  ),
-                ],
+                    Text(
+                      AppLocalization.strings.availableBalance,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.labelSmall(),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 12),
               ElevatedButton(
                 onPressed: () {
                   // TODO: Add funds
@@ -172,7 +212,11 @@ class ProfileScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.secondaryLight,
                 ),
-                child: Text(AppLocalization.strings.addFunds),
+                child: Text(
+                  AppLocalization.strings.addFunds,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -181,7 +225,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  static Widget _buildMembershipSection() {
+  static Widget _buildMembershipSection(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -195,9 +239,13 @@ class ProfileScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                AppLocalization.strings.goldPlan,
-                style: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
+              Flexible(
+                child: Text(
+                  AppLocalization.strings.goldPlan,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -210,6 +258,8 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 child: Text(
                   '24 days',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelSmall(color: Colors.white),
                 ),
               ),
@@ -218,8 +268,10 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             AppLocalization.strings.membershipExpires,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelSmall(
-              color: AppTheme.onSurfaceLight.withValues(alpha: 0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],
@@ -227,7 +279,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  static Widget _buildStudioManagementSection() {
+  static Widget _buildStudioManagementSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -235,6 +287,8 @@ class ProfileScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             AppLocalization.strings.studioManagement,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
           ),
         ),
@@ -245,6 +299,7 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildStudioCard(
+                  context,
                   AppLocalization.strings.myWork,
                   Icons.work_outline,
                   () {
@@ -255,6 +310,7 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStudioCard(
+                  context,
                   AppLocalization.strings.mySellingProducts,
                   Icons.storefront_outlined,
                   () {
@@ -270,6 +326,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   static Widget _buildStudioCard(
+    BuildContext context,
     String label,
     IconData icon,
     VoidCallback onTap,
@@ -279,9 +336,9 @@ class ProfileScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceContainerLowLight,
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.borderLight),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Column(
           children: [
@@ -294,6 +351,8 @@ class ProfileScreen extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.labelSmall(),
             ),
           ],
@@ -310,16 +369,23 @@ class ProfileScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             AppLocalization.strings.settings,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
           ),
         ),
         const SizedBox(height: 12),
-        _buildSettingsTile(
+        _buildSettingsTile(context,
+          AppLocalization.strings.favorites,
+          Icons.favorite_outline,
+          () => Navigator.pushNamed(context, AppRoutes.favorites),
+        ),
+        _buildSettingsTile(context,
           AppLocalization.strings.settings,
           Icons.settings_outlined,
           () => context.navigateToSettings(),
         ),
-        _buildSettingsTile(
+        _buildSettingsTile(context,
           AppLocalization.strings.notifications,
           Icons.notifications_outlined,
           () {
@@ -328,7 +394,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         BlocBuilder<ThemeCubit, ThemeMode>(
           builder: (context, themeMode) {
-            return _buildSettingsTile(
+            return _buildSettingsTile(context,
               AppLocalization.strings.darkMode,
               Icons.dark_mode_outlined,
               () => context.read<ThemeCubit>().toggle(),
@@ -339,7 +405,7 @@ class ProfileScreen extends StatelessWidget {
             );
           },
         ),
-        _buildSettingsTile(
+        _buildSettingsTile(context,
           AppLocalization.strings.switchToDesigner,
           Icons.person_add_outlined,
           () {
@@ -350,7 +416,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  static Widget _buildSupportSection() {
+  static Widget _buildSupportSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -358,39 +424,41 @@ class ProfileScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             AppLocalization.strings.support,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
           ),
         ),
         const SizedBox(height: 12),
-        _buildSettingsTile(
+        _buildSettingsTile(context,
           AppLocalization.strings.whatsappSupport,
           Icons.chat_outlined,
           () {
             // TODO: Open WhatsApp
           },
         ),
-        _buildSettingsTile(
+        _buildSettingsTile(context,
           AppLocalization.strings.contactUs,
           Icons.mail_outlined,
           () {
             // TODO: Open contact form
           },
         ),
-        _buildSettingsTile(
+        _buildSettingsTile(context,
           AppLocalization.strings.aboutUs,
           Icons.info_outlined,
           () {
             // TODO: Navigate to about
           },
         ),
-        _buildSettingsTile(
+        _buildSettingsTile(context,
           AppLocalization.strings.privacyPolicy,
           Icons.privacy_tip_outlined,
           () {
             // TODO: Open privacy policy
           },
         ),
-        _buildSettingsTile(
+        _buildSettingsTile(context,
           AppLocalization.strings.termsConditions,
           Icons.description_outlined,
           () {
@@ -401,7 +469,36 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  static Widget _buildLogoutSection(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: AppButton(
+        label: AppLocalization.strings.logout,
+        variant: AppButtonVariant.destructive,
+        isFullWidth: true,
+        leadingIcon: Icons.logout,
+        onPressed: () => _confirmLogout(context),
+      ),
+    );
+  }
+
+  static Future<void> _confirmLogout(BuildContext context) async {
+    final confirmed = await AppDialog.showConfirm(
+      context,
+      title: AppLocalization.strings.logout,
+      message: AppLocalization.strings.logoutConfirmMessage,
+      confirmLabel: AppLocalization.strings.logout,
+      cancelLabel: AppLocalization.strings.cancel,
+      isDestructive: true,
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<AuthBloc>().add(const SignOutEvent());
+    }
+  }
+
   static Widget _buildSettingsTile(
+    BuildContext context,
     String label,
     IconData icon,
     VoidCallback onTap, {
@@ -413,18 +510,21 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            Icon(icon, color: AppTheme.onSurfaceLight),
+            Icon(icon, color: Theme.of(context).colorScheme.onSurface),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.labelMedium(),
               ),
             ),
-            trailing ?? Icon(
-              Icons.chevron_right,
-              color: AppTheme.onSurfaceLight.withValues(alpha: 0.5),
-            ),
+            trailing ??
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
           ],
         ),
       ),

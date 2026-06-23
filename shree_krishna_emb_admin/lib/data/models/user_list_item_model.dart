@@ -14,6 +14,10 @@ class UserListItemModel extends UserListItem {
     super.photoUrl,
     super.loginAt,
     super.logoutAt,
+    super.storeName,
+    super.storeImageUrl,
+    super.storeDescription,
+    super.isAuthorisedSeller,
   });
 
   // Firebase conversion
@@ -51,6 +55,10 @@ class UserListItemModel extends UserListItem {
       photoUrl: toStringOrNull(json['photoUrl']),
       loginAt: parseTimestamp(json['loginAt']),
       logoutAt: parseTimestamp(json['logoutAt']),
+      storeName: toStringOrNull(json['storeName']),
+      storeImageUrl: toStringOrNull(json['storeImageUrl']),
+      storeDescription: toStringOrNull(json['storeDescription']),
+      isAuthorisedSeller: json['isAuthorisedSeller'] as bool? ?? false,
     );
   }
 
@@ -62,12 +70,20 @@ class UserListItemModel extends UserListItem {
       'role': role,
       'isActive': isActive,
       'createdAt': createdAt.toIso8601String(),
-      'userId': userId,
+      // Persist userId as an int to match the user-app signup flow. The admin
+      // model holds it as a String, but the user app's UserModel parses it as
+      // int? — writing a String here corrupts the doc and breaks login with a
+      // type-cast error. Fall back to the original value only if non-numeric.
+      'userId': userId == null ? null : (int.tryParse(userId!) ?? userId),
       'phoneNumber': phoneNumber,
       'loginMethod': loginMethod,
       'photoUrl': photoUrl,
       'loginAt': loginAt?.toIso8601String(),
       'logoutAt': logoutAt?.toIso8601String(),
+      'storeName': storeName,
+      'storeImageUrl': storeImageUrl,
+      'storeDescription': storeDescription,
+      'isAuthorisedSeller': isAuthorisedSeller,
     };
   }
 
@@ -86,6 +102,10 @@ class UserListItemModel extends UserListItem {
       photoUrl: json['photoUrl'] as String?,
       loginAt: json['loginAt'] != null ? DateTime.parse(json['loginAt'] as String) : null,
       logoutAt: json['logoutAt'] != null ? DateTime.parse(json['logoutAt'] as String) : null,
+      storeName: json['storeName'] as String?,
+      storeImageUrl: json['storeImageUrl'] as String?,
+      storeDescription: json['storeDescription'] as String?,
+      isAuthorisedSeller: json['isAuthorisedSeller'] as bool? ?? false,
     );
   }
 
@@ -103,6 +123,10 @@ class UserListItemModel extends UserListItem {
       'photoUrl': photoUrl,
       'loginAt': loginAt?.toIso8601String(),
       'logoutAt': logoutAt?.toIso8601String(),
+      'storeName': storeName,
+      'storeImageUrl': storeImageUrl,
+      'storeDescription': storeDescription,
+      'isAuthorisedSeller': isAuthorisedSeller,
     };
   }
 }

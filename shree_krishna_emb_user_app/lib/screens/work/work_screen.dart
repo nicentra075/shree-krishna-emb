@@ -242,7 +242,7 @@ class _WorkScreenState extends State<WorkScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppTheme.primaryLight
-              : AppTheme.surfaceContainerLowLight,
+              : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -250,7 +250,7 @@ class _WorkScreenState extends State<WorkScreen> {
           style: AppTextStyles.labelMedium(
             color: isSelected
                 ? Colors.white
-                : AppTheme.onSurfaceLight,
+                : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),

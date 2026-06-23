@@ -11,6 +11,8 @@ abstract class UserListRepository {
     required int page,
     required int pageSize,
     String? searchQuery,
+    String? roleFilter,
+    bool forceRefresh,
   });
 
   /// Update user details
@@ -23,7 +25,11 @@ abstract class UserListRepository {
   Future<Either<Failure, void>> deleteUser(String userId);
 
   /// Get total count of users with optional search filter
-  Future<Either<Failure, int>> getUserCount({String? searchQuery});
+  Future<Either<Failure, int>> getUserCount({
+    String? searchQuery,
+    String? roleFilter,
+    bool forceRefresh,
+  });
 
   /// Create new user with email and password
   /// Also creates auth credentials in Firebase Auth
@@ -33,5 +39,13 @@ abstract class UserListRepository {
     required String password,
     required String phoneNumber,
     required String role,
+    String? photoUrl,
+    String? storeName,
+    String? storeImageUrl,
+    String? storeDescription,
+    bool isAuthorisedSeller,
   });
+
+  /// Send a password-reset email so the user can set a new password
+  Future<Either<Failure, void>> sendPasswordReset(String email);
 }

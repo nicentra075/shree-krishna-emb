@@ -15,8 +15,18 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Admin = custom claim (set by onUserWrite once Cloud Functions are
+    // deployed) OR — as a fallback for the free/Spark phase where no functions
+    // run — the caller's own users/{uid} doc has role == 'admin'. The claim
+    // path short-circuits and avoids the billed get() once functions are live.
+    // Safe against escalation: self-signup/self-update cannot set role to
+    // 'admin' (see users create/update rules), so only an existing admin or a
+    // Cloud Function can ever grant the admin role.
     function isAdmin() {
-      return isAuthed() && request.auth.token.role == 'admin';
+      return isAuthed() && (
+        request.auth.token.role == 'admin' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
     }
 
     function isOwner(uid) {
@@ -25,17 +35,27 @@ service cloud.firestore {
 
     // ==================== users ====================
     match /users/{uid} {
-      allow read: if isOwner(uid) || isAdmin();
+      // Owner + admin can read any field. Authorised-seller designer profiles
+      // are also readable by any signed-in user so the user app can render the
+      // "Authorised Design Sellers" list. NOTE: this exposes the whole user doc
+      // (incl. email/phone) for authorised sellers — when Cloud Functions are
+      // available, mirror only public store fields into a separate `sellers`
+      // collection instead.
+      allow read: if isOwner(uid) || isAdmin() ||
+        (isAuthed() && resource.data.role == 'designer' &&
+          resource.data.isAuthorisedSeller == true);
       // Self-signup may only claim 'user' or 'designer' — never 'admin'.
       allow create: if isAdmin() ||
         (isOwner(uid) &&
           request.resource.data.role in ['user', 'designer']);
-      // Owners cannot touch role/isActive/purchaseCount.
+      // Owners cannot touch role/isActive/purchaseCount/isAuthorisedSeller
+      // (only an admin can authorise a seller).
       allow update: if isAdmin() ||
         (isOwner(uid) &&
           !request.resource.data.diff(resource.data)
             .affectedKeys()
-            .hasAny(['role', 'isActive', 'purchaseCount']));
+            .hasAny(['role', 'isActive', 'purchaseCount',
+              'isAuthorisedSeller']));
       allow delete: if isAdmin();
 
       // Purchase index — written only by finalizeOrder / initiateRefund fns.
@@ -45,16 +65,24 @@ service cloud.firestore {
       }
     }
 
+    // ==================== collections ====================
+    match /collections/{collectionId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
     // ==================== designs ====================
     match /designs/{designId} {
       // User app must filter status == 'active' in every query.
       allow get, list: if isAdmin() ||
         (isAuthed() && resource.data.status == 'active');
+      // Admin-managed catalog. `name` required; `price` is a non-negative int
+      // (0 when the design is free — finalPrice is computed on the client).
       allow create, update: if isAdmin() &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() > 0 &&
         request.resource.data.price is int &&
-        request.resource.data.price > 0 &&
-        request.resource.data.title is string &&
-        request.resource.data.title.size() > 0;
+        request.resource.data.price >= 0;
       allow delete: if isAdmin();
 
       // Reviews — doc id = reviewer uid; create/update gated on purchase.
@@ -107,9 +135,18 @@ service cloud.firestore {
 
     match /config/homeFeed {
       allow read: if isAuthed();
+      // Server-driven home layout: an ordered list of section configs.
       allow write: if isAdmin() &&
-        request.resource.data.banners is list &&
-        request.resource.data.banners.size() <= 10;
+        request.resource.data.sections is list &&
+        request.resource.data.sections.size() <= 50;
+    }
+
+    // ==================== media library (admin) ====================
+    // Index docs for reusable images in the admin Media Library. Admin-managed;
+    // read allowed for any authed user (URLs are public anyway).
+    match /media/{mediaId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
     }
 
     // ==================== stats (functions only) ====================

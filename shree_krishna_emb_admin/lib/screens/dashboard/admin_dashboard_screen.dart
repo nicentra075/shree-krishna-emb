@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
+import 'package:shree_krishna_emb_admin/screens/design_store/design_store_content_view.dart';
 import 'package:shree_krishna_emb_admin/screens/settings/settings_content_view.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/desktop_user_list_view.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/mobile_user_list_view.dart';
@@ -22,14 +24,32 @@ class AdminDashboardScreen extends StatefulWidget {
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   String _selectedSection = 'dashboard'; // Track selected sidebar section
 
+  /// Key for the mobile Scaffold so the app-bar menu button can open the
+  /// drawer (Scaffold.of(context) from the build context can't reach it).
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /// Build up-to-2-letter initials from a display name for the avatar.
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
+    if (parts.isEmpty) return 'A';
+    final letters = parts.take(2).map((p) => p[0].toUpperCase()).join();
+    return letters.isEmpty ? 'A' : letters;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isMobile = screenSize.width < 768;
 
-    // Leave the dashboard only after the session is actually cleared,
-    // so a refresh after sign-out can never restore it
-    return BlocListener<AdminAuthBloc, AdminAuthState>(
+    // Rebuild the dashboard subtree (sidebar, app bar, content) when the app
+    // language changes. The already-pushed route won't rebuild just because
+    // MaterialApp does, so this screen listens to the locale notifier directly.
+    return ValueListenableBuilder<String>(
+      valueListenable: AppLocalization.localeNotifier,
+      builder: (context, _, _) {
+        // Leave the dashboard only after the session is actually cleared,
+        // so a refresh after sign-out can never restore it
+        return BlocListener<AdminAuthBloc, AdminAuthState>(
       listener: (context, state) {
         if (state is AdminAuthUnauthenticated) {
           Navigator.of(
@@ -42,6 +62,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: isMobile
           // Mobile layout with drawer
           ? Scaffold(
+              key: _scaffoldKey,
               appBar: PreferredSize(
                 preferredSize: const Size.fromHeight(70),
                 child: _buildAppBar(isMobile),
@@ -69,6 +90,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
             ),
+        );
+      },
     );
   }
 
@@ -79,6 +102,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return _buildUserManagementContent();
       case 'settings':
         return const SettingsContentView();
+      case 'store':
+        return const DesignStoreContentView();
       default:
         return _buildDashboardContent();
     }
@@ -178,9 +203,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             if (isMobile)
               IconButton(
                 icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
+                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
               ),
             if (!isMobile) const SizedBox(width: 8),
             Expanded(
@@ -216,6 +239,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ),
             const SizedBox(width: 16),
+            // Dark / light mode toggle
+            BlocBuilder<ThemeCubit, ThemeMode>(
+              builder: (context, themeMode) {
+                final isDark =
+                    Theme.of(context).brightness == Brightness.dark;
+                return IconButton(
+                  tooltip: isDark
+                      ? AppLocalization.strings.lightMode
+                      : AppLocalization.strings.darkMode,
+                  icon: Icon(
+                    isDark
+                        ? Icons.light_mode_outlined
+                        : Icons.dark_mode_outlined,
+                    size: 24,
+                  ),
+                  color: Colors.grey.withValues(alpha: 0.6),
+                  onPressed: () => context.read<ThemeCubit>().setMode(
+                        isDark ? ThemeMode.light : ThemeMode.dark,
+                      ),
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.notifications_outlined, size: 24),
               color: Colors.grey.withValues(alpha: 0.6),
@@ -227,54 +272,71 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               onPressed: () => setState(() => _selectedSection = 'settings'),
             ),
             const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+            BlocBuilder<AdminAuthBloc, AdminAuthState>(
+              builder: (context, authState) {
+                final isAuthed = authState is AdminAuthAuthenticated;
+                final email = isAuthed ? authState.email : '';
+                final displayName = isAuthed && authState.name.isNotEmpty
+                    ? authState.name
+                    : (email.contains('@')
+                        ? email.split('@').first
+                        : 'Admin User');
+                final role = isAuthed ? authState.role : '';
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    // App bar is laid out with unbounded width, so the Row must
+                    // shrink-wrap its children (no flex/Expanded here).
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Admin User',
-                        style: AppTextStyles.labelMedium(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            displayName,
+                            style: AppTextStyles.labelMedium(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (role.isNotEmpty)
+                            Text(
+                              role.toUpperCase(),
+                              style: AppTextStyles.labelSmall(
+                                color: Colors.grey.withValues(alpha: 0.6),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                        ],
                       ),
-                      Text(
-                        'LEAD AUDITOR',
-                        style: AppTextStyles.labelSmall(
-                          color: Colors.grey.withValues(alpha: 0.6),
-                          fontWeight: FontWeight.w500,
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.primaryDark,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        child: Center(
+                          child: Text(
+                            _initials(displayName),
+                            style: AppTextStyles.labelMedium(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppTheme.primaryDark,
-                    ),
-                    child: Center(
-                      child: Text(
-                        'AU',
-                        style: AppTextStyles.labelMedium(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ],
         ),
@@ -419,16 +481,47 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   icon: Icons.logout,
                   label: AppLocalization.strings.logout,
                   isActive: false,
-                  onTap: () {
-                    // Clears Firebase session + cached login; navigation to
-                    // the login screen happens via the AdminAuthBloc listener
-                    context.read<AdminAuthBloc>().add(
-                      const AdminSignOutEvent(),
-                    );
-                  },
+                  onTap: () => _confirmLogout(context),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Confirms before signing out — navigation to login happens via the
+  // AdminAuthBloc listener once the session is cleared.
+  void _confirmLogout(BuildContext context) {
+    final strings = AppLocalization.strings;
+    final colorScheme = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: colorScheme.surface,
+        title: Text(strings.logoutConfirmTitle,
+            style: AppTextStyles.headlineMedium(
+                color: colorScheme.onSurface, fontWeight: FontWeight.w700),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
+        content: Text(strings.logoutConfirmMessage,
+            style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: Text(strings.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogCtx);
+              context.read<AdminAuthBloc>().add(const AdminSignOutEvent());
+            },
+            child: Text(strings.logout,
+                style: const TextStyle(
+                    color: Color(0xFFFF6B6B), fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -449,7 +542,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap,
+          onTap: () {
+            onTap();
+            // On mobile the sidebar is a drawer — close it after selecting.
+            if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+              _scaffoldKey.currentState?.closeDrawer();
+            }
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(

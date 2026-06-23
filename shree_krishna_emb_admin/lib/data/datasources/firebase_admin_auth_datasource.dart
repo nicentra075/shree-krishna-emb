@@ -99,7 +99,12 @@ class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
       // Cache the session so the app can restore it on reload/restart
       await _saveSession(adminId: user.uid, email: user.email ?? '');
 
-      return AdminAuthSuccess(adminId: user.uid, email: user.email ?? '');
+      return AdminAuthSuccess(
+        adminId: user.uid,
+        email: user.email ?? '',
+        name: userData?['name'] as String? ?? '',
+        role: userRole ?? '',
+      );
     } on FirebaseAuthException catch (e) {
       throw ServerException(
         message: e.message ?? 'Firebase authentication error',
@@ -160,6 +165,8 @@ class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
       return AdminAuthSuccess(
         adminId: currentUser.uid,
         email: currentUser.email ?? '',
+        name: userData?['name'] as String? ?? '',
+        role: userRole ?? '',
       );
     } catch (e) {
       throw ServerException(

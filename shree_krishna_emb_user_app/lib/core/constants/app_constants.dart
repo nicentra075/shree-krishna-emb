@@ -7,6 +7,10 @@ abstract class AppConstants {
   static const String prefKeySavedEmail = 'saved_email';
   static const String prefKeySavedPassword = 'saved_password';
 
+  /// Date (yyyy-MM-dd) of the last account-status (suspension) check, used to
+  /// throttle the home-screen re-validation to once per day.
+  static const String prefKeyLastStatusCheckDate = 'last_status_check_date';
+
   // Add more SharedPreferences keys here as needed
   // static const String prefKeyUserToken = 'user_token';
   // static const String prefKeyUserId = 'user_id';

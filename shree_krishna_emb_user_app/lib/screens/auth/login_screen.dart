@@ -89,6 +89,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 'phoneNumber': state.phoneNumber,
               },
             );
+          } else if (state is AuthSuspended) {
+            AppSnackbar.showError(
+              AppLocalization.strings.accountSuspendedMessage,
+            );
           } else if (state is AuthError) {
             AppSnackbar.showError(state.message);
           }

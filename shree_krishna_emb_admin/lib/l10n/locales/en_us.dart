@@ -111,6 +111,58 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get inactive => 'Inactive';
   @override
+  String get allLabel => 'All';
+  @override
+  String get perPage => 'Per page';
+  @override
+  String get mediaLibrary => 'Media Library';
+  @override
+  String get uploadImages => 'Upload';
+  @override
+  String get uploading => 'Uploading';
+  @override
+  String get dragDropHint =>
+      'Drag & drop images here, or use Upload to add them in one shot.';
+  @override
+  String get useImage => 'Use';
+  @override
+  String get chooseFromLibrary => 'Choose from Library';
+  @override
+  String get addImage => 'Add image';
+  @override
+  String get changeImage => 'Change image';
+  @override
+  String get uploadFromDevice => 'Upload from device';
+  @override
+  String get selectFromDevice => 'Select from device';
+  @override
+  String get selected => 'selected';
+  @override
+  String get alsoDeleteCategoriesDesigns =>
+      'Also delete its categories and designs';
+  @override
+  String get alsoDeleteDesigns => 'Also delete its designs';
+  @override
+  String get deleteImpactTitle => 'What happens';
+  @override
+  String get deleteCollectionOnlyNote =>
+      'Only this collection will be deleted. Its categories and designs are kept '
+      'but become unlinked — they will no longer appear under any collection in '
+      'the app, and any home section bound to this collection will show nothing.';
+  @override
+  String get deleteCollectionCascadeNote =>
+      'This collection AND all of its categories and designs will be permanently '
+      'deleted from the app. This cannot be undone.';
+  @override
+  String get deleteCategoryOnlyNote =>
+      'Only this category will be deleted. Its designs are kept but become '
+      'unlinked — they will no longer appear under any category, and any home '
+      'section bound to this category will show nothing.';
+  @override
+  String get deleteCategoryCascadeNote =>
+      'This category AND all of its designs will be permanently deleted from the '
+      'app. This cannot be undone.';
+  @override
   String get noProducts => 'No products found';
   @override
   String get productAdded => 'Product added successfully';
@@ -340,6 +392,11 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get logout => 'Logout';
   @override
+  String get logoutConfirmTitle => 'Log out?';
+  @override
+  String get logoutConfirmMessage =>
+      'You will need to sign in again to access the admin panel.';
+  @override
   String get login => 'Login';
   @override
   String get email => 'Email';
@@ -412,4 +469,97 @@ class EnUSStrings implements LocaleStrings {
   String get sendResetLink => 'Send Reset Link';
   @override
   String get resetLinkSentMessage => 'Reset link sent to email';
+
+  // ========== Design Store ==========
+  @override
+  String get collections => 'Collections';
+  @override
+  String get designs => 'Designs';
+  @override
+  String get homeLayout => 'Home Layout';
+  @override
+  String get addSection => 'Add Section';
+  @override
+  String get addSectionSubtitle => 'Pick a block to add to the Home screen';
+  @override
+  String get publish => 'Publish';
+  @override
+  String get publishNow => 'Publish now';
+  @override
+  String get published => 'Published';
+  @override
+  String get unpublishedChanges => 'Unpublished changes';
+  @override
+  String get unpublishedBannerMessage =>
+      'You have unpublished changes. They are not live in the app until you publish.';
+  @override
+  String get addCollection => 'Add Collection';
+  @override
+  String get addDesign => 'Add Design';
+  @override
+  String get editCollection => 'Edit Collection';
+  @override
+  String get editCategory => 'Edit Category';
+  @override
+  String get editDesign => 'Edit Design';
+  @override
+  String get collectionName => 'Collection Name';
+  @override
+  String get designName => 'Design Name';
+  @override
+  String get imageUrl => 'Image URL';
+  @override
+  String get descriptionLabel => 'Description';
+  @override
+  String get positionLabel => 'Position';
+  @override
+  String get isActiveLabel => 'Active';
+  @override
+  String get selectCollection => 'Select Collection';
+  @override
+  String get selectCategory => 'Select Category';
+  @override
+  String get code => 'Code';
+  @override
+  String get authorName => 'Author Name';
+  @override
+  String get price => 'Price';
+  @override
+  String get discountAmount => 'Discount Amount';
+  @override
+  String get isFree => 'Free Design';
+  @override
+  String get finalPrice => 'Final Price';
+  @override
+  String get free => 'Free';
+  @override
+  String get colorOrNeedleCount => 'Color / Needle Count';
+  @override
+  String get designFormat => 'Design Format';
+  @override
+  String get stitchCount => 'Stitch Count';
+  @override
+  String get heightLabel => 'Height';
+  @override
+  String get widthLabel => 'Width';
+  @override
+  String get designImages => 'Design Images';
+  @override
+  String get addImageUrl => 'Add Image URL';
+  @override
+  String get noCollections => 'No collections yet';
+  @override
+  String get noDesigns => 'No designs yet';
+  @override
+  String get sortBy => 'Sort by';
+  @override
+  String get sortPopularity => 'Popularity';
+  @override
+  String get sortNewest => 'Newest';
+  @override
+  String get sortPriceLowHigh => 'Price: Low to High';
+  @override
+  String get sortPriceHighLow => 'Price: High to Low';
+  @override
+  String get statusLabel => 'Status';
 }

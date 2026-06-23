@@ -111,6 +111,57 @@ class HiINStrings implements LocaleStrings {
   @override
   String get inactive => 'निष्क्रिय';
   @override
+  String get allLabel => 'सभी';
+  @override
+  String get perPage => 'प्रति पृष्ठ';
+  @override
+  String get mediaLibrary => 'मीडिया लाइब्रेरी';
+  @override
+  String get uploadImages => 'अपलोड करें';
+  @override
+  String get uploading => 'अपलोड हो रहा है';
+  @override
+  String get dragDropHint =>
+      'छवियाँ यहाँ खींचें और छोड़ें, या एक साथ जोड़ने के लिए अपलोड का उपयोग करें।';
+  @override
+  String get useImage => 'उपयोग करें';
+  @override
+  String get chooseFromLibrary => 'लाइब्रेरी से चुनें';
+  @override
+  String get addImage => 'छवि जोड़ें';
+  @override
+  String get changeImage => 'छवि बदलें';
+  @override
+  String get uploadFromDevice => 'डिवाइस से अपलोड करें';
+  @override
+  String get selectFromDevice => 'डिवाइस से चुनें';
+  @override
+  String get selected => 'चयनित';
+  @override
+  String get alsoDeleteCategoriesDesigns =>
+      'इसकी श्रेणियाँ और डिज़ाइन भी हटाएँ';
+  @override
+  String get alsoDeleteDesigns => 'इसके डिज़ाइन भी हटाएँ';
+  @override
+  String get deleteImpactTitle => 'क्या होगा';
+  @override
+  String get deleteCollectionOnlyNote =>
+      'केवल यह संग्रह हटाया जाएगा। इसकी श्रेणियाँ और डिज़ाइन बने रहेंगे पर असंबद्ध हो '
+      'जाएँगे — वे किसी भी संग्रह के अंतर्गत नहीं दिखेंगे, और इस संग्रह से जुड़ा कोई भी '
+      'होम सेक्शन खाली दिखेगा।';
+  @override
+  String get deleteCollectionCascadeNote =>
+      'यह संग्रह और इसकी सभी श्रेणियाँ व डिज़ाइन ऐप से स्थायी रूप से हटा दिए जाएँगे। '
+      'इसे पूर्ववत नहीं किया जा सकता।';
+  @override
+  String get deleteCategoryOnlyNote =>
+      'केवल यह श्रेणी हटाई जाएगी। इसके डिज़ाइन बने रहेंगे पर असंबद्ध हो जाएँगे — वे किसी '
+      'भी श्रेणी के अंतर्गत नहीं दिखेंगे, और इस श्रेणी से जुड़ा कोई भी होम सेक्शन खाली दिखेगा।';
+  @override
+  String get deleteCategoryCascadeNote =>
+      'यह श्रेणी और इसके सभी डिज़ाइन ऐप से स्थायी रूप से हटा दिए जाएँगे। इसे पूर्ववत '
+      'नहीं किया जा सकता।';
+  @override
   String get noProducts => 'कोई उत्पाद नहीं मिला';
   @override
   String get productAdded => 'उत्पाद सफलतापूर्वक जोड़ा गया';
@@ -340,6 +391,11 @@ class HiINStrings implements LocaleStrings {
   @override
   String get logout => 'लॉगआउट करें';
   @override
+  String get logoutConfirmTitle => 'लॉगआउट करें?';
+  @override
+  String get logoutConfirmMessage =>
+      'एडमिन पैनल तक पहुँचने के लिए आपको फिर से साइन इन करना होगा।';
+  @override
   String get login => 'लॉगिन करें';
   @override
   String get email => 'ईमेल';
@@ -412,4 +468,97 @@ class HiINStrings implements LocaleStrings {
   String get sendResetLink => 'रीसेट लिंक भेजें';
   @override
   String get resetLinkSentMessage => 'रीसेट लिंक ईमेल पर भेजा गया';
+
+  // ========== Design Store ==========
+  @override
+  String get collections => 'संग्रह';
+  @override
+  String get designs => 'डिज़ाइन';
+  @override
+  String get homeLayout => 'होम लेआउट';
+  @override
+  String get addSection => 'सेक्शन जोड़ें';
+  @override
+  String get addSectionSubtitle => 'होम स्क्रीन में जोड़ने के लिए एक ब्लॉक चुनें';
+  @override
+  String get publish => 'प्रकाशित करें';
+  @override
+  String get publishNow => 'अभी प्रकाशित करें';
+  @override
+  String get published => 'प्रकाशित';
+  @override
+  String get unpublishedChanges => 'अप्रकाशित बदलाव';
+  @override
+  String get unpublishedBannerMessage =>
+      'आपके पास अप्रकाशित बदलाव हैं। प्रकाशित करने तक वे ऐप में लाइव नहीं होंगे।';
+  @override
+  String get addCollection => 'संग्रह जोड़ें';
+  @override
+  String get addDesign => 'डिज़ाइन जोड़ें';
+  @override
+  String get editCollection => 'संग्रह संपादित करें';
+  @override
+  String get editCategory => 'श्रेणी संपादित करें';
+  @override
+  String get editDesign => 'डिज़ाइन संपादित करें';
+  @override
+  String get collectionName => 'संग्रह नाम';
+  @override
+  String get designName => 'डिज़ाइन नाम';
+  @override
+  String get imageUrl => 'छवि URL';
+  @override
+  String get descriptionLabel => 'विवरण';
+  @override
+  String get positionLabel => 'स्थिति';
+  @override
+  String get isActiveLabel => 'सक्रिय';
+  @override
+  String get selectCollection => 'संग्रह चुनें';
+  @override
+  String get selectCategory => 'श्रेणी चुनें';
+  @override
+  String get code => 'कोड';
+  @override
+  String get authorName => 'लेखक का नाम';
+  @override
+  String get price => 'मूल्य';
+  @override
+  String get discountAmount => 'छूट राशि';
+  @override
+  String get isFree => 'निःशुल्क डिज़ाइन';
+  @override
+  String get finalPrice => 'अंतिम मूल्य';
+  @override
+  String get free => 'निःशुल्क';
+  @override
+  String get colorOrNeedleCount => 'रंग / सुई गिनती';
+  @override
+  String get designFormat => 'डिज़ाइन प्रारूप';
+  @override
+  String get stitchCount => 'टांके की संख्या';
+  @override
+  String get heightLabel => 'ऊंचाई';
+  @override
+  String get widthLabel => 'चौड़ाई';
+  @override
+  String get designImages => 'डिज़ाइन छवियाँ';
+  @override
+  String get addImageUrl => 'छवि URL जोड़ें';
+  @override
+  String get noCollections => 'अभी तक कोई संग्रह नहीं';
+  @override
+  String get noDesigns => 'अभी तक कोई डिज़ाइन नहीं';
+  @override
+  String get sortBy => 'क्रमबद्ध करें';
+  @override
+  String get sortPopularity => 'लोकप्रियता';
+  @override
+  String get sortNewest => 'नवीनतम';
+  @override
+  String get sortPriceLowHigh => 'मूल्य: कम से अधिक';
+  @override
+  String get sortPriceHighLow => 'मूल्य: अधिक से कम';
+  @override
+  String get statusLabel => 'स्थिति';
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../theme/design_system_theme.dart';
 import 'package:shree_krishna_core/config/app_theme_config.dart';
@@ -146,6 +147,25 @@ class AppSnackbar {
     final messenger = _getMessenger();
     if (messenger == null) return;
 
+    // Responsive positioning: on wide web/desktop screens, pin the toast to the
+    // bottom-right with a fixed-ish width instead of stretching it full-width
+    // across the page. On mobile/narrow screens, keep the full-width bottom
+    // toast (margin: all(16)).
+    EdgeInsets margin = const EdgeInsets.all(16);
+    final context = _globalNavigatorKey?.currentContext;
+    if (context != null) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      if (kIsWeb && screenWidth >= 600) {
+        const contentWidth = 380.0;
+        final leftMargin = screenWidth - contentWidth - 48;
+        margin = EdgeInsets.only(
+          bottom: 24,
+          right: 24,
+          left: leftMargin > 16 ? leftMargin : 16,
+        );
+      }
+    }
+
     messenger.hideCurrentSnackBar();
 
     messenger.showSnackBar(
@@ -167,7 +187,7 @@ class AppSnackbar {
         backgroundColor: backgroundColor,
         duration: duration,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
+        margin: margin,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         elevation: 6,
         action: showAction

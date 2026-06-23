@@ -14,6 +14,14 @@ class UserListItem extends Equatable {
   final DateTime? loginAt;
   final DateTime? logoutAt;
 
+  // Designer-only store fields (relevant when role == 'designer').
+  final String? storeName;
+  final String? storeImageUrl;
+  final String? storeDescription;
+
+  /// Whether this designer is listed under "Authorised Design Sellers".
+  final bool isAuthorisedSeller;
+
   const UserListItem({
     required this.id,
     required this.name,
@@ -27,6 +35,10 @@ class UserListItem extends Equatable {
     this.photoUrl,
     this.loginAt,
     this.logoutAt,
+    this.storeName,
+    this.storeImageUrl,
+    this.storeDescription,
+    this.isAuthorisedSeller = false,
   });
 
   @override
@@ -43,5 +55,9 @@ class UserListItem extends Equatable {
     photoUrl,
     loginAt,
     logoutAt,
+    storeName,
+    storeImageUrl,
+    storeDescription,
+    isAuthorisedSeller,
   ];
 }

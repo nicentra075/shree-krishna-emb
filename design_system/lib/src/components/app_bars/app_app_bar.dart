@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/design_system_theme.dart';
 import '../../tokens/app_text_styles.dart';
 import 'package:shree_krishna_core/config/app_theme_config.dart';
 
@@ -76,12 +75,15 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = DesignSystemTheme.primaryDark(themeConfig);
-    final surfaceColor = DesignSystemTheme.surfaceLight(themeConfig);
-    final bgColor = backgroundColor ?? surfaceColor;
+    // Theme-aware: title/icons follow the active colorScheme.primary (brand
+    // brown in light, brand orange in dark) and the bar background follows the
+    // surface, so the app bar adapts to dark mode instead of staying light.
+    final colorScheme = Theme.of(context).colorScheme;
+    final primaryColor = colorScheme.primary;
+    final bgColor = backgroundColor ?? colorScheme.surface;
 
     return AppBar(
-      title: _buildTitle(),
+      title: _buildTitle(primaryColor),
       leading: _buildLeading(context, primaryColor),
       actions: actions,
       centerTitle: centerTitle,
@@ -106,7 +108,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   /// Builds the title section with optional subtitle
-  Widget _buildTitle() {
+  Widget _buildTitle(Color primaryColor) {
     if (subtitle == null) {
       return Text(title);
     }
@@ -118,7 +120,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
         Text(
           title,
           style: AppTextStyles.headlineMedium(
-            color: DesignSystemTheme.primaryDark(themeConfig),
+            color: primaryColor,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -126,7 +128,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
         Text(
           subtitle!,
           style: AppTextStyles.bodySmall(
-            color: DesignSystemTheme.primaryDark(themeConfig).withValues(alpha: 0.7),
+            color: primaryColor.withValues(alpha: 0.7),
           ),
         ),
       ],

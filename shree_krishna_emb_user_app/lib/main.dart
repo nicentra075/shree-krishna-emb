@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,26 +8,49 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/firebase_options.dart';
+import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
+import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 import 'package:shree_krishna_emb/core/utils/global_navigator.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  // Framework (build/layout/render) errors → console with stack trace.
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    AppLogger.logError(
+      details.exceptionAsString(),
+      error: details.exception,
+      stackTrace: details.stack,
+    );
+  };
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Uncaught async/platform errors → console with stack trace.
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLogger.logError('Uncaught error', error: error, stackTrace: stack);
+    return true;
+  };
 
-  final prefs = await SharedPreferences.getInstance();
-  await AppLocalization.initialize(prefs);
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  await setupServiceLocator(prefs);
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize snackbar with global navigator
-  AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
+    final prefs = await SharedPreferences.getInstance();
+    await AppLocalization.initialize(prefs);
 
-  runApp(const MainApp());
+    await setupServiceLocator(prefs);
+
+    // Initialize snackbar with global navigator
+    AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
+
+    runApp(const MainApp());
+  }, (error, stack) {
+    AppLogger.logError('Uncaught zone error', error: error, stackTrace: stack);
+  });
 }
 
 class MainApp extends StatelessWidget {
@@ -32,9 +58,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Persistent theme mode (light/dark/system), shared via core package
-    return BlocProvider<ThemeCubit>.value(
-      value: getIt<ThemeCubit>(),
+    // Persistent theme mode (light/dark/system) + app-wide favorites state.
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
+        BlocProvider<WishlistCubit>.value(value: getIt<WishlistCubit>()),
+      ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
           // Rebuild the whole tree on locale change (strings are static)

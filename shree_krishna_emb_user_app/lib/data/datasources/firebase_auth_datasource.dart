@@ -128,11 +128,15 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
       final user = UserModel.fromFirebaseJson(userDoc.data()!, uid);
 
+      await _guardSuspended(user);
+
       await _firestore.collection('users').doc(uid).update({
         'loginAt': DateTime.now().toIso8601String(),
       });
 
       return user;
+    } on SuspendedAccountException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       throw ServerException(message: _handleAuthException(e));
     } catch (e) {
@@ -301,6 +305,8 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
         final user = UserModel.fromFirebaseJson(userDoc.data()!, uid);
 
+        await _guardSuspended(user);
+
         await _firestore.collection('users').doc(uid).update({
           'loginAt': DateTime.now().toIso8601String(),
         });
@@ -312,6 +318,8 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
         return AuthResult(user: user, isNewUser: false);
       }
+    } on SuspendedAccountException {
+      rethrow;
     } on TimeoutException {
       AppLogger.logError('signInWithGoogle', error: 'Authentication timed out');
       throw ServerException(message: 'Google sign in timed out');
@@ -460,12 +468,16 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       } else {
         final user = UserModel.fromFirebaseJson(userDoc.data()!, uid);
 
+        await _guardSuspended(user);
+
         await _firestore.collection('users').doc(uid).update({
           'loginAt': DateTime.now().toIso8601String(),
         });
 
         return AuthResult(user: user, isNewUser: false);
       }
+    } on SuspendedAccountException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       throw ServerException(message: _handleAuthException(e));
     } catch (e) {
@@ -552,11 +564,43 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         return null;
       }
 
-      return UserModel.fromFirebaseJson(userDoc.data()!, firebaseUser.uid);
+      final user = UserModel.fromFirebaseJson(
+        userDoc.data()!,
+        firebaseUser.uid,
+      );
+
+      // A suspended account must not keep a session. Sign out and report no
+      // current user so the auth flow routes back to login.
+      if (!user.isActive) {
+        await _signOutFully();
+        return null;
+      }
+
+      return user;
     } catch (e) {
       throw ServerException(
         message: 'Failed to get current user: ${e.toString()}',
       );
+    }
+  }
+
+  /// Throws [SuspendedAccountException] (after signing the user back out) when
+  /// the account has been suspended (isActive == false). Called on every login
+  /// path so a suspended user can never obtain a session.
+  Future<void> _guardSuspended(UserModel user) async {
+    if (!user.isActive) {
+      await _signOutFully();
+      throw SuspendedAccountException();
+    }
+  }
+
+  /// Signs out of both Firebase Auth and Google so no residual session remains.
+  Future<void> _signOutFully() async {
+    await _firebaseAuth.signOut();
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {
+      // Google sign-out is best-effort (user may not have used Google login).
     }
   }
 

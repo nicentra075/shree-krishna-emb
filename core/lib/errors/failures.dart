@@ -26,6 +26,11 @@ class AuthenticationFailure extends Failure {
   const AuthenticationFailure(super.message);
 }
 
+/// The account authenticated but is suspended (isActive == false).
+class SuspendedFailure extends Failure {
+  const SuspendedFailure(super.message);
+}
+
 class ValidationFailure extends Failure {
   final Map<String, String>? fieldErrors;
 

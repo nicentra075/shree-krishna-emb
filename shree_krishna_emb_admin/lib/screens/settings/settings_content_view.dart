@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/core/dev/dummy_data_seeder.dart';
+import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
+import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 
 /// Settings CONTENT only (no Scaffold) so it can be embedded in the
@@ -17,6 +21,8 @@ class SettingsContentView extends StatefulWidget {
 }
 
 class _SettingsContentViewState extends State<SettingsContentView> {
+  bool _seeding = false;
+
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalization.strings;
@@ -55,6 +61,12 @@ class _SettingsContentViewState extends State<SettingsContentView> {
                       icon: Icons.language_outlined,
                       title: strings.language,
                       child: _buildLanguageSelector(),
+                    ),
+                    SizedBox(height: isSmallScreen ? 12 : 16),
+                    _buildSectionCard(
+                      icon: Icons.science_outlined,
+                      title: 'Demo Data',
+                      child: _buildDemoDataControls(),
                     ),
                     SizedBox(height: isSmallScreen ? 12 : 16),
                     _buildAboutCard(),
@@ -129,7 +141,11 @@ class _SettingsContentViewState extends State<SettingsContentView> {
         final options = [
           (ThemeMode.light, Icons.light_mode_outlined, strings.lightMode),
           (ThemeMode.dark, Icons.dark_mode_outlined, strings.darkMode),
-          (ThemeMode.system, Icons.brightness_auto_outlined, strings.systemDefault),
+          (
+            ThemeMode.system,
+            Icons.brightness_auto_outlined,
+            strings.systemDefault,
+          ),
         ];
 
         final cards = options.map((option) {
@@ -215,9 +231,7 @@ class _SettingsContentViewState extends State<SettingsContentView> {
               ),
               const SizedBox(height: 6),
               Icon(
-                isSelected
-                    ? Icons.check_circle
-                    : Icons.radio_button_unchecked,
+                isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
                 size: 16,
                 color: isSelected
                     ? colorScheme.primary
@@ -306,9 +320,7 @@ class _SettingsContentViewState extends State<SettingsContentView> {
                 ),
               ),
               Icon(
-                isSelected
-                    ? Icons.check_circle
-                    : Icons.radio_button_unchecked,
+                isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
                 size: 18,
                 color: isSelected
                     ? colorScheme.primary
@@ -385,6 +397,93 @@ class _SettingsContentViewState extends State<SettingsContentView> {
     await AppLocalization.setLocale(locale);
     if (!mounted) return;
     setState(() {});
-    AppSnackbar.showSuccess(AppLocalization.strings.languageChanged);
+    ResponsiveSnackbar.showSuccess(
+      AppLocalization.strings.languageChanged,
+      context,
+    );
+  }
+
+  // ---------------- Demo data ----------------
+  Widget _buildDemoDataControls() {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Seeds demo accounts, 3 collections (with categories + designs) and a '
+          'home layout so the user app has content. Idempotent — safe to re-run.',
+          style: AppTextStyles.bodySmall(color: colorScheme.onSurfaceVariant),
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            AppButton(
+              label: 'Generate',
+              leadingIcon: Icons.add_circle_outline,
+              isLoading: _seeding,
+              onPressed: _seeding ? () {} : () => _confirmAndRun(isClear: false),
+            ),
+            const SizedBox(width: 12),
+            AppButton(
+              label: 'Remove',
+              leadingIcon: Icons.delete_outline,
+              variant: AppButtonVariant.secondary,
+              onPressed: _seeding ? () {} : () => _confirmAndRun(isClear: true),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmAndRun({required bool isClear}) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(isClear ? 'Remove demo data?' : 'Generate demo data?'),
+        content: Text(isClear
+            ? 'Deletes the seeded collections, categories, designs, home layout '
+                'and demo profile docs. (The demo Auth accounts must be removed '
+                'from the Firebase console manually.)'
+            : 'Creates demo accounts, collections/categories/designs and a home '
+                'layout in Firebase.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppLocalization.strings.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppLocalization.strings.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _seeding = true);
+    final seeder = DummyDataSeeder(firestore: getIt<FirebaseFirestore>());
+    try {
+      void onProgress(String msg) {
+        if (mounted) ResponsiveSnackbar.showInfo(msg, context);
+      }
+
+      if (isClear) {
+        await seeder.clear(onProgress: onProgress);
+      } else {
+        await seeder.seed(onProgress: onProgress);
+      }
+      if (!mounted) return;
+      ResponsiveSnackbar.showSuccess(
+          isClear ? 'Demo data removed' : 'Demo data generated', context);
+    } catch (e) {
+      if (mounted) {
+        ResponsiveSnackbar.showError('Failed: $e', context);
+      }
+    } finally {
+      if (mounted) setState(() => _seeding = false);
+    }
   }
 }

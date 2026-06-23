@@ -9,7 +9,13 @@ abstract class UserListEvent extends Equatable {
 }
 
 class LoadUsersEvent extends UserListEvent {
-  const LoadUsersEvent();
+  /// When true, bypasses the datasource cache and re-reads from Firestore.
+  final bool forceRefresh;
+
+  const LoadUsersEvent({this.forceRefresh = false});
+
+  @override
+  List<Object?> get props => [forceRefresh];
 }
 
 class SearchUsersEvent extends UserListEvent {
@@ -76,6 +82,11 @@ class CreateUserEvent extends UserListEvent {
   final String password;
   final String phoneNumber;
   final String role;
+  final String? photoUrl;
+  final String? storeName;
+  final String? storeImageUrl;
+  final String? storeDescription;
+  final bool isAuthorisedSeller;
 
   const CreateUserEvent({
     required this.name,
@@ -83,8 +94,52 @@ class CreateUserEvent extends UserListEvent {
     required this.password,
     required this.phoneNumber,
     required this.role,
+    this.photoUrl,
+    this.storeName,
+    this.storeImageUrl,
+    this.storeDescription,
+    this.isAuthorisedSeller = false,
   });
 
   @override
-  List<Object?> get props => [name, email, password, phoneNumber, role];
+  List<Object?> get props => [
+        name,
+        email,
+        password,
+        phoneNumber,
+        role,
+        photoUrl,
+        storeName,
+        storeImageUrl,
+        storeDescription,
+        isAuthorisedSeller,
+      ];
+}
+
+class SendPasswordResetEvent extends UserListEvent {
+  final String email;
+
+  const SendPasswordResetEvent(this.email);
+
+  @override
+  List<Object?> get props => [email];
+}
+
+class ChangePageSizeEvent extends UserListEvent {
+  final int pageSize;
+
+  const ChangePageSizeEvent(this.pageSize);
+
+  @override
+  List<Object?> get props => [pageSize];
+}
+
+class FilterByRoleEvent extends UserListEvent {
+  /// null = all roles.
+  final String? role;
+
+  const FilterByRoleEvent(this.role);
+
+  @override
+  List<Object?> get props => [role];
 }

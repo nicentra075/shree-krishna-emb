@@ -9,7 +9,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuthDataSource _dataSource;
 
   AuthRepositoryImpl({required FirebaseAuthDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   @override
   Future<Either<Failure, UserModel>> signUpWithEmail({
@@ -44,6 +44,8 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       return Right(user);
+    } on SuspendedAccountException catch (e) {
+      return Left(SuspendedFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -55,11 +57,15 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthResult>> signInWithGoogle() async {
     try {
       final result = await _dataSource.signInWithGoogle();
-      return Right(AuthResult(
-        user: result.user,
-        isNewUser: result.isNewUser,
-        verificationId: result.verificationId,
-      ));
+      return Right(
+        AuthResult(
+          user: result.user,
+          isNewUser: result.isNewUser,
+          verificationId: result.verificationId,
+        ),
+      );
+    } on SuspendedAccountException catch (e) {
+      return Left(SuspendedFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
@@ -91,11 +97,15 @@ class AuthRepositoryImpl implements AuthRepository {
         smsCode: smsCode,
         phoneNumber: phoneNumber,
       );
-      return Right(AuthResult(
-        user: result.user,
-        isNewUser: result.isNewUser,
-        verificationId: result.verificationId,
-      ));
+      return Right(
+        AuthResult(
+          user: result.user,
+          isNewUser: result.isNewUser,
+          verificationId: result.verificationId,
+        ),
+      );
+    } on SuspendedAccountException catch (e) {
+      return Left(SuspendedFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
