@@ -16,6 +16,7 @@ export 'enums/order_status.dart';
 export 'enums/design_status.dart';
 export 'enums/category_status.dart';
 export 'enums/activity_type.dart';
+export 'enums/app_notification_type.dart';
 
 // Utilities
 export 'utils/either.dart';
@@ -35,6 +36,7 @@ export 'models/review_model.dart';
 export 'models/platform_settings_model.dart';
 export 'models/stats_model.dart';
 export 'models/activity_model.dart';
+export 'models/app_notification_model.dart';
 
 // Entities (Domain Layer)
 // Add entity exports here as needed
