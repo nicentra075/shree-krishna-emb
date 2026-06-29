@@ -94,7 +94,13 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         isActive: true,
       );
 
-      await _firestore.collection('users').doc(uid).set(user.toFirebaseJson());
+      // `role: 'user'` is REQUIRED by firestore.rules users-create
+      // (request.resource.data.role in ['user','designer']); without it the
+      // create is denied. Self-signup can only ever be 'user' (never 'admin').
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .set({...user.toFirebaseJson(), 'role': 'user'});
 
       return user;
     } on FirebaseAuthException catch (e) {
@@ -289,7 +295,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         await _firestore
             .collection('users')
             .doc(uid)
-            .set(user.toFirebaseJson());
+            .set({...user.toFirebaseJson(), 'role': 'user'});
 
         AppLogger.logOperation(
           'signInWithGoogle',
@@ -462,7 +468,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         await _firestore
             .collection('users')
             .doc(uid)
-            .set(user.toFirebaseJson());
+            .set({...user.toFirebaseJson(), 'role': 'user'});
 
         return AuthResult(user: user, isNewUser: true);
       } else {
@@ -617,26 +623,13 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
     }
   }
 
+  /// Generates a display user id WITHOUT touching `counters/`. That collection
+  /// is Cloud-Functions-only (security rules deny ALL client reads/writes), so
+  /// the old global-counter transaction made every signup fail with a
+  /// permission error. A timestamp is unique enough for the client; a Cloud
+  /// Function can re-mint a true sequential id later if needed.
   Future<int> _generateSequentialUserId() async {
-    final counterDoc = _firestore.collection('counters').doc('user_id_counter');
-
-    final result = await _firestore.runTransaction<int>((transaction) async {
-      final doc = await transaction.get(counterDoc);
-
-      if (!doc.exists) {
-        transaction.set(counterDoc, {'count': 1});
-        return 1;
-      }
-
-      final currentCount = (doc.data()?['count'] as int?) ?? 0;
-      final newCount = currentCount + 1;
-
-      transaction.update(counterDoc, {'count': newCount});
-
-      return newCount;
-    });
-
-    return result;
+    return DateTime.now().millisecondsSinceEpoch;
   }
 
   String _handleAuthException(FirebaseAuthException e) {

@@ -32,7 +32,10 @@ Future<List<String>?> showMediaLibrary(
 class _MediaLibraryDialog extends StatefulWidget {
   final bool pickMode;
   final bool multiSelect;
-  const _MediaLibraryDialog({required this.pickMode, required this.multiSelect});
+  const _MediaLibraryDialog({
+    required this.pickMode,
+    required this.multiSelect,
+  });
 
   @override
   State<_MediaLibraryDialog> createState() => _MediaLibraryDialogState();
@@ -47,13 +50,16 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
   Future<void> _uploadFiles(List<dynamic> files) async {
     final uploads = <PendingUpload>[];
     for (final f in files) {
-      uploads.add(PendingUpload(bytes: await f.readAsBytes(), filename: f.name));
+      uploads.add(
+        PendingUpload(bytes: await f.readAsBytes(), filename: f.name),
+      );
     }
     if (!mounted || uploads.isEmpty) return;
     setState(() => _page = 1);
-    await context
-        .read<MediaLibraryCubit>()
-        .uploadMany(uploads, DateTime.now().millisecondsSinceEpoch);
+    await context.read<MediaLibraryCubit>().uploadMany(
+      uploads,
+      DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   Future<void> _openUploadZone() async {
@@ -79,12 +85,15 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(strings.mediaLibrary,
-                        style: AppTextStyles.headlineMedium(
-                            color: AppTheme.primaryDark,
-                            fontWeight: FontWeight.w700),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    child: Text(
+                      strings.mediaLibrary,
+                      style: AppTextStyles.headlineMedium(
+                        color: AppTheme.primaryDark,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   AppButton(
                     label: strings.uploadImages,
@@ -94,7 +103,10 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
                   ),
                   IconButton(
                     tooltip: strings.cancel,
-                    icon: Icon(Icons.close, color: colorScheme.onSurfaceVariant),
+                    icon: Icon(
+                      Icons.close,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -133,11 +145,14 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text('${_selected.length} ${strings.selected}',
-                        style: AppTextStyles.labelSmall(
-                            color: colorScheme.onSurfaceVariant),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      '${_selected.length} ${strings.selected}',
+                      style: AppTextStyles.labelSmall(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(width: 12),
                     AppButton(
                       label: strings.useImage,
@@ -163,26 +178,37 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
         final all = state.assets;
         final totalPages = all.isEmpty ? 1 : (all.length / _pageSize).ceil();
         final page = _page.clamp(1, totalPages);
-        final items =
-            all.skip((page - 1) * _pageSize).take(_pageSize).toList();
+        final items = all.skip((page - 1) * _pageSize).take(_pageSize).toList();
         return Column(
           children: [
             if (state.isUploading)
               Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2)),
-                    const SizedBox(width: 10),
-                    Text('${strings.uploading} (${state.uploadingCount})',
-                        style: AppTextStyles.labelSmall(
-                            color: colorScheme.onSurfaceVariant),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      strings.uploadingBatch(
+                        state.uploadingDone + 1,
+                        state.uploadingTotal,
+                        (state.batchProgress * 100).round(),
+                      ),
+                      style: AppTextStyles.labelSmall(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: state.batchProgress,
+                        minHeight: 6,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        color: AppTheme.primaryDark,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -194,16 +220,15 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
                       itemCount: items.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                      ),
+                            crossAxisCount: 4,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                          ),
                       itemBuilder: (context, i) =>
                           _tile(context, items[i], colorScheme, strings),
                     ),
             ),
-            if (all.isNotEmpty)
-              _footer(colorScheme, strings, page, totalPages),
+            if (all.isNotEmpty) _footer(colorScheme, strings, page, totalPages),
           ],
         );
       },
@@ -211,32 +236,43 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
   }
 
   Widget _footer(
-      ColorScheme colorScheme, dynamic strings, int page, int totalPages) {
+    ColorScheme colorScheme,
+    dynamic strings,
+    int page,
+    int totalPages,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
       child: Row(
         children: [
           // Per-page selector.
-          Text('${strings.perPage}: ',
-              style:
-                  AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+          Text(
+            '${strings.perPage}: ',
+            style: AppTextStyles.labelSmall(
+              color: colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           DropdownButton<int>(
             value: _pageSize,
             underline: const SizedBox(),
             isDense: true,
             dropdownColor: colorScheme.surface,
             items: _kMediaPageSizes
-                .map((n) => DropdownMenuItem(
-                      value: n,
-                      child: Text('$n',
-                          style: AppTextStyles.labelMedium(
-                              color: colorScheme.onSurface)),
-                    ))
+                .map(
+                  (n) => DropdownMenuItem(
+                    value: n,
+                    child: Text(
+                      '$n',
+                      style: AppTextStyles.labelMedium(
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                )
                 .toList(),
-            onChanged: (n) =>
-                setState(() {
+            onChanged: (n) => setState(() {
               if (n != null) {
                 _pageSize = n;
                 _page = 1;
@@ -248,11 +284,14 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
             icon: const Icon(Icons.chevron_left),
             onPressed: page > 1 ? () => setState(() => _page = page - 1) : null,
           ),
-          Text('$page / $totalPages',
-              style:
-                  AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+          Text(
+            '$page / $totalPages',
+            style: AppTextStyles.labelSmall(
+              color: colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
             onPressed: page < totalPages
@@ -269,21 +308,32 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.cloud_upload_outlined,
-              size: 44, color: colorScheme.onSurfaceVariant),
+          Icon(
+            Icons.cloud_upload_outlined,
+            size: 44,
+            color: colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(height: 12),
-          Text(strings.dragDropHint,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis),
+          Text(
+            strings.dragDropHint,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodyMedium(
+              color: colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
   }
 
-  Widget _tile(BuildContext context, MediaAssetModel asset,
-      ColorScheme colorScheme, dynamic strings) {
+  Widget _tile(
+    BuildContext context,
+    MediaAssetModel asset,
+    ColorScheme colorScheme,
+    dynamic strings,
+  ) {
     final multi = widget.pickMode && widget.multiSelect;
     final selected = _selected.contains(asset.url);
     return Stack(
@@ -295,9 +345,11 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
             onTap: widget.pickMode
                 ? () {
                     if (multi) {
-                      setState(() => selected
-                          ? _selected.remove(asset.url)
-                          : _selected.add(asset.url));
+                      setState(
+                        () => selected
+                            ? _selected.remove(asset.url)
+                            : _selected.add(asset.url),
+                      );
                     } else {
                       Navigator.pop(context, [asset.url]);
                     }
@@ -330,8 +382,11 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
                 color: Colors.black.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.delete_outline,
-                  size: 16, color: Colors.white),
+              child: const Icon(
+                Icons.delete_outline,
+                size: 16,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
@@ -345,11 +400,15 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
                 color: AppTheme.primaryDark.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(strings.useImage,
-                  style: AppTextStyles.labelSmall(
-                      color: Colors.white, fontWeight: FontWeight.w600),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
+              child: Text(
+                strings.useImage,
+                style: AppTextStyles.labelSmall(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
       ],
@@ -357,14 +416,20 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
   }
 
   void _confirmDelete(
-      BuildContext context, MediaAssetModel asset, dynamic strings) {
+    BuildContext context,
+    MediaAssetModel asset,
+    dynamic strings,
+  ) {
     final cubit = context.read<MediaLibraryCubit>();
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
         title: Text(strings.delete),
-        content: Text(strings.confirmDeleteMessage,
-            maxLines: 3, overflow: TextOverflow.ellipsis),
+        content: Text(
+          strings.confirmDeleteMessage,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
@@ -376,8 +441,10 @@ class _MediaLibraryDialogState extends State<_MediaLibraryDialog> {
               _selected.remove(asset.url);
               cubit.remove(asset);
             },
-            child: Text(strings.delete,
-                style: const TextStyle(color: Color(0xFFFF6B6B))),
+            child: Text(
+              strings.delete,
+              style: const TextStyle(color: Color(0xFFFF6B6B)),
+            ),
           ),
         ],
       ),

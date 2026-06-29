@@ -1,18 +1,17 @@
 /**
- * Cloud Functions manifest for Shree Krishna Embroidery — Phase 1.
+ * Cloud Functions manifest for Shree Krishna Embroidery.
  *
- * Functions are implemented step-by-step per docs/integration/PHASE1_PROGRESS.md
- * and exported here as they land:
+ * Region: asia-south1 (config/constants.ts — pinned globally below).
  *
- *   S1.4  export { onDesignAssetUpload } from "./media/onDesignAssetUpload";
- *   S2.1  export { requestAdminOtp, verifyAdminOtp } from "./adminAuth";
- *   S2.3  export { initiateRefund } from "./payments/refund";
- *   S2.5  export { onUserWrite, onDesignWrite, onCategoryWrite, onReviewWrite }
- *           from "./aggregates";
- *   S4.2  export { createRazorpayOrder, verifyRazorpayPayment, razorpayWebhook }
- *           from "./payments";
+ * Phase 3 (production payments) — exported here:
+ *   payments/createRazorpayOrder   (onCall)    create a Razorpay order
+ *   payments/verifyRazorpayPayment (onCall)    verify signature → finalize
+ *   payments/razorpayWebhook       (onRequest) idempotent source of truth
+ *   payments/initiateRefund        (onCall)    admin-only refund
+ *   aggregates/onOrderWrite        (trigger)   stats/global + statsDaily
+ *   users/assignUserId             (trigger)   unique sequential userId
  *
- * Region: asia-south1 (see config/constants.ts — every function must pin it).
+ * Deploy: see functions/RAZORPAY_SETUP.md for secrets + webhook setup.
  */
 import { setGlobalOptions } from "firebase-functions/v2";
 
@@ -20,5 +19,17 @@ import { REGION } from "./config/constants";
 
 setGlobalOptions({ region: REGION, maxInstances: 10 });
 
-// No functions exported yet — S0.8 deploys only rules/indexes/storage.
-export {};
+// ---- Payments (Phase 3) -----------------------------------------------------
+export {
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+  razorpayWebhook,
+  initiateRefund,
+  setRazorpaySecret,
+} from "./payments";
+
+// ---- Aggregates -------------------------------------------------------------
+export { onOrderWrite } from "./aggregates/stats";
+
+// ---- Users ------------------------------------------------------------------
+export { assignUserId } from "./users/assignUserId";

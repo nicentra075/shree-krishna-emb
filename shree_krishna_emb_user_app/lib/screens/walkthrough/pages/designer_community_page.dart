@@ -14,15 +14,13 @@ class DesignerCommunityPage extends StatefulWidget {
 class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppTheme.surfaceLight,
-            const Color(0xFFFFF5E9),
-          ],
+          colors: [colorScheme.surface, colorScheme.surfaceContainerLow],
         ),
       ),
       child: Stack(
@@ -45,7 +43,7 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                     Text(
                       'For Designers',
                       style: AppTextStyles.labelLarge(
-                        color: AppTheme.textBrown,
+                        color: colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -56,7 +54,7 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                       child: Text(
                         'SKIP',
                         style: AppTextStyles.labelSmall(
-                          color: AppTheme.primaryDark,
+                          color: colorScheme.primary,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.0,
                         ),
@@ -178,7 +176,7 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                       textAlign: TextAlign.center,
                       text: TextSpan(
                         style: AppTextStyles.headlineLarge(
-                          color: AppTheme.textDark,
+                          color: colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                         children: [
@@ -186,7 +184,7 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                           TextSpan(
                             text: 'Embroidery',
                             style: AppTextStyles.headlineLarge(
-                              color: AppTheme.primaryDark,
+                              color: colorScheme.primary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -204,7 +202,7 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                       'Upload your traditional & contemporary embroidery designs. Reach businesses worldwide and earn from every design sold',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.bodyLarge(
-                        color: AppTheme.textBrown,
+                        color: colorScheme.onSurfaceVariant,
                         height: 1.6,
                       ),
                     ),
@@ -221,7 +219,8 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                           context,
                           icon: Icons.upload_file,
                           title: 'Easy Upload',
-                          description: 'Upload designs in traditional, contemporary & fusion styles',
+                          description:
+                              'Upload designs in traditional, contemporary & fusion styles',
                           index: 0,
                         ),
                         const SizedBox(height: 12),
@@ -229,7 +228,8 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                           context,
                           icon: Icons.payments,
                           title: 'Instant Earnings',
-                          description: 'Get paid for every design sold. No hidden charges',
+                          description:
+                              'Get paid for every design sold. No hidden charges',
                           index: 1,
                         ),
                         const SizedBox(height: 12),
@@ -237,7 +237,8 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                           context,
                           icon: Icons.public,
                           title: 'Global Marketplace',
-                          description: 'Your designs seen by fashion brands & businesses worldwide',
+                          description:
+                              'Your designs seen by fashion brands & businesses worldwide',
                           index: 2,
                         ),
                       ],
@@ -261,6 +262,7 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
     required String description,
     required int index,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return BounceInLeft(
       duration: const Duration(milliseconds: 800),
       delay: Duration(milliseconds: 600 + (index * 100)),
@@ -268,9 +270,9 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.white.withValues(alpha: 0.7),
+          color: colorScheme.surfaceContainerLowest,
           border: Border.all(
-            color: AppTheme.primaryDark.withValues(alpha: 0.15),
+            color: colorScheme.primary.withValues(alpha: 0.15),
             width: 1.5,
           ),
         ),
@@ -281,14 +283,10 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
               height: 48,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.primaryDark.withValues(alpha: 0.1),
+                color: colorScheme.primary.withValues(alpha: 0.1),
               ),
               child: Center(
-                child: Icon(
-                  icon,
-                  color: AppTheme.primaryDark,
-                  size: 24,
-                ),
+                child: Icon(icon, color: colorScheme.primary, size: 24),
               ),
             ),
             const SizedBox(width: 16),
@@ -300,14 +298,14 @@ class _DesignerCommunityPageState extends State<DesignerCommunityPage> {
                     title,
                     style: AppTextStyles.labelLarge(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textDark,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     description,
                     style: AppTextStyles.bodySmall(
-                      color: AppTheme.textBrown,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],

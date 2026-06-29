@@ -51,7 +51,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get splashWelcomeTo => 'Welcome to';
   @override
-  String get splashTagline => 'Discover, Create & Share Beautiful Embroidery Designs';
+  String get splashTagline =>
+      'Discover, Create & Share Beautiful Embroidery Designs';
   @override
   String get splashInitializing => 'Initializing...';
   @override
@@ -73,7 +74,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get discoverFeature1Title => 'Premium Quality';
   @override
-  String get discoverFeature1Desc => 'Hand-crafted embroidery by skilled artisans';
+  String get discoverFeature1Desc =>
+      'Hand-crafted embroidery by skilled artisans';
   @override
   String get discoverFeature2Title => 'Traditional Designs';
   @override
@@ -90,7 +92,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get collaborateFeature1Title => 'Partner With Us';
   @override
-  String get collaborateFeature1Desc => 'Expand your business with our collections';
+  String get collaborateFeature1Desc =>
+      'Expand your business with our collections';
   @override
   String get collaborateFeature2Title => 'Wholesale';
   @override
@@ -345,6 +348,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get myWorkDashboard => 'My Work Dashboard';
   @override
+  String get myOrders => 'My Orders';
+  @override
   String get myPurchases => 'My Purchases';
   @override
   String get all => 'All';
@@ -386,6 +391,12 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get designFormat => 'Format';
   @override
+  String get designFiles => 'Design Files';
+  @override
+  String get download => 'Download';
+  @override
+  String get purchaseToDownload => 'Purchase to download';
+  @override
   String get stitchCount => 'Stitch Count';
   @override
   String get heightLabel => 'Height';
@@ -426,4 +437,80 @@ class EnUSStrings implements LocaleStrings {
   String get whatsappSupport => 'WhatsApp Support';
   @override
   String get termsConditions => 'Terms & Conditions';
+
+  // ========== Cart / Checkout / Purchases (Phase 2) ==========
+  @override
+  String get myCart => 'My Cart';
+  @override
+  String get inCart => 'In Cart';
+  @override
+  String get viewCart => 'View Cart';
+  @override
+  String get goToCart => 'Go to Cart';
+  @override
+  String get cartEmptyMessage => 'Your cart is empty';
+  @override
+  String get browseDesigns => 'Browse Designs';
+  @override
+  String get proceedToCheckout => 'Proceed to Checkout';
+  @override
+  String get checkoutTitle => 'Checkout';
+  @override
+  String get orderSummary => 'Order Summary';
+  @override
+  String get platformFee => 'Platform Fee';
+  @override
+  String get gst => 'GST';
+  @override
+  String get grandTotal => 'Grand Total';
+  @override
+  String get payNow => 'Pay Now';
+  @override
+  String get buyerEmail => 'Email';
+  @override
+  String get buyerEmailHint => 'you@example.com';
+  @override
+  String get paymentSuccessful => 'Payment Successful';
+  @override
+  String get paymentSuccessMessage => 'Your designs are ready to download.';
+  @override
+  String get paymentCancelled => 'Payment cancelled';
+  @override
+  String get paymentFailed => 'Payment failed. Please try again.';
+  @override
+  String get getForFree => 'Get for Free';
+  @override
+  String get owned => 'Owned';
+  @override
+  String get purchaseToDownloadCta => 'Purchase to Download';
+  @override
+  String get noPurchasesYet => 'No purchases yet';
+  @override
+  String get noPurchasesMessage => 'Designs you buy will appear here.';
+  @override
+  String get purchasedOn => 'Purchased on';
+  @override
+  String get suggestedForYou => 'Suggested for you';
+  @override
+  String get suggestedForYouSubtitle => 'Designs you might like';
+  @override
+  String get designDescription => 'Design Description';
+  @override
+  String get designInformation => 'Design Information';
+  @override
+  String get moreInThisCategory => 'More in this Category';
+  @override
+  String get moreInThisCategorySubtitle => 'Handpicked designs you may love';
+  @override
+  String get exploreCategories => 'Explore More Categories';
+  @override
+  String get exploreCategoriesSubtitle => 'Discover more from this collection';
+  @override
+  String get itemRemovedFromCart => 'Removed from cart';
+  @override
+  String get addedToCart => 'Added to cart';
+  @override
+  String get cartLimitReached => 'Cart limit reached';
+  @override
+  String get viewMyPurchases => 'My Purchases';
 }

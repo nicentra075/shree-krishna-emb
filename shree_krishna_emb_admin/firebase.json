@@ -1,1 +1,41 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"shree-krishna-emb","appId":"1:879320012130:android:ea7f7a3abf5e4402d8083b","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"shree-krishna-emb","appId":"1:879320012130:ios:94f3300b15949cfbd8083b","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"shree-krishna-emb","configurations":{"android":"1:879320012130:android:ea7f7a3abf5e4402d8083b","ios":"1:879320012130:ios:94f3300b15949cfbd8083b","web":"1:879320012130:web:faf2d7b99c6f1630d8083b"}}}}}}
+{
+  "hosting": {
+    "public": "build/web",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "shree-krishna-emb",
+          "appId": "1:879320012130:android:ea7f7a3abf5e4402d8083b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "shree-krishna-emb",
+          "appId": "1:879320012130:ios:94f3300b15949cfbd8083b",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "shree-krishna-emb",
+          "configurations": {
+            "android": "1:879320012130:android:ea7f7a3abf5e4402d8083b",
+            "ios": "1:879320012130:ios:94f3300b15949cfbd8083b",
+            "web": "1:879320012130:web:faf2d7b99c6f1630d8083b"
+          }
+        }
+      }
+    }
+  }
+}

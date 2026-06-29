@@ -44,6 +44,12 @@ abstract class LocaleStrings {
   String get totalProducts;
   String get recentOrders;
   String get recentActivity;
+  String get newDesign;
+  String get by;
+  String get justNow;
+  String minutesAgo(int minutes);
+  String hoursAgo(int hours);
+  String daysAgo(int days);
   String get analytics;
   String get statistics;
 
@@ -66,6 +72,12 @@ abstract class LocaleStrings {
   String get mediaLibrary;
   String get uploadImages;
   String get uploading;
+
+  /// Single-file upload progress, e.g. "Uploading 42%".
+  String uploadingPercent(int percent);
+
+  /// Batch upload progress, e.g. "Uploading 2/5 · 42%".
+  String uploadingBatch(int done, int total, int percent);
   String get dragDropHint;
   String get useImage;
   String get chooseFromLibrary;
@@ -74,6 +86,12 @@ abstract class LocaleStrings {
   String get uploadFromDevice;
   String get selectFromDevice;
   String get selected;
+  // Design source files + Design File Library
+  String get designFiles;
+  String get designFileLibrary;
+  String get uploadDesignFiles;
+  String get addDesignFile;
+  String get useFile;
   String get alsoDeleteCategoriesDesigns;
   String get alsoDeleteDesigns;
   String get deleteCollectionOnlyNote;
@@ -302,4 +320,107 @@ abstract class LocaleStrings {
   String get sortPriceLowHigh;
   String get sortPriceHighLow;
   String get statusLabel;
+
+  // ---- Transactions / Orders ----
+  String get orderId;
+  String get buyer;
+  String get items;
+  String get amount;
+  String get allStatuses;
+  String get statusCreated;
+  String get statusPaid;
+  String get statusFailed;
+  String get statusRefundInitiated;
+  String get statusRefunded;
+  String get paymentId;
+  String get invoice;
+  String get timeline;
+  String get orderPlaced;
+  String get paidOn;
+  String get refundedOn;
+  String get subtotal;
+  String get platformFee;
+  String get gst;
+  String get total;
+  String get refund;
+  String get refundOrder;
+  String get refundReason;
+  String get refundReasonHint;
+  String get refundConfirmTitle;
+  String get refundConfirmMessage;
+  String get refundSuccess;
+  String get refundFailed;
+  String get noTransactions;
+  String get filterByStatus;
+  String get clearFilters;
+  String get selectDateRange;
+
+  // ---- Dashboard (live) ----
+  String get totalDesigns;
+  String get activeDesigns;
+  String get pendingDesigns;
+  String get totalDesigners;
+  String get ordersToday;
+  String get revenueToday;
+  String get revenueLast7Days;
+  String get totalRevenueAllTime;
+  String get revenueTrend;
+  String get last7Days;
+  String get retryLabel;
+
+  // ---- Reports ----
+  String get totalSales;
+  String get ordersCount;
+  String get averageOrderValue;
+  String get newUsers;
+  String get topDesigns;
+  String get topCategories;
+  String get exportCsv;
+  String get exportSalesSummary;
+  String get exportLineItems;
+  String get unitsSold;
+  String get revenue;
+  String get exportSuccess;
+  String get exportCopiedToClipboard;
+  String get noReportData;
+
+  // ---- Payouts ----
+  String get designer;
+  String get earningsOwed;
+  String get totalOwed;
+  String get owed;
+  String get grossSales;
+  String get noEarnings;
+  String get payoutsInterimNote;
+
+  // ---- Platform Fees / Payments settings ----
+  String get platformFeePercent;
+  String get gstPercent;
+  String get sellerInfo;
+  String get invoicePrefix;
+  String get sellerName;
+  String get payments;
+  String get paymentMode;
+  String get testMode;
+  String get liveMode;
+  String get liveModeWarning;
+  String get razorpayTestKey;
+  String get razorpayLiveKey;
+  String get razorpayKeyHint;
+  String get razorpayTestKeyHint;
+  String get razorpayLiveKeyHint;
+  String get razorpaySecretNote;
+  String get razorpayTestSecretKey;
+  String get razorpayLiveSecretKey;
+  String get razorpaySecretHint;
+  String get razorpaySecretSavedHint;
+  String get razorpaySecretSaved;
+  String get feeValidationError;
+  // Settings tabs
+  String get settingsTabGeneral;
+  String get settingsTabPayments;
+  String get settingsTabNotifications;
+  String get settingsTabSeed;
+  String get demoData;
+  String get notificationSettingsComingSoon;
 }

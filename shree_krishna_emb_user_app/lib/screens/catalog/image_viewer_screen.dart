@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 
+import 'package:shree_krishna_emb/localisations/app_localization.dart';
+import 'package:shree_krishna_emb/widgets/watermark_overlay.dart';
+
 /// Full-screen, swipeable image gallery with pinch-to-zoom. Opened from a
 /// design's image; starts at [initialIndex] and lets the user swipe through
 /// every image in [images].
@@ -49,11 +52,17 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
             itemBuilder: (context, i) => InteractiveViewer(
               minScale: 1,
               maxScale: 4,
+              // Watermark sits inside the zoom target so it scales with the
+              // image and can't be panned/zoomed out of frame.
               child: Center(
-                child: AppNetworkImage(
-                  imageUrl: widget.images[i],
-                  fit: BoxFit.contain,
-                  width: double.infinity,
+                child: WatermarkOverlay(
+                  text: AppLocalization.strings.appName,
+                  color: Colors.white,
+                  child: AppNetworkImage(
+                    imageUrl: widget.images[i],
+                    fit: BoxFit.contain,
+                    width: double.infinity,
+                  ),
                 ),
               ),
             ),

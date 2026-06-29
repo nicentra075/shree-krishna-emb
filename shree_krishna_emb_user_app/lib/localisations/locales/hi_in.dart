@@ -90,7 +90,8 @@ class HiINStrings implements LocaleStrings {
   @override
   String get collaborateFeature1Title => 'हमारे साथ भागीदारी करें';
   @override
-  String get collaborateFeature1Desc => 'हमारे संग्रह के साथ अपना व्यवसाय बढ़ाएं';
+  String get collaborateFeature1Desc =>
+      'हमारे संग्रह के साथ अपना व्यवसाय बढ़ाएं';
   @override
   String get collaborateFeature2Title => 'थोक';
   @override
@@ -103,7 +104,8 @@ class HiINStrings implements LocaleStrings {
   @override
   String get getStartedTitle => 'शुरुआत करने के लिए तैयार?';
   @override
-  String get getStartedSubtitle => 'कढ़ाई प्रेमियों के हमारे समुदाय में शामिल हों';
+  String get getStartedSubtitle =>
+      'कढ़ाई प्रेमियों के हमारे समुदाय में शामिल हों';
   @override
   String get getStartedSignUp => 'साइन अप करें';
   @override
@@ -345,6 +347,8 @@ class HiINStrings implements LocaleStrings {
   @override
   String get myWorkDashboard => 'मेरा कार्य डैशबोर्ड';
   @override
+  String get myOrders => 'मेरे ऑर्डर';
+  @override
   String get myPurchases => 'मेरी खरीदारी';
   @override
   String get all => 'सभी';
@@ -386,6 +390,12 @@ class HiINStrings implements LocaleStrings {
   @override
   String get designFormat => 'प्रारूप';
   @override
+  String get designFiles => 'डिज़ाइन फ़ाइलें';
+  @override
+  String get download => 'डाउनलोड';
+  @override
+  String get purchaseToDownload => 'डाउनलोड के लिए खरीदें';
+  @override
   String get stitchCount => 'टांके की संख्या';
   @override
   String get heightLabel => 'ऊंचाई';
@@ -426,4 +436,81 @@ class HiINStrings implements LocaleStrings {
   String get whatsappSupport => 'व्हाट्सएप सपोर्ट';
   @override
   String get termsConditions => 'शर्तें और शर्तें';
+
+  // ========== Cart / Checkout / Purchases (Phase 2) ==========
+  @override
+  String get myCart => 'मेरा कार्ट';
+  @override
+  String get inCart => 'कार्ट में';
+  @override
+  String get viewCart => 'कार्ट देखें';
+  @override
+  String get goToCart => 'कार्ट पर जाएं';
+  @override
+  String get cartEmptyMessage => 'आपका कार्ट खाली है';
+  @override
+  String get browseDesigns => 'डिज़ाइन ब्राउज़ करें';
+  @override
+  String get proceedToCheckout => 'चेकआउट करें';
+  @override
+  String get checkoutTitle => 'चेकआउट';
+  @override
+  String get orderSummary => 'ऑर्डर सारांश';
+  @override
+  String get platformFee => 'प्लेटफ़ॉर्म शुल्क';
+  @override
+  String get gst => 'जीएसटी';
+  @override
+  String get grandTotal => 'कुल योग';
+  @override
+  String get payNow => 'अभी भुगतान करें';
+  @override
+  String get buyerEmail => 'ईमेल';
+  @override
+  String get buyerEmailHint => 'you@example.com';
+  @override
+  String get paymentSuccessful => 'भुगतान सफल';
+  @override
+  String get paymentSuccessMessage => 'आपके डिज़ाइन डाउनलोड के लिए तैयार हैं।';
+  @override
+  String get paymentCancelled => 'भुगतान रद्द किया गया';
+  @override
+  String get paymentFailed => 'भुगतान विफल। कृपया पुनः प्रयास करें।';
+  @override
+  String get getForFree => 'मुफ़्त में प्राप्त करें';
+  @override
+  String get owned => 'खरीदा गया';
+  @override
+  String get purchaseToDownloadCta => 'डाउनलोड के लिए खरीदें';
+  @override
+  String get noPurchasesYet => 'अभी तक कोई खरीदारी नहीं';
+  @override
+  String get noPurchasesMessage =>
+      'आपके द्वारा खरीदे गए डिज़ाइन यहां दिखाई देंगे।';
+  @override
+  String get purchasedOn => 'खरीदा गया';
+  @override
+  String get suggestedForYou => 'आपके लिए सुझाव';
+  @override
+  String get suggestedForYouSubtitle => 'डिज़ाइन जो आपको पसंद आ सकते हैं';
+  @override
+  String get designDescription => 'डिज़ाइन विवरण';
+  @override
+  String get designInformation => 'डिज़ाइन जानकारी';
+  @override
+  String get moreInThisCategory => 'इसी श्रेणी में और';
+  @override
+  String get moreInThisCategorySubtitle => 'आपके लिए चुने गए डिज़ाइन';
+  @override
+  String get exploreCategories => 'और श्रेणियाँ देखें';
+  @override
+  String get exploreCategoriesSubtitle => 'इस संग्रह से और खोजें';
+  @override
+  String get itemRemovedFromCart => 'कार्ट से हटाया गया';
+  @override
+  String get addedToCart => 'कार्ट में जोड़ा गया';
+  @override
+  String get cartLimitReached => 'कार्ट सीमा पूरी हुई';
+  @override
+  String get viewMyPurchases => 'मेरी खरीदारी';
 }

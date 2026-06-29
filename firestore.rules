@@ -33,6 +33,18 @@ service cloud.firestore {
       return isAuthed() && request.auth.uid == uid;
     }
 
+    // True only while the platform is in payment TEST mode
+    // (config/platform.paymentTestMode == true). Used to let the client-side
+    // demo/test checkout write its OWN order + purchase docs. In LIVE mode this
+    // returns false, so orders/purchases are written ONLY by Cloud Functions
+    // (createRazorpayOrder / finalizeOrder / initiateRefund via the Admin SDK,
+    // which bypass these rules). Costs one get() per gated write — acceptable.
+    function paymentTestMode() {
+      return !exists(/databases/$(database)/documents/config/platform) ||
+        get(/databases/$(database)/documents/config/platform)
+          .data.get('paymentTestMode', true) == true;
+    }
+
     // ==================== users ====================
     match /users/{uid} {
       // Owner + admin can read any field. Authorised-seller designer profiles
@@ -58,10 +70,14 @@ service cloud.firestore {
               'isAuthorisedSeller']));
       allow delete: if isAdmin();
 
-      // Purchase index — written only by finalizeOrder / initiateRefund fns.
+      // Purchase index = ownership. LIVE mode: written only by finalizeOrder /
+      // initiateRefund fns. TEST mode: the owner may grant their own purchase
+      // after a demo/test checkout (see paymentTestMode()).
       match /purchases/{designId} {
         allow read: if isOwner(uid) || isAdmin();
-        allow write: if false;
+        // PHASE-2 / TEST-MODE DEMO ONLY — auto-denied in Live mode.
+        allow create: if isOwner(uid) && paymentTestMode();
+        allow update, delete: if false;
       }
     }
 
@@ -105,11 +121,19 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // ==================== orders (functions only) ====================
+    // ==================== orders ====================
+    // LIVE mode: written only by Cloud Functions (createRazorpayOrder /
+    // finalizeOrder via the Admin SDK). TEST mode: the signed-in buyer may
+    // write their own demo order from the client-side checkout.
     match /orders/{orderId} {
       allow read: if isAdmin() ||
         (isAuthed() && resource.data.userId == request.auth.uid);
-      allow write: if false;
+      // PHASE-2 / TEST-MODE DEMO ONLY — auto-denied in Live mode.
+      allow create: if isAuthed()
+        && paymentTestMode()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status in ['created', 'paid'];
+      allow update, delete: if false;
     }
 
     // ==================== carts / wishlists (owner only) ====================
@@ -133,6 +157,15 @@ service cloud.firestore {
         request.resource.data.gstPercent <= 100;
     }
 
+    // Encrypted admin-managed secrets (e.g. AES-256-GCM Razorpay key secrets).
+    // NO client access whatsoever — only Cloud Functions (Admin SDK, which
+    // bypasses rules) read/write this. Written by setRazorpaySecret, read by
+    // lib/razorpay.ts at runtime. The "is set" status the UI needs lives as a
+    // non-sensitive boolean flag on config/platform instead.
+    match /config/secrets {
+      allow read, write: if false;
+    }
+
     match /config/homeFeed {
       allow read: if isAuthed();
       // Server-driven home layout: an ordered list of section configs.
@@ -145,6 +178,14 @@ service cloud.firestore {
     // Index docs for reusable images in the admin Media Library. Admin-managed;
     // read allowed for any authed user (URLs are public anyway).
     match /media/{mediaId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
+    }
+
+    // ==================== design file library (admin) ====================
+    // Index docs for reusable downloadable design source files. Admin-managed;
+    // read allowed for any authed user (Storage URLs are public anyway).
+    match /design_files/{fileId} {
       allow read: if isAuthed();
       allow write: if isAdmin();
     }

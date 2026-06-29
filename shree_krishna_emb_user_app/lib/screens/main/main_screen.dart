@@ -6,7 +6,10 @@ import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/screens/home/home_screen.dart';
 import 'package:shree_krishna_emb/screens/profile/profile_screen.dart';
 import 'package:shree_krishna_emb/screens/work/work_screen.dart';
+import 'package:shree_krishna_emb/screens/purchases/my_purchases_screen.dart';
 import 'package:shree_krishna_emb/bloc/work/work_bloc.dart';
+import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
+import 'package:shree_krishna_emb/screens/cart/cart_screen.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 
 class MainScreen extends StatefulWidget {
@@ -66,9 +69,12 @@ class _MainScreenState extends State<MainScreen> {
         screenName = AppLocalization.strings.home;
         break;
       case 1:
-        screenName = AppLocalization.strings.myWork;
+        screenName = AppLocalization.strings.myPurchases;
         break;
       case 2:
+        screenName = AppLocalization.strings.myWork;
+        break;
+      case 3:
         screenName = AppLocalization.strings.profile;
         break;
       default:
@@ -80,6 +86,15 @@ class _MainScreenState extends State<MainScreen> {
       elevation: 0,
       automaticallyImplyLeading: false,
       titleSpacing: 0,
+      leadingWidth: 56,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: FadeInDown(
+          delay: const Duration(milliseconds: 400),
+          duration: const Duration(milliseconds: 500),
+          child: Center(child: _buildNotificationAction(context)),
+        ),
+      ),
       title: Padding(
         padding: const EdgeInsets.only(left: 16),
         child: FadeInDown(
@@ -97,36 +112,9 @@ class _MainScreenState extends State<MainScreen> {
         Padding(
           padding: const EdgeInsets.only(right: 12),
           child: FadeInDown(
-            delay: const Duration(milliseconds: 400),
+            delay: const Duration(milliseconds: 350),
             duration: const Duration(milliseconds: 500),
-            child: Center(
-              child: GestureDetector(
-                onTap: () {
-                  // TODO: Navigate to notifications
-                },
-                child: Stack(
-                  children: [
-                    Icon(
-                      Icons.notifications_outlined,
-                      color: AppTheme.primaryLight,
-                      size: 24,
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            child: Center(child: _buildCartAction(context)),
           ),
         ),
         Padding(
@@ -139,7 +127,7 @@ class _MainScreenState extends State<MainScreen> {
                 onTap: () {
                   // Navigate to Account screen
                   setState(() {
-                    _selectedBottomNav = 2;
+                    _selectedBottomNav = 3;
                   });
                 },
                 child: Container(
@@ -163,16 +151,103 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  /// Notification bell with an unread indicator dot.
+  Widget _buildNotificationAction(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // TODO: Navigate to notifications
+      },
+      child: Stack(
+        children: [
+          Icon(
+            Icons.notifications_outlined,
+            color: AppTheme.primaryLight,
+            size: 24,
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Cart icon with an item-count badge, wired to the app-wide [CartCubit].
+  Widget _buildCartAction(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CartScreen())),
+      child: BlocBuilder<CartCubit, CartState>(
+        buildWhen: (prev, curr) => prev.itemCount != curr.itemCount,
+        builder: (context, state) {
+          final count = state.itemCount;
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(
+                Icons.shopping_cart_outlined,
+                color: AppTheme.primaryLight,
+                size: 24,
+              ),
+              if (count > 0)
+                Positioned(
+                  right: -6,
+                  top: -6,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        count > 99 ? '99+' : '$count',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.labelSmall(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ).copyWith(fontSize: 9),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildCurrentScreen(BuildContext context) {
     switch (_selectedBottomNav) {
       case 0:
         return const HomeScreenContent();
       case 1:
+        return MyPurchasesContent(
+          onBrowse: () => setState(() => _selectedBottomNav = 0),
+        );
+      case 2:
         return BlocProvider(
           create: (context) => WorkBloc(),
           child: const WorkScreen(),
         );
-      case 2:
+      case 3:
         return const ProfileScreen();
       default:
         return const HomeScreenContent();
@@ -184,7 +259,9 @@ class _MainScreenState extends State<MainScreen> {
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -198,22 +275,29 @@ class _MainScreenState extends State<MainScreen> {
         type: BottomNavigationBarType.fixed,
         backgroundColor: Theme.of(context).colorScheme.surface,
         selectedItemColor: AppTheme.primaryLight,
-        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-        items: const [
+        unselectedItemColor: Theme.of(
+          context,
+        ).colorScheme.onSurface.withValues(alpha: 0.5),
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: AppLocalization.strings.home,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.work_outline),
-            activeIcon: Icon(Icons.work),
-            label: 'Work',
+            icon: const Icon(Icons.shopping_bag_outlined),
+            activeIcon: const Icon(Icons.shopping_bag),
+            label: AppLocalization.strings.myPurchases,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Account',
+            icon: const Icon(Icons.work_outline),
+            activeIcon: const Icon(Icons.work),
+            label: AppLocalization.strings.myWork,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: AppLocalization.strings.profile,
           ),
         ],
       ),

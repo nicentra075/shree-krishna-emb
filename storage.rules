@@ -81,6 +81,14 @@ service firebase.storage {
         request.resource.size < 10 * 1024 * 1024 &&
         request.resource.contentType.matches('image/.*');
     }
+    // Design source files (.dst/.emb/.dhe) for the Design File Library —
+    // downloadable by the user app, so public read. NOT image content, so no
+    // image contentType gate. PHASE 1 — TIGHTEN TO isAdmin() IN PHASE 3.
+    match /design_files/{fileName} {
+      allow read: if true;
+      allow write: if isAuthed() &&
+        request.resource.size < 25 * 1024 * 1024;
+    }
 
     // Profile photos — public read, owner write.
     match /users/{uid}/{fileName} {

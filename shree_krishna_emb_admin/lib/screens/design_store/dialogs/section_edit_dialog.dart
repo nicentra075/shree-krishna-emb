@@ -11,6 +11,7 @@ import 'package:shree_krishna_emb_admin/data/models/design_model.dart';
 import 'package:shree_krishna_emb_admin/domain/entities/home_section.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/screens/design_store/widgets/collection_picker.dart';
+import 'package:shree_krishna_emb_admin/screens/design_store/widgets/image_picker_field.dart';
 import 'package:shree_krishna_emb_admin/screens/design_store/widgets/searchable_select.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 
@@ -518,7 +519,7 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
 
   /// Add a new banner (existing == null) or edit the one at [index].
   void _bannerForm({BannerItemConfig? existing, int? index}) {
-    final image = TextEditingController(text: existing?.imageUrl ?? '');
+    var imageUrl = existing?.imageUrl ?? '';
     final label = TextEditingController(text: existing?.label ?? '');
     final title = TextEditingController(text: existing?.title ?? '');
     var ctaValue = existing?.ctaTarget ?? '';
@@ -541,22 +542,36 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
       builder: (_) => StatefulBuilder(
         builder: (dialogCtx, setLocal) => AlertDialog(
           title: Text(isEdit ? 'Edit Banner' : 'Add Banner'),
-          content: SingleChildScrollView(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              AppTextField(label: 'Image URL', hint: 'https://...', controller: image),
-              const SizedBox(height: 8),
-              AppTextField(label: 'Label', hint: 'Limited Edition', controller: label),
-              const SizedBox(height: 8),
-              AppTextField(label: 'Title', hint: 'Exclusive Collections', controller: title),
-              const SizedBox(height: 12),
-              SearchableSelect(
-                label: 'Links to',
-                hint: 'Search a collection or category…',
-                value: ctaValue,
-                options: options,
-                onSelected: (v) => setLocal(() => ctaValue = v ?? ''),
-              ),
-            ]),
+          content: SizedBox(
+            width: 480,
+            child: SingleChildScrollView(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                // Same 3-way image picker (upload / URL / media library) used
+                // for designs — shows a thumbnail instead of a long raw URL.
+                AppImagePickerField(
+                  label: 'Banner Image',
+                  value: imageUrl.isEmpty ? null : imageUrl,
+                  folder: 'banners',
+                  onChanged: (v) => setLocal(() => imageUrl = v ?? ''),
+                ),
+                const SizedBox(height: 12),
+                AppTextField(
+                    label: 'Label', hint: 'Limited Edition', controller: label),
+                const SizedBox(height: 8),
+                AppTextField(
+                    label: 'Title',
+                    hint: 'Exclusive Collections',
+                    controller: title),
+                const SizedBox(height: 12),
+                SearchableSelect(
+                  label: 'Links to',
+                  hint: 'Search a collection or category…',
+                  value: ctaValue,
+                  options: options,
+                  onSelected: (v) => setLocal(() => ctaValue = v ?? ''),
+                ),
+              ]),
+            ),
           ),
           actions: [
             TextButton(
@@ -564,7 +579,7 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
                 child: Text(AppLocalization.strings.cancel)),
             TextButton(
               onPressed: () {
-                final url = image.text.trim();
+                final url = imageUrl.trim();
                 if (url.isEmpty || Uri.tryParse(url)?.hasScheme != true) {
                   Navigator.pop(dialogCtx);
                   return;

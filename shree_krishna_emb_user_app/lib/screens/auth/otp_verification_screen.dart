@@ -73,21 +73,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAF5),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFAFAF5),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1C19)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Verify Phone Number',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.primaryLight,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppAppBar(
+        title: 'Verify Phone Number',
+        onBack: () => Navigator.of(context).pop(),
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -134,30 +123,27 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   Widget _buildHeader() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         Container(
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            color: AppTheme.primaryLight.withValues(alpha: 0.1),
+            color: colorScheme.primary.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            Icons.phone_iphone,
-            color: AppTheme.primaryLight,
-            size: 30,
-          ),
+          child: Icon(Icons.phone_iphone, color: colorScheme.primary, size: 30),
         ),
         const SizedBox(height: 20),
         Text(
           'Enter Verification Code',
-          style: AppTextStyles.headlineLarge(color: AppTheme.textDark),
+          style: AppTextStyles.headlineLarge(color: colorScheme.onSurface),
         ),
         const SizedBox(height: 8),
         Text(
           'We sent a 6-digit code to\n${_phoneNumber ?? 'your phone'}',
-          style: AppTextStyles.bodyMedium(color: AppTheme.textBrown),
+          style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
           textAlign: TextAlign.center,
         ),
       ],
@@ -267,7 +253,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         if (!_canResendOtp)
           Text(
             'Resend code in $_remainingSeconds seconds',
-            style: AppTextStyles.bodySmall(color: AppTheme.textBrown),
+            style: AppTextStyles.bodySmall(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           )
         else
           GestureDetector(
@@ -291,7 +279,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             child: Text(
               'Resend Code',
               style: AppTextStyles.labelMedium(
-                color: AppTheme.primaryDark,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),

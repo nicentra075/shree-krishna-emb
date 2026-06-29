@@ -1,0 +1,91 @@
+# ==========================================================================
+# Shree Krishna EMB — Build & Release Commands
+# ==========================================================================
+# Project (Firebase): shree-krishna-emb
+# Run every command from the path shown above it.
+# ==========================================================================
+
+
+# --------------------------------------------------------------------------
+# 0. PREREQUISITES (do once)
+# --------------------------------------------------------------------------
+# The Firebase CLI must be logged in with a Google account that has access
+# to the "shree-krishna-emb" project, otherwise deploy fails with:
+#   "Failed to get Firebase project shree-krishna-emb ... permission"
+#
+# Account that HAS access (use this one):  nicentra.solutions@gmail.com
+# Account WITHOUT access (will fail):      instancyinc@gmail.com
+#
+# Check which accounts are logged in:
+firebase login:list
+
+# See which projects the active account can access (must list shree-krishna-emb):
+firebase projects:list
+
+# Add the correct Google account (opens a browser to sign in):
+firebase login:add
+
+# Tip: deploy with a specific account without switching the default:
+#   firebase deploy --only hosting --account nicentra.solutions@gmail.com
+
+
+# ==========================================================================
+# ADMIN APP  ->  Web (Firebase Hosting)
+# ==========================================================================
+
+# --- Build only -----------------------------------------------------------
+cd shree_krishna_emb_admin
+flutter pub get
+flutter build web --release
+# Output: shree_krishna_emb_admin/build/web
+
+# --- Deploy only (build must already exist) -------------------------------
+# IMPORTANT: pin the account that has access to shree-krishna-emb, otherwise
+# you get: "Failed to get Firebase project shree-krishna-emb ... permission".
+cd shree_krishna_emb_admin
+firebase deploy --only hosting --account nicentra.solutions@gmail.com
+# Live URL: https://shree-krishna-emb.web.app  (and https://shree-krishna-emb.firebaseapp.com)
+
+# --- Build + Deploy in one go ---------------------------------------------
+cd shree_krishna_emb_admin && flutter pub get && flutter build web --release && firebase deploy --only hosting --account nicentra.solutions@gmail.com
+
+
+# ==========================================================================
+# ADMIN APP  ->  Mobile builds (optional)
+# ==========================================================================
+cd shree_krishna_emb_admin
+flutter build apk --release          # Android APK         -> build/app/outputs/flutter-apk/
+flutter build appbundle --release    # Android App Bundle  -> build/app/outputs/bundle/  (Play Store)
+flutter build ios --release          # iOS (needs macOS + Xcode signing)
+
+
+# ==========================================================================
+# USER APP  ->  Web (Firebase Hosting)  [future setup]
+# ==========================================================================
+# Both apps live in the same Firebase project, so the user app needs its OWN
+# hosting "site" or it will overwrite the admin site on deploy.
+#
+# 1) Create a second hosting site (do once):
+#      firebase hosting:sites:create shree-krishna-emb-user
+#
+# 2) Add a firebase.json + .firebaserc inside shree_krishna_emb_user_app/
+#    (copy the admin app's two files). In that firebase.json hosting block add
+#    the target site, e.g.:
+#      "hosting": { "site": "shree-krishna-emb-user", "public": "build/web", ... }
+#    and add the matching site to the admin firebase.json:
+#      "hosting": { "site": "shree-krishna-emb", "public": "build/web", ... }
+#
+# 3) Build + deploy the user app:
+#      cd shree_krishna_emb_user_app && flutter build web --release && firebase deploy --only hosting
+
+
+# ==========================================================================
+# BACKEND  ->  deploy from PROJECT ROOT (not the app folders)
+# ==========================================================================
+# firestore rules / indexes, storage rules, and cloud functions live in the
+# root firebase.json. Deploy them from the project root:
+cd /Applications/Documents/dev/shree-krishna-emb
+firebase deploy --only firestore:rules
+firebase deploy --only firestore:indexes
+firebase deploy --only storage
+firebase deploy --only functions

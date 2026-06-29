@@ -51,15 +51,18 @@ class DesignItem extends HomeItem {
   final int finalPrice;
   final bool isFree;
   final String? firstImageUrl;
+  final String? description;
   const DesignItem({
     required this.id,
     required this.name,
     required this.finalPrice,
     required this.isFree,
     this.firstImageUrl,
+    this.description,
   });
   @override
-  List<Object?> get props => [id, name, finalPrice, isFree, firstImageUrl];
+  List<Object?> get props =>
+      [id, name, finalPrice, isFree, firstImageUrl, description];
 }
 
 class CollectionItem extends HomeItem {

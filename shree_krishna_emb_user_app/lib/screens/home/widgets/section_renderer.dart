@@ -355,6 +355,16 @@ class _DesignsVertical extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.labelMedium(
                                       fontWeight: FontWeight.w600)),
+                              if (d.description != null &&
+                                  d.description!.trim().isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(d.description!.trim(),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.labelSmall(
+                                        color:
+                                            colorScheme.onSurfaceVariant)),
+                              ],
                               const SizedBox(height: 4),
                               Text(d.isFree ? AppLocalization.strings.free : '₹${d.finalPrice}',
                                   maxLines: 1,
@@ -480,8 +490,8 @@ class _CollectionsGrid extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (c.imageUrl != null)
-                    AppNetworkImage(imageUrl: c.imageUrl, fit: BoxFit.cover),
+                  // Always render — placeholder shows when imageUrl is missing.
+                  AppNetworkImage(imageUrl: c.imageUrl, fit: BoxFit.cover),
                   Container(color: Colors.black.withValues(alpha: 0.25)),
                   Center(
                     child: Padding(

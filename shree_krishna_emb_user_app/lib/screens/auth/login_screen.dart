@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final strings = AppLocalization.strings;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAF5),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -179,12 +179,16 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 16),
           Text(
             'Welcome Back',
-            style: AppTextStyles.headlineLarge(color: AppTheme.textDark),
+            style: AppTextStyles.headlineLarge(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             'Sign in to your ${AppLocalization.strings.appName} account',
-            style: AppTextStyles.bodyLarge(color: AppTheme.textBrown),
+            style: AppTextStyles.bodyLarge(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -199,11 +203,11 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1A1C19).withValues(alpha: 0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 32,
               offset: const Offset(0, 12),
             ),
@@ -233,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Forgot Password?',
                       style: AppTextStyles.labelMedium(
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryDark,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -257,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
       textInputAction: .next,
       prefixIcon: Icon(
         Icons.mail_outline,
-        color: AppTheme.primaryDark.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         size: 20,
       ),
     );
@@ -271,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: _obscurePassword,
       prefixIcon: Icon(
         Icons.lock_outline,
-        color: AppTheme.primaryDark.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         size: 20,
       ),
       textInputAction: .done,
@@ -283,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         child: Icon(
           _obscurePassword ? Icons.visibility_off : Icons.visibility,
-          color: AppTheme.primaryDark.withValues(alpha: 0.5),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           size: 20,
         ),
       ),
@@ -296,14 +300,16 @@ class _LoginScreenState extends State<LoginScreen> {
         Checkbox(
           value: _rememberMe,
           onChanged: (val) => setState(() => _rememberMe = val ?? false),
-          activeColor: AppTheme.primaryDark,
+          activeColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
         GestureDetector(
           onTap: () => setState(() => _rememberMe = !_rememberMe),
           child: Text(
             AppLocalization.strings.rememberMe,
-            style: AppTextStyles.bodySmall(color: AppTheme.textBrown),
+            style: AppTextStyles.bodySmall(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],
@@ -359,19 +365,25 @@ class _LoginScreenState extends State<LoginScreen> {
           Row(
             children: [
               Expanded(
-                child: Divider(color: const Color(0xFFE8E8E3), thickness: 1),
+                child: Divider(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  thickness: 1,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   'Or continue with',
                   style: AppTextStyles.bodySmall(
-                    color: AppTheme.textBrown.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
               Expanded(
-                child: Divider(color: const Color(0xFFE8E8E3), thickness: 1),
+                child: Divider(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  thickness: 1,
+                ),
               ),
             ],
           ),
@@ -380,6 +392,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Expanded(
                 child: _buildSocialButton(
+                  context: context,
                   icon: Icons.email_outlined,
                   label: 'Google',
                   onTap: () => _handleGoogleSignIn(context),
@@ -388,6 +401,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildSocialButton(
+                  context: context,
                   icon: Icons.phone_outlined,
                   label: 'Phone',
                   onTap: () => _showPhoneInputDialog(context),
@@ -401,29 +415,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildSocialButton({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFE8E8E3), width: 1.5),
+          border: Border.all(color: colorScheme.outlineVariant, width: 1.5),
           borderRadius: BorderRadius.circular(14),
-          color: Colors.white,
+          color: colorScheme.surfaceContainerLowest,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 18, color: AppTheme.primaryDark),
+            Icon(icon, size: 18, color: colorScheme.primary),
             const SizedBox(width: 8),
             Text(
               label,
               style: AppTextStyles.labelMedium(
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textBrown,
+                color: colorScheme.onSurface,
               ),
             ),
           ],
@@ -440,13 +456,15 @@ class _LoginScreenState extends State<LoginScreen> {
         child: RichText(
           text: TextSpan(
             text: "Don't have an account? ",
-            style: AppTextStyles.bodyMedium(color: const Color(0xFF554336)),
+            style: AppTextStyles.bodyMedium(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             children: [
               TextSpan(
                 text: 'Sign Up',
                 style: AppTextStyles.bodyMedium(
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryDark,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {

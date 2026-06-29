@@ -1,15 +1,26 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shree_krishna_emb_admin/bloc/design_store/categories_cubit.dart';
+import 'package:shree_krishna_emb_admin/bloc/design_store/collections_cubit.dart';
+import 'package:shree_krishna_emb_admin/bloc/design_store/designs_cubit.dart';
+import 'package:intl/intl.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
+import 'package:shree_krishna_emb_admin/bloc/dashboard/dashboard_stats_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
+import 'package:shree_krishna_emb_admin/data/datasources/firebase_dashboard_stats_datasource.dart'
+    show DashboardStats;
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
 import 'package:shree_krishna_emb_admin/screens/design_store/design_store_content_view.dart';
+import 'package:shree_krishna_emb_admin/screens/payouts/payouts_content_view.dart';
+import 'package:shree_krishna_emb_admin/screens/reports/reports_content_view.dart';
 import 'package:shree_krishna_emb_admin/screens/settings/settings_content_view.dart';
+import 'package:shree_krishna_emb_admin/screens/transactions/transactions_content_view.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/desktop_user_list_view.dart';
 import 'package:shree_krishna_emb_admin/screens/user_management/mobile_user_list_view.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
@@ -50,46 +61,46 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         // Leave the dashboard only after the session is actually cleared,
         // so a refresh after sign-out can never restore it
         return BlocListener<AdminAuthBloc, AdminAuthState>(
-      listener: (context, state) {
-        if (state is AdminAuthUnauthenticated) {
-          Navigator.of(
-            context,
-          ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
-        } else if (state is AdminAuthError) {
-          AppSnackbar.showError(state.message);
-        }
-      },
-      child: isMobile
-          // Mobile layout with drawer
-          ? Scaffold(
-              key: _scaffoldKey,
-              appBar: PreferredSize(
-                preferredSize: const Size.fromHeight(70),
-                child: _buildAppBar(isMobile),
-              ),
-              drawer: _buildSidebar(),
-              body: _buildContent(),
-            )
-          // Desktop layout with fixed sidebar
-          : Scaffold(
-              body: Row(
-                children: [
-                  // Sidebar (fixed left)
-                  _buildSidebar(),
-                  // Main content area (right side)
-                  Expanded(
-                    child: Column(
-                      children: [
-                        // App bar
-                        _buildAppBar(isMobile),
-                        // Main content
-                        Expanded(child: _buildContent()),
-                      ],
-                    ),
+          listener: (context, state) {
+            if (state is AdminAuthUnauthenticated) {
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+            } else if (state is AdminAuthError) {
+              AppSnackbar.showError(state.message);
+            }
+          },
+          child: isMobile
+              // Mobile layout with drawer
+              ? Scaffold(
+                  key: _scaffoldKey,
+                  appBar: PreferredSize(
+                    preferredSize: const Size.fromHeight(70),
+                    child: _buildAppBar(isMobile),
                   ),
-                ],
-              ),
-            ),
+                  drawer: _buildSidebar(),
+                  body: _buildContent(),
+                )
+              // Desktop layout with fixed sidebar
+              : Scaffold(
+                  body: Row(
+                    children: [
+                      // Sidebar (fixed left)
+                      _buildSidebar(),
+                      // Main content area (right side)
+                      Expanded(
+                        child: Column(
+                          children: [
+                            // App bar
+                            _buildAppBar(isMobile),
+                            // Main content
+                            Expanded(child: _buildContent()),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         );
       },
     );
@@ -104,6 +115,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return const SettingsContentView();
       case 'store':
         return const DesignStoreContentView();
+      case 'transactions':
+        return const TransactionsContentView();
+      case 'reports':
+        return const ReportsContentView();
+      case 'payouts':
+        return const PayoutsContentView();
       default:
         return _buildDashboardContent();
     }
@@ -113,53 +130,60 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildDashboardContent() {
     final isMobile = MediaQuery.of(context).size.width < 768;
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(isMobile ? 16 : 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          SizedBox(height: isMobile ? 24 : 32),
-          _buildKPISection(isMobile),
-          SizedBox(height: isMobile ? 24 : 32),
-          if (!isMobile)
-            Row(
+    return BlocProvider<DashboardStatsCubit>(
+      create: (_) => GetIt.instance<DashboardStatsCubit>()..load(),
+      child: BlocBuilder<DashboardStatsCubit, DashboardStatsState>(
+        builder: (context, statsState) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(isMobile ? 16 : 24),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 65,
-                  child: Column(
+                _buildHeader(),
+                SizedBox(height: isMobile ? 24 : 32),
+                _buildKPISection(isMobile, statsState),
+                SizedBox(height: isMobile ? 24 : 32),
+                if (!isMobile)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildRevenueSection(isMobile),
+                      Expanded(
+                        flex: 65,
+                        child: Column(
+                          children: [
+                            _buildRevenueSection(isMobile, statsState),
+                            const SizedBox(height: 24),
+                            _buildRecentActivitySection(),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        flex: 35,
+                        child: Column(
+                          children: [
+                            _buildApprovalCard(),
+                            const SizedBox(height: 24),
+                            _buildSystemHealthCard(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Column(
+                    children: [
+                      _buildRevenueSection(isMobile, statsState),
+                      const SizedBox(height: 24),
+                      _buildApprovalCard(),
                       const SizedBox(height: 24),
                       _buildRecentActivitySection(),
                     ],
                   ),
-                ),
-                const SizedBox(width: 24),
-                Expanded(
-                  flex: 35,
-                  child: Column(
-                    children: [
-                      _buildApprovalCard(),
-                      const SizedBox(height: 24),
-                      _buildSystemHealthCard(),
-                    ],
-                  ),
-                ),
-              ],
-            )
-          else
-            Column(
-              children: [
-                _buildRevenueSection(isMobile),
-                const SizedBox(height: 24),
-                _buildApprovalCard(),
-                const SizedBox(height: 24),
-                _buildRecentActivitySection(),
               ],
             ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -218,6 +242,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 ),
                 child: TextField(
+                  // Acts as a launcher: tapping opens the global search dialog
+                  // (designs / categories / collections by name).
+                  readOnly: true,
+                  onTap: () => _openGlobalSearch(context),
                   decoration: InputDecoration(
                     hintText: AppLocalization.strings.searchPlaceholder,
                     hintStyle: AppTextStyles.bodyMedium(
@@ -234,7 +262,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       vertical: 12,
                     ),
                   ),
-                  style: AppTextStyles.bodyMedium(color: Theme.of(context).colorScheme.onSurface),
+                  style: AppTextStyles.bodyMedium(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ),
@@ -242,8 +272,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             // Dark / light mode toggle
             BlocBuilder<ThemeCubit, ThemeMode>(
               builder: (context, themeMode) {
-                final isDark =
-                    Theme.of(context).brightness == Brightness.dark;
+                final isDark = Theme.of(context).brightness == Brightness.dark;
                 return IconButton(
                   tooltip: isDark
                       ? AppLocalization.strings.lightMode
@@ -256,8 +285,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                   color: Colors.grey.withValues(alpha: 0.6),
                   onPressed: () => context.read<ThemeCubit>().setMode(
-                        isDark ? ThemeMode.light : ThemeMode.dark,
-                      ),
+                    isDark ? ThemeMode.light : ThemeMode.dark,
+                  ),
                 );
               },
             ),
@@ -279,12 +308,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 final displayName = isAuthed && authState.name.isNotEmpty
                     ? authState.name
                     : (email.contains('@')
-                        ? email.split('@').first
-                        : 'Admin User');
+                          ? email.split('@').first
+                          : 'Admin User');
                 final role = isAuthed ? authState.role : '';
                 return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   child: Row(
                     // App bar is laid out with unbounded width, so the Row must
                     // shrink-wrap its children (no flex/Expanded here).
@@ -434,12 +465,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         setState(() => _selectedSection = 'transactions'),
                   ),
                   _buildSidebarItem(
-                    icon: Icons.trending_up,
-                    label: AppLocalization.strings.platformFees,
-                    isActive: _selectedSection == 'fees',
-                    onTap: () => setState(() => _selectedSection = 'fees'),
-                  ),
-                  _buildSidebarItem(
                     icon: Icons.account_balance_wallet,
                     label: AppLocalization.strings.payouts,
                     isActive: _selectedSection == 'payouts',
@@ -471,13 +496,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildSidebarItem(
-                  icon: Icons.support_agent_outlined,
-                  label: AppLocalization.strings.support,
-                  isActive: false,
-                  onTap: () {},
-                ),
-                const SizedBox(height: 12),
-                _buildSidebarItem(
                   icon: Icons.logout,
                   label: AppLocalization.strings.logout,
                   isActive: false,
@@ -500,15 +518,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       context: context,
       builder: (dialogCtx) => AlertDialog(
         backgroundColor: colorScheme.surface,
-        title: Text(strings.logoutConfirmTitle,
-            style: AppTextStyles.headlineMedium(
-                color: colorScheme.onSurface, fontWeight: FontWeight.w700),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis),
-        content: Text(strings.logoutConfirmMessage,
-            style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis),
+        title: Text(
+          strings.logoutConfirmTitle,
+          style: AppTextStyles.headlineMedium(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w700,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        content: Text(
+          strings.logoutConfirmMessage,
+          style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
@@ -519,9 +543,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               Navigator.pop(dialogCtx);
               context.read<AdminAuthBloc>().add(const AdminSignOutEvent());
             },
-            child: Text(strings.logout,
-                style: const TextStyle(
-                    color: Color(0xFFFF6B6B), fontWeight: FontWeight.w700)),
+            child: Text(
+              strings.logout,
+              style: const TextStyle(
+                color: Color(0xFFFF6B6B),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
@@ -616,45 +644,111 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  // KPI Cards Section
-  Widget _buildKPISection(bool isMobile) {
+  // KPI Cards Section — live values from DashboardStatsCubit.
+  Widget _buildKPISection(bool isMobile, DashboardStatsState statsState) {
+    final strings = AppLocalization.strings;
+    final stats = statsState.stats;
+    final isLoading =
+        statsState.status == DashboardStatsStatus.loading ||
+        statsState.status == DashboardStatsStatus.initial;
+    final isError = statsState.status == DashboardStatsStatus.error;
+
+    String v(int? value) => isLoading || stats == null
+        ? '—'
+        : NumberFormat.decimalPattern().format(value);
+    String money(int? value) => isLoading || stats == null
+        ? '—'
+        : '₹${NumberFormat.decimalPattern().format(value)}';
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth = isMobile
             ? constraints.maxWidth
-            : (constraints.maxWidth - 16) / 3;
+            : (constraints.maxWidth - 32) / 3;
 
-        return Wrap(
-          spacing: 16,
-          runSpacing: 16,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildKPICard(
-              width: cardWidth,
-              icon: Icons.people_outline,
-              label: AppLocalization.strings.totalOrders,
-              value: '2,450',
-              trend: '+12% vs last month',
-              trendPositive: true,
-            ),
-            _buildKPICard(
-              width: cardWidth,
-              icon: Icons.trending_up,
-              label: AppLocalization.strings.totalRevenue,
-              value: '\$45,320',
-              trend: '+8% growth',
-              trendPositive: true,
-            ),
-            _buildKPICard(
-              width: cardWidth,
-              icon: Icons.check_circle_outline,
-              label: AppLocalization.strings.approvedDesigns,
-              value: '856',
-              trend: '+24 this week',
-              trendPositive: true,
+            if (isError) ...[
+              _buildStatsErrorBanner(context),
+              const SizedBox(height: 16),
+            ],
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _buildKPICard(
+                  width: cardWidth,
+                  icon: Icons.receipt_long_outlined,
+                  label: strings.totalOrders,
+                  value: v(stats?.totalOrders),
+                  trend: '${strings.ordersToday}: ${v(stats?.ordersToday)}',
+                  trendPositive: true,
+                  isLoading: isLoading,
+                ),
+                _buildKPICard(
+                  width: cardWidth,
+                  icon: Icons.trending_up,
+                  label: strings.totalRevenue,
+                  value: money(stats?.revenueTotal),
+                  trend:
+                      '${strings.revenueToday}: ${money(stats?.revenueToday)}',
+                  trendPositive: true,
+                  isLoading: isLoading,
+                ),
+                _buildKPICard(
+                  width: cardWidth,
+                  icon: Icons.check_circle_outline,
+                  label: strings.activeDesigns,
+                  value: v(stats?.activeDesigns),
+                  trend:
+                      '${strings.pendingDesigns}: ${v(stats?.pendingDesigns)}',
+                  trendPositive: true,
+                  isLoading: isLoading,
+                ),
+              ],
             ),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildStatsErrorBanner(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final strings = AppLocalization.strings;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFF6B6B).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0xFFFF6B6B).withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: Color(0xFFFF6B6B), size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              strings.error,
+              style: AppTextStyles.bodySmall(color: colorScheme.onSurface),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          TextButton(
+            onPressed: () => context.read<DashboardStatsCubit>().load(),
+            child: Text(
+              strings.retry,
+              style: AppTextStyles.labelMedium(color: colorScheme.primary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -666,6 +760,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required String value,
     required String trend,
     required bool trendPositive,
+    bool isLoading = false,
   }) {
     return Container(
       width: width,
@@ -692,10 +787,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
+            child: Icon(
+              icon,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -707,15 +808,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: AppTextStyles.headlineMedium(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.w900,
+          if (isLoading)
+            AppShimmer(
+              child: Container(
+                width: 90,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            )
+          else
+            Text(
+              value,
+              style: AppTextStyles.headlineMedium(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.w900,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
           const SizedBox(height: 12),
           Text(
             trend,
@@ -732,12 +845,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  // Revenue Section with Chart
-  Widget _buildRevenueSection(bool isMobile) {
+  // Revenue Section with a live fl_chart line chart (revenue per day).
+  Widget _buildRevenueSection(bool isMobile, DashboardStatsState statsState) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final strings = AppLocalization.strings;
+    final stats = statsState.stats;
+    final isLoading =
+        statsState.status == DashboardStatsStatus.loading ||
+        statsState.status == DashboardStatsStatus.initial;
+    final money = NumberFormat.decimalPattern();
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -753,28 +874,42 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Revenue Snapshot',
-                    style: AppTextStyles.labelMedium(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.revenueTrend,
+                      style: AppTextStyles.labelMedium(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '\$142,509.30',
-                    style: AppTextStyles.headlineMedium(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.w900,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    if (isLoading || stats == null)
+                      AppShimmer(
+                        child: Container(
+                          width: 140,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      )
+                    else
+                      Text(
+                        '₹${money.format(stats.revenue7d)}',
+                        style: AppTextStyles.headlineMedium(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -782,14 +917,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                  color: colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  '↑ 14.2% weekly',
-                  style: AppTextStyles.labelSmall(
-                    color: const Color(0xFF4CAF50),
-                  ),
+                  strings.last7Days,
+                  style: AppTextStyles.labelSmall(color: colorScheme.primary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -797,99 +930,124 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
           ),
           SizedBox(height: isMobile ? 20 : 24),
-
-          // Simple revenue chart
-          SizedBox(height: 120, child: _buildRevenueChart()),
-          SizedBox(height: isMobile ? 16 : 20),
-
-          // Revenue metrics row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildMetricBadge(label: 'Platform Fees', value: '8.5%'),
-              _buildMetricBadge(
-                label: 'Weekly Growth',
-                value: '14.2%',
-                isPositive: true,
-              ),
-              _buildMetricBadge(label: 'Monthly Target', value: '₹5.2L'),
-            ],
+          SizedBox(
+            height: 160,
+            child: isLoading || stats == null
+                ? AppShimmer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  )
+                : _buildRevenueChart(stats),
           ),
         ],
       ),
     );
   }
 
-  // Simple revenue chart visualization
-  Widget _buildRevenueChart() {
-    final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    final values = [0.4, 0.5, 0.6, 0.8, 1.0, 0.7, 0.9];
-    final maxValue = 1.0;
+  // Live revenue line chart built from the daily series.
+  Widget _buildRevenueChart(DashboardStats stats) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final points = stats.dailyRevenue;
+    if (points.isEmpty) {
+      return Center(
+        child: Text(
+          AppLocalization.strings.noReportData,
+          style: AppTextStyles.bodySmall(color: colorScheme.onSurfaceVariant),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      );
+    }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: List.generate(days.length, (index) {
-        final height = values[index] * 100;
-        final isHighest = values[index] == maxValue;
+    final spots = <FlSpot>[
+      for (var i = 0; i < points.length; i++)
+        FlSpot(i.toDouble(), points[i].revenue.toDouble()),
+    ];
+    final maxRevenue = points
+        .map((p) => p.revenue)
+        .fold<int>(0, (max, v) => v > max ? v : max);
+    final maxY = maxRevenue == 0 ? 10.0 : maxRevenue * 1.2;
+    final dayFmt = DateFormat('E');
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Container(
-                width: 12,
-                decoration: BoxDecoration(
-                  color: isHighest
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(4),
+    return LineChart(
+      LineChartData(
+        minY: 0,
+        maxY: maxY,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (_) => FlLine(
+            color: colorScheme.outline.withValues(alpha: 0.15),
+            strokeWidth: 1,
+          ),
+        ),
+        titlesData: FlTitlesData(
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 22,
+              interval: 1,
+              getTitlesWidget: (value, meta) {
+                final i = value.toInt();
+                if (i < 0 || i >= points.length) return const SizedBox();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    dayFmt.format(points[i].day),
+                    style: AppTextStyles.labelSmall(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                margin: EdgeInsets.only(top: 100 - height),
-              ),
+                );
+              },
             ),
-            const SizedBox(height: 8),
-            Text(
-              days[index],
-              style: AppTextStyles.labelSmall(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (_) => colorScheme.inverseSurface,
+            getTooltipItems: (touchedSpots) => touchedSpots
+                .map(
+                  (s) => LineTooltipItem(
+                    '₹${s.y.toInt()}',
+                    AppTextStyles.labelSmall(
+                      color: colorScheme.onInverseSurface,
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            color: colorScheme.primary,
+            barWidth: 3,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: colorScheme.primary.withValues(alpha: 0.12),
             ),
-          ],
-        );
-      }),
-    );
-  }
-
-  // Metric badge for revenue section
-  Widget _buildMetricBadge({
-    required String label,
-    required String value,
-    bool isPositive = false,
-  }) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.labelSmall(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTextStyles.labelMedium(
-            color: isPositive ? const Color(0xFF4CAF50) : Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w700,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1013,7 +1171,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               const SizedBox(width: 8),
               Text(
                 'Operational',
-                style: AppTextStyles.bodyMedium(color: Theme.of(context).colorScheme.onSurface),
+                style: AppTextStyles.bodyMedium(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1073,7 +1233,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () => setState(() => _selectedSection = 'store'),
               child: Text(
                 'View All Feed →',
                 style: AppTextStyles.labelMedium(
@@ -1086,31 +1246,66 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        _buildActivityItem(
-          type: 'NEW DESIGN',
-          title: 'Golden Mandala Tapestry',
-          description: 'by Ananya Sharma',
-          timestamp: '2 minutes ago',
-          icon: Icons.assignment_outlined,
-        ),
-        const SizedBox(height: 12),
-        _buildActivityItem(
-          type: 'VERIFIED',
-          title: 'Rajesh Kumar verified as "Master"',
-          description: 'Identity and Portfolio audit successful',
-          timestamp: '1 hour ago',
-          icon: Icons.verified_user_outlined,
-        ),
-        const SizedBox(height: 12),
-        _buildActivityItem(
-          type: 'NEW SALE',
-          title: 'Botanical Flora Pattern Set',
-          description: 'Sold for \$24.00 to buyer ID #3201',
-          timestamp: '3 hours ago',
-          icon: Icons.shopping_bag_outlined,
+        // Newest designs added to the system, shown as the activity feed.
+        BlocProvider<DesignsCubit>(
+          create: (_) => GetIt.instance<DesignsCubit>()..load(),
+          child: BlocBuilder<DesignsCubit, DesignsState>(
+            builder: (context, state) {
+              final colorScheme = Theme.of(context).colorScheme;
+              if (state.status == CatalogStatus.loading ||
+                  state.status == CatalogStatus.initial) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(child: AppLoader()),
+                );
+              }
+              final recent = state.designs.take(5).toList();
+              if (recent.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text(
+                      AppLocalization.strings.noData,
+                      style: AppTextStyles.bodyMedium(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                );
+              }
+              return Column(
+                children: [
+                  for (var i = 0; i < recent.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 12),
+                    _buildActivityItem(
+                      type: AppLocalization.strings.newDesign,
+                      title: recent[i].name,
+                      description: (recent[i].authorName ?? '').isNotEmpty
+                          ? '${AppLocalization.strings.by} ${recent[i].authorName}'
+                          : '',
+                      timestamp: _relativeTime(recent[i].createdAt),
+                      icon: Icons.assignment_outlined,
+                    ),
+                  ],
+                ],
+              );
+            },
+          ),
         ),
       ],
     );
+  }
+
+  /// A compact "x minutes/hours/days ago" label for the activity feed.
+  String _relativeTime(DateTime dt) {
+    final strings = AppLocalization.strings;
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return strings.justNow;
+    if (diff.inMinutes < 60) return strings.minutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return strings.hoursAgo(diff.inHours);
+    return strings.daysAgo(diff.inDays);
   }
 
   // Activity Item Widget
@@ -1137,10 +1332,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
+            child: Icon(
+              icon,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1193,6 +1394,202 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Opens the global search dialog. When the admin taps a result the dialog
+  /// returns the section to navigate to (currently the Design Store).
+  Future<void> _openGlobalSearch(BuildContext context) async {
+    final target = await showDialog<String>(
+      context: context,
+      builder: (_) => const _GlobalSearchDialog(),
+    );
+    if (target != null && mounted) {
+      setState(() => _selectedSection = target);
+    }
+  }
+}
+
+/// Command-palette style global search over designs, categories and collections
+/// by name. Returns the section to navigate to (e.g. 'store') when a result is
+/// tapped, or null if dismissed.
+class _GlobalSearchDialog extends StatefulWidget {
+  const _GlobalSearchDialog();
+
+  @override
+  State<_GlobalSearchDialog> createState() => _GlobalSearchDialogState();
+}
+
+class _GlobalSearchDialogState extends State<_GlobalSearchDialog> {
+  final _controller = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalization.strings;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => GetIt.instance<DesignsCubit>()..load()),
+        BlocProvider(create: (_) => GetIt.instance<CategoriesCubit>()..load()),
+        BlocProvider(create: (_) => GetIt.instance<CollectionsCubit>()..load()),
+      ],
+      child: Dialog(
+        backgroundColor: colorScheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 560),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: AppTextField(
+                  controller: _controller,
+                  hint: strings.searchPlaceholder,
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  onChanged: (v) => setState(() => _query = v.trim()),
+                ),
+              ),
+              const Divider(height: 1),
+              // Builder gives a context BELOW the providers so the watch()
+              // calls inside _results can find the cubits.
+              Flexible(
+                child: Builder(
+                  builder: (ctx) => _results(ctx, colorScheme, strings),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _results(BuildContext context, ColorScheme colorScheme, dynamic strings) {
+    final q = _query.toLowerCase();
+    if (q.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Center(
+          child: Text(
+            strings.searchPlaceholder,
+            style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      );
+    }
+
+    final designs = context
+        .watch<DesignsCubit>()
+        .state
+        .designs
+        .where((d) => d.name.toLowerCase().contains(q))
+        .take(6)
+        .toList();
+    final categories = context
+        .watch<CategoriesCubit>()
+        .state
+        .categories
+        .where((c) => c.name.toLowerCase().contains(q))
+        .take(6)
+        .toList();
+    final collections = context
+        .watch<CollectionsCubit>()
+        .state
+        .collections
+        .where((c) => c.name.toLowerCase().contains(q))
+        .take(6)
+        .toList();
+
+    if (designs.isEmpty && categories.isEmpty && collections.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Center(
+          child: Text(
+            strings.noData,
+            style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      );
+    }
+
+    return ListView(
+      shrinkWrap: true,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      children: [
+        if (designs.isNotEmpty) ...[
+          _sectionHeader(strings.designs, colorScheme),
+          for (final d in designs)
+            _resultTile(
+              icon: Icons.image_outlined,
+              title: d.name,
+              colorScheme: colorScheme,
+            ),
+        ],
+        if (collections.isNotEmpty) ...[
+          _sectionHeader(strings.collections, colorScheme),
+          for (final c in collections)
+            _resultTile(
+              icon: Icons.collections_bookmark_outlined,
+              title: c.name,
+              colorScheme: colorScheme,
+            ),
+        ],
+        if (categories.isNotEmpty) ...[
+          _sectionHeader(strings.categories, colorScheme),
+          for (final c in categories)
+            _resultTile(
+              icon: Icons.category_outlined,
+              title: c.name,
+              colorScheme: colorScheme,
+            ),
+        ],
+      ],
+    );
+  }
+
+  Widget _sectionHeader(String label, ColorScheme colorScheme) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+    child: Text(
+      label,
+      style: AppTextStyles.labelSmall(
+        color: colorScheme.onSurfaceVariant,
+        fontWeight: FontWeight.w700,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    ),
+  );
+
+  Widget _resultTile({
+    required IconData icon,
+    required String title,
+    required ColorScheme colorScheme,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: colorScheme.primary, size: 20),
+      title: Text(
+        title,
+        style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      // All catalog entities live under the Design Store section.
+      onTap: () => Navigator.pop(context, 'store'),
     );
   }
 }

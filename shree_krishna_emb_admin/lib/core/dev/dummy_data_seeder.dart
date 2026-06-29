@@ -219,6 +219,7 @@ class DummyDataSeeder {
           final price = isFree ? 0 : 499 * i;
           final discount = isFree ? 0 : (i == 3 ? 100 : 0);
           final finalPrice = isFree ? 0 : price - discount;
+          final format = i.isEven ? 'DST' : 'PES';
           batch.set(firestore.collection('designs').doc(designId), {
             'id': designId,
             'name': '${info.name.split(' ').first} $catName Design $i',
@@ -234,7 +235,19 @@ class DummyDataSeeder {
             'isFree': isFree,
             'finalPrice': finalPrice,
             'colorOrNeedleCount': '${5 + i} needle',
-            'designFormat': i.isEven ? 'DST' : 'PES',
+            'designFormat': format,
+            'designFormats': [format],
+            // Downloadable source file, revealed in the user app once the design
+            // is owned. Dummy URL is a reachable placeholder for testing.
+            'designFiles': [
+              {
+                'format': format,
+                'name': '$designId.${format.toLowerCase()}',
+                'url': _img('$designId-file'),
+                'path': 'design_files/$designId.${format.toLowerCase()}',
+                'sizeBytes': 350000 + i * 1000,
+              },
+            ],
             'stitchCount': 5000 + i * 2500,
             'height': 100 + i * 10,
             'width': 80 + i * 10,

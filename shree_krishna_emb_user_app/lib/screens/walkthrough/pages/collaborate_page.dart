@@ -14,18 +14,15 @@ class CollaboratePage extends StatefulWidget {
 }
 
 class _CollaboratePageState extends State<CollaboratePage> {
-
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppTheme.surfaceLight,
-            const Color(0xFFFFF5E9),
-          ],
+          colors: [colorScheme.surface, colorScheme.surfaceContainerLow],
         ),
       ),
       child: Stack(
@@ -45,7 +42,7 @@ class _CollaboratePageState extends State<CollaboratePage> {
                 child: Text(
                   'Skip',
                   style: AppTextStyles.bodyMedium(
-                    color: AppTheme.textBrown,
+                    color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -183,14 +180,14 @@ class _CollaboratePageState extends State<CollaboratePage> {
                       textAlign: TextAlign.center,
                       text: TextSpan(
                         style: AppTextStyles.headlineLarge(
-                          color: AppTheme.textDark,
+                          color: colorScheme.onSurface,
                         ),
                         children: [
                           const TextSpan(text: 'Designers Meet\n'),
                           TextSpan(
                             text: 'Business',
                             style: AppTextStyles.headlineLarge(
-                              color: AppTheme.primaryDark,
+                              color: colorScheme.primary,
                             ),
                           ),
                         ],
@@ -207,7 +204,7 @@ class _CollaboratePageState extends State<CollaboratePage> {
                       'Artists showcase their embroidery designs. Businesses discover and purchase stunning patterns directly from creators',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.bodyLarge(
-                        color: AppTheme.textBrown,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -220,5 +217,4 @@ class _CollaboratePageState extends State<CollaboratePage> {
       ),
     );
   }
-
 }

@@ -69,6 +69,7 @@ class LocalHomeFeedCache {
             'finalPrice': d.finalPrice,
             'isFree': d.isFree,
             'firstImageUrl': d.firstImageUrl,
+            'description': d.description,
           },
         CollectionItem c => {
             'kind': 'collection',
@@ -133,7 +134,8 @@ class LocalHomeFeedCache {
             name: j['name'] as String? ?? '',
             finalPrice: (j['finalPrice'] as num?)?.toInt() ?? 0,
             isFree: j['isFree'] == true,
-            firstImageUrl: j['firstImageUrl'] as String?);
+            firstImageUrl: j['firstImageUrl'] as String?,
+            description: j['description'] as String?);
       case 'collection':
         return CollectionItem(
             id: j['id'] as String? ?? '',

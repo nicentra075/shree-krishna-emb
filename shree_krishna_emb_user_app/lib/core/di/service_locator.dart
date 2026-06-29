@@ -10,11 +10,27 @@ import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
 import 'package:shree_krishna_emb/bloc/splash/splash_bloc.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
 import 'package:shree_krishna_emb/bloc/home_feed/home_feed_cubit.dart';
+import 'package:shree_krishna_emb/bloc/suggested_designs/suggested_designs_cubit.dart';
 import 'package:shree_krishna_emb/bloc/sellers/authorised_sellers_cubit.dart';
 import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
+import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
+import 'package:shree_krishna_emb/bloc/purchases/purchases_cubit.dart';
+import 'package:shree_krishna_emb/bloc/platform_config/platform_config_cubit.dart';
+import 'package:shree_krishna_emb/bloc/checkout/checkout_cubit.dart';
 import 'package:shree_krishna_emb/data/datasources/firebase_wishlist_datasource.dart';
 import 'package:shree_krishna_emb/data/repositories/wishlist_repository_impl.dart';
 import 'package:shree_krishna_emb/domain/repositories/wishlist_repository.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_cart_datasource.dart';
+import 'package:shree_krishna_emb/data/repositories/cart_repository_impl.dart';
+import 'package:shree_krishna_emb/domain/repositories/cart_repository.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_purchases_datasource.dart';
+import 'package:shree_krishna_emb/data/repositories/purchases_repository_impl.dart';
+import 'package:shree_krishna_emb/domain/repositories/purchases_repository.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_platform_config_datasource.dart';
+import 'package:shree_krishna_emb/data/repositories/platform_config_repository_impl.dart';
+import 'package:shree_krishna_emb/domain/repositories/platform_config_repository.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_order_writer.dart';
+import 'package:shree_krishna_emb/data/services/checkout_service_factory.dart';
 import 'package:shree_krishna_emb/data/datasources/local_user_datasource.dart';
 import 'package:shree_krishna_emb/data/datasources/firebase_auth_datasource.dart';
 import 'package:shree_krishna_emb/data/datasources/firebase_catalog_query_datasource.dart';
@@ -124,9 +140,48 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
     WishlistRepositoryImpl(dataSource: getIt()),
   );
   // Singleton so heart state is shared app-wide.
-  getIt.registerSingleton<WishlistCubit>(
-    WishlistCubit(repository: getIt()),
+  getIt.registerSingleton<WishlistCubit>(WishlistCubit(repository: getIt()));
+
+  // ===== Platform settings (fee%, gst%, payment mode, razorpay key) =====
+  getIt.registerSingleton<PlatformConfigDataSource>(
+    FirebasePlatformConfigDataSource(firestore: getIt()),
   );
+  getIt.registerSingleton<PlatformConfigRepository>(
+    PlatformConfigRepositoryImpl(dataSource: getIt()),
+  );
+  getIt.registerSingleton<PlatformConfigCubit>(
+    PlatformConfigCubit(repository: getIt()),
+  );
+
+  // ===== Cart =====
+  getIt.registerSingleton<CartDataSource>(
+    FirebaseCartDataSource(firestore: getIt(), auth: getIt()),
+  );
+  getIt.registerSingleton<CartRepository>(
+    CartRepositoryImpl(dataSource: getIt()),
+  );
+  // Singleton so the app-bar badge + detail CTA stay in sync app-wide.
+  getIt.registerSingleton<CartCubit>(CartCubit(repository: getIt()));
+
+  // ===== Purchases (ownership) =====
+  getIt.registerSingleton<PurchasesDataSource>(
+    FirebasePurchasesDataSource(firestore: getIt(), auth: getIt()),
+  );
+  getIt.registerSingleton<PurchasesRepository>(
+    PurchasesRepositoryImpl(dataSource: getIt()),
+  );
+  getIt.registerSingleton<PurchasesCubit>(PurchasesCubit(repository: getIt()));
+
+  // ===== Checkout =====
+  // Client-side order writer (test/demo paths only).
+  getIt.registerSingleton<FirebaseOrderWriter>(
+    FirebaseOrderWriter(firestore: getIt(), auth: getIt()),
+  );
+  getIt.registerSingleton<CheckoutServiceFactory>(
+    CheckoutServiceFactory(orderWriter: getIt()),
+  );
+  // New cubit per checkout attempt (owns a native Razorpay instance).
+  getIt.registerFactory<CheckoutCubit>(() => CheckoutCubit(factory: getIt()));
 
   // Cubits / Blocs
   getIt.registerFactory<AuthorisedSellersCubit>(
@@ -135,13 +190,20 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
   getIt.registerFactory<HomeFeedCubit>(
     () => HomeFeedCubit(repository: getIt()),
   );
+  getIt.registerFactory<SuggestedDesignsCubit>(
+    () => SuggestedDesignsCubit(catalog: getIt()),
+  );
 
   // Use cases
   getIt.registerSingleton<SignUpUseCase>(SignUpUseCase(getIt()));
   getIt.registerSingleton<SignInUseCase>(SignInUseCase(getIt()));
-  getIt.registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(getIt()));
+  getIt.registerSingleton<SignInWithGoogleUseCase>(
+    SignInWithGoogleUseCase(getIt()),
+  );
   getIt.registerSingleton<SendPhoneOtpUseCase>(SendPhoneOtpUseCase(getIt()));
-  getIt.registerSingleton<VerifyPhoneOtpUseCase>(VerifyPhoneOtpUseCase(getIt()));
+  getIt.registerSingleton<VerifyPhoneOtpUseCase>(
+    VerifyPhoneOtpUseCase(getIt()),
+  );
   getIt.registerSingleton<CompleteGoogleProfileUseCase>(
     CompleteGoogleProfileUseCase(getIt()),
   );
@@ -149,14 +211,18 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
     CompletePhoneProfileUseCase(getIt()),
   );
   getIt.registerSingleton<SignOutUseCase>(SignOutUseCase(getIt()));
-  getIt.registerSingleton<GetCurrentUserUseCase>(GetCurrentUserUseCase(getIt()));
+  getIt.registerSingleton<GetCurrentUserUseCase>(
+    GetCurrentUserUseCase(getIt()),
+  );
   getIt.registerSingleton<SendPasswordResetEmailUseCase>(
     SendPasswordResetEmailUseCase(getIt()),
   );
 
   // BLoCs
   getIt.registerSingleton<SplashBloc>(SplashBloc(localDataSource: getIt()));
-  getIt.registerSingleton<WalkthroughBloc>(WalkthroughBloc(localDataSource: getIt()));
+  getIt.registerSingleton<WalkthroughBloc>(
+    WalkthroughBloc(localDataSource: getIt()),
+  );
   getIt.registerSingleton<AuthBloc>(
     AuthBloc(
       signUpUseCase: getIt(),

@@ -9,7 +9,7 @@ class MediaRepositoryImpl implements MediaRepository {
   final FirebaseMediaDataSource _dataSource;
 
   MediaRepositoryImpl({required FirebaseMediaDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   @override
   Future<Either<Failure, List<MediaAssetModel>>> list() async {
@@ -28,14 +28,18 @@ class MediaRepositoryImpl implements MediaRepository {
     required String filename,
     required int timestamp,
     int seed = 0,
+    void Function(double progress)? onProgress,
   }) async {
     try {
-      return Right(await _dataSource.uploadOne(
-        bytes: bytes,
-        filename: filename,
-        timestamp: timestamp,
-        seed: seed,
-      ));
+      return Right(
+        await _dataSource.uploadOne(
+          bytes: bytes,
+          filename: filename,
+          timestamp: timestamp,
+          seed: seed,
+          onProgress: onProgress,
+        ),
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

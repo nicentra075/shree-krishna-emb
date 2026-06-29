@@ -7,6 +7,7 @@ import 'package:shree_krishna_emb_admin/core/dev/dummy_data_seeder.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
+import 'package:shree_krishna_emb_admin/screens/settings/widgets/payments_section.dart';
 
 /// Settings CONTENT only (no Scaffold) so it can be embedded in the
 /// dashboard's content area next to the sidebar, like User Management,
@@ -20,12 +21,31 @@ class SettingsContentView extends StatefulWidget {
   State<SettingsContentView> createState() => _SettingsContentViewState();
 }
 
-class _SettingsContentViewState extends State<SettingsContentView> {
+class _SettingsContentViewState extends State<SettingsContentView>
+    with SingleTickerProviderStateMixin {
   bool _seeding = false;
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this)
+      ..addListener(() {
+        // Rebuild so the selected tab's content swaps in.
+        if (!_tabController.indexIsChanging) setState(() {});
+      });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalization.strings;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SingleChildScrollView(
       child: Center(
@@ -44,37 +64,122 @@ class _SettingsContentViewState extends State<SettingsContentView> {
                     Text(
                       strings.settings,
                       style: AppTextStyles.headlineMedium(
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: colorScheme.onSurface,
                         fontWeight: FontWeight.w800,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: isSmallScreen ? 16 : 24),
-                    _buildSectionCard(
-                      icon: Icons.palette_outlined,
-                      title: strings.appearance,
-                      child: _buildThemeSelector(isSmallScreen),
-                    ),
-                    SizedBox(height: isSmallScreen ? 12 : 16),
-                    _buildSectionCard(
-                      icon: Icons.language_outlined,
-                      title: strings.language,
-                      child: _buildLanguageSelector(),
-                    ),
-                    SizedBox(height: isSmallScreen ? 12 : 16),
-                    _buildSectionCard(
-                      icon: Icons.science_outlined,
-                      title: 'Demo Data',
-                      child: _buildDemoDataControls(),
-                    ),
-                    SizedBox(height: isSmallScreen ? 12 : 16),
-                    _buildAboutCard(),
+                    _buildTabBar(strings, colorScheme),
+                    SizedBox(height: isSmallScreen ? 16 : 20),
+                    _buildTabContent(isSmallScreen, strings),
                   ],
                 ),
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabBar(dynamic strings, ColorScheme colorScheme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        labelColor: colorScheme.primary,
+        unselectedLabelColor: colorScheme.onSurfaceVariant,
+        indicatorColor: colorScheme.primary,
+        indicatorSize: TabBarIndicatorSize.label,
+        labelStyle: AppTextStyles.labelMedium(fontWeight: FontWeight.w700),
+        unselectedLabelStyle: AppTextStyles.labelMedium(),
+        tabs: [
+          Tab(text: strings.settingsTabGeneral),
+          Tab(text: strings.settingsTabPayments),
+          Tab(text: strings.settingsTabNotifications),
+          Tab(text: strings.settingsTabSeed),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabContent(bool isSmallScreen, dynamic strings) {
+    switch (_tabController.index) {
+      case 1:
+        return _buildSectionCard(
+          icon: Icons.payment_outlined,
+          title: strings.payments,
+          child: const PaymentsSection(),
+        );
+      case 2:
+        return _buildSectionCard(
+          icon: Icons.notifications_outlined,
+          title: strings.settingsTabNotifications,
+          child: _buildNotificationsPlaceholder(strings),
+        );
+      case 3:
+        return _buildSectionCard(
+          icon: Icons.science_outlined,
+          title: strings.demoData,
+          child: _buildDemoDataControls(),
+        );
+      case 0:
+      default:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionCard(
+              icon: Icons.palette_outlined,
+              title: strings.appearance,
+              child: _buildThemeSelector(isSmallScreen),
+            ),
+            SizedBox(height: isSmallScreen ? 12 : 16),
+            _buildSectionCard(
+              icon: Icons.language_outlined,
+              title: strings.language,
+              child: _buildLanguageSelector(),
+            ),
+            SizedBox(height: isSmallScreen ? 12 : 16),
+            _buildAboutCard(),
+          ],
+        );
+    }
+  }
+
+  Widget _buildNotificationsPlaceholder(dynamic strings) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.notifications_off_outlined,
+              size: 40,
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              strings.notificationSettingsComingSoon,
+              style: AppTextStyles.bodyMedium(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
@@ -423,7 +528,9 @@ class _SettingsContentViewState extends State<SettingsContentView> {
               label: 'Generate',
               leadingIcon: Icons.add_circle_outline,
               isLoading: _seeding,
-              onPressed: _seeding ? () {} : () => _confirmAndRun(isClear: false),
+              onPressed: _seeding
+                  ? () {}
+                  : () => _confirmAndRun(isClear: false),
             ),
             const SizedBox(width: 12),
             AppButton(
@@ -443,12 +550,14 @@ class _SettingsContentViewState extends State<SettingsContentView> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(isClear ? 'Remove demo data?' : 'Generate demo data?'),
-        content: Text(isClear
-            ? 'Deletes the seeded collections, categories, designs, home layout '
-                'and demo profile docs. (The demo Auth accounts must be removed '
-                'from the Firebase console manually.)'
-            : 'Creates demo accounts, collections/categories/designs and a home '
-                'layout in Firebase.'),
+        content: Text(
+          isClear
+              ? 'Deletes the seeded collections, categories, designs, home layout '
+                    'and demo profile docs. (The demo Auth accounts must be removed '
+                    'from the Firebase console manually.)'
+              : 'Creates demo accounts, collections/categories/designs and a home '
+                    'layout in Firebase.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -477,7 +586,9 @@ class _SettingsContentViewState extends State<SettingsContentView> {
       }
       if (!mounted) return;
       ResponsiveSnackbar.showSuccess(
-          isClear ? 'Demo data removed' : 'Demo data generated', context);
+        isClear ? 'Demo data removed' : 'Demo data generated',
+        context,
+      );
     } catch (e) {
       if (mounted) {
         ResponsiveSnackbar.showError('Failed: $e', context);

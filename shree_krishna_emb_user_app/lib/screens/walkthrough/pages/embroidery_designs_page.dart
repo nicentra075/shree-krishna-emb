@@ -14,15 +14,13 @@ class EmbroideryDesignsPage extends StatefulWidget {
 class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppTheme.surfaceLight,
-            const Color(0xFFFFF5E9),
-          ],
+          colors: [colorScheme.surface, colorScheme.surfaceContainerLow],
         ),
       ),
       child: Stack(
@@ -40,7 +38,7 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                 child: Text(
                   'Skip',
                   style: AppTextStyles.bodyMedium(
-                    color: AppTheme.textBrown,
+                    color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -67,7 +65,7 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                       textAlign: TextAlign.center,
                       text: TextSpan(
                         style: AppTextStyles.headlineLarge(
-                          color: AppTheme.textDark,
+                          color: colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                         children: [
@@ -75,7 +73,7 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                           TextSpan(
                             text: 'Style',
                             style: AppTextStyles.headlineLarge(
-                              color: AppTheme.primaryDark,
+                              color: colorScheme.primary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -93,7 +91,7 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                       'From traditional Zari work to modern thread embroidery. Traditional Indian, Contemporary fusion, Ethnic patterns, and more',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.bodyLarge(
-                        color: AppTheme.textBrown,
+                        color: colorScheme.onSurfaceVariant,
                         height: 1.6,
                       ),
                     ),
@@ -149,9 +147,9 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: colorScheme.surfaceContainerLowest,
                         border: Border.all(
-                          color: AppTheme.primaryDark.withValues(alpha: 0.2),
+                          color: colorScheme.primary.withValues(alpha: 0.2),
                           width: 1.5,
                         ),
                       ),
@@ -162,12 +160,12 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                             height: 48,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppTheme.primaryDark.withValues(alpha: 0.1),
+                              color: colorScheme.primary.withValues(alpha: 0.1),
                             ),
                             child: Center(
                               child: Icon(
                                 Icons.bolt,
-                                color: AppTheme.primaryDark,
+                                color: colorScheme.primary,
                                 size: 24,
                               ),
                             ),
@@ -181,14 +179,14 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
                                   '50,000+ Designs',
                                   style: AppTextStyles.labelLarge(
                                     fontWeight: FontWeight.bold,
-                                    color: AppTheme.textDark,
+                                    color: colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'From master craftsmen',
                                   style: AppTextStyles.bodySmall(
-                                    color: AppTheme.textBrown,
+                                    color: colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -238,11 +236,7 @@ class _EmbroideryDesignsPageState extends State<EmbroideryDesignsPage> {
       ),
       child: Column(
         children: [
-          Icon(
-            card.icon,
-            size: 42,
-            color: Colors.white,
-          ),
+          Icon(card.icon, size: 42, color: Colors.white),
           const SizedBox(height: 10),
           Text(
             card.title,

@@ -11,6 +11,7 @@ abstract class MediaRepository {
     required String filename,
     required int timestamp,
     int seed,
+    void Function(double progress)? onProgress,
   });
   Future<Either<Failure, void>> delete(MediaAssetModel asset);
 }

@@ -31,6 +31,7 @@ class FirestoreCollections {
 
   // Fixed document ids
   static const String configPlatformDoc = 'platform';
+  static const String configSecretsDoc = 'secrets';
   static const String configHomeFeedDoc = 'homeFeed';
   static const String statsGlobalDoc = 'global';
   static const String countersInvoicesDoc = 'invoices';
@@ -51,4 +52,5 @@ class CloudFunctionNames {
   static const String requestAdminOtp = 'requestAdminOtp';
   static const String verifyAdminOtp = 'verifyAdminOtp';
   static const String initiateRefund = 'initiateRefund';
+  static const String setRazorpaySecret = 'setRazorpaySecret';
 }

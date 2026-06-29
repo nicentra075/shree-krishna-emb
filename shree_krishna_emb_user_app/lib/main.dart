@@ -4,11 +4,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:screen_protector/screen_protector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/firebase_options.dart';
 import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
+import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
+import 'package:shree_krishna_emb/bloc/purchases/purchases_cubit.dart';
+import 'package:shree_krishna_emb/bloc/platform_config/platform_config_cubit.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 import 'package:shree_krishna_emb/core/utils/global_navigator.dart';
@@ -33,24 +37,51 @@ void main() {
     return true;
   };
 
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+      // Block screenshots/screen recording app-wide to protect design previews.
+      await _enableScreenProtection();
 
-    final prefs = await SharedPreferences.getInstance();
-    await AppLocalization.initialize(prefs);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
-    await setupServiceLocator(prefs);
+      final prefs = await SharedPreferences.getInstance();
+      await AppLocalization.initialize(prefs);
 
-    // Initialize snackbar with global navigator
-    AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
+      await setupServiceLocator(prefs);
 
-    runApp(const MainApp());
-  }, (error, stack) {
-    AppLogger.logError('Uncaught zone error', error: error, stackTrace: stack);
-  });
+      // Initialize snackbar with global navigator
+      AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
+
+      runApp(const MainApp());
+    },
+    (error, stack) {
+      AppLogger.logError(
+        'Uncaught zone error',
+        error: error,
+        stackTrace: stack,
+      );
+    },
+  );
+}
+
+/// Enables app-wide capture protection:
+///  - Android: sets FLAG_SECURE, which blocks screenshots AND makes screen
+///    recordings/casts render black for every screen.
+///  - iOS: prevents screenshots (captures come out blank) and obscures the app
+///    snapshot in the app switcher. (iOS has no API to fully block recording.)
+/// Wrapped in try/catch so a platform that doesn't support it never blocks
+/// startup.
+Future<void> _enableScreenProtection() async {
+  try {
+    await ScreenProtector.preventScreenshotOn();
+    await ScreenProtector.protectDataLeakageOn();
+  } catch (e) {
+    AppLogger.logError('Failed to enable screen protection', error: e);
+  }
 }
 
 class MainApp extends StatelessWidget {
@@ -63,6 +94,11 @@ class MainApp extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
         BlocProvider<WishlistCubit>.value(value: getIt<WishlistCubit>()),
+        BlocProvider<CartCubit>.value(value: getIt<CartCubit>()),
+        BlocProvider<PurchasesCubit>.value(value: getIt<PurchasesCubit>()),
+        BlocProvider<PlatformConfigCubit>.value(
+          value: getIt<PlatformConfigCubit>(),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {

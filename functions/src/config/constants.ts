@@ -25,6 +25,7 @@ export const Collections = {
 
 export const Docs = {
   configPlatform: "platform",
+  configSecrets: "secrets",
   configHomeFeed: "homeFeed",
   statsGlobal: "global",
   countersInvoices: "invoices",

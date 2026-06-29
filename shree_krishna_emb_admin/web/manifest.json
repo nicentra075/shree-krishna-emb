@@ -1,11 +1,11 @@
 {
-    "name": "shree_krishna_emb_admin",
-    "short_name": "shree_krishna_emb_admin",
+    "name": "Shree Krishna Admin",
+    "short_name": "SK Admin",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#5a4a3a",
+    "theme_color": "#5a4a3a",
+    "description": "Shree Krishna Embroidery admin console",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

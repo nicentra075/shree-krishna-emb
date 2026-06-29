@@ -7,6 +7,9 @@ import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
 import 'package:shree_krishna_emb/bloc/home_feed/home_feed_cubit.dart';
 import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
+import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
+import 'package:shree_krishna_emb/bloc/purchases/purchases_cubit.dart';
+import 'package:shree_krishna_emb/bloc/platform_config/platform_config_cubit.dart';
 import 'package:shree_krishna_emb/core/constants/app_constants.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
@@ -30,6 +33,10 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
       _maybeVerifyAccountStatus();
       // Load the signed-in user's favorites for app-wide heart state.
       getIt<WishlistCubit>().load();
+      // Load cart, owned designs, and platform settings for the revenue flow.
+      getIt<CartCubit>().load();
+      getIt<PurchasesCubit>().load();
+      getIt<PlatformConfigCubit>().load();
     });
   }
 
@@ -39,8 +46,9 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   Future<void> _maybeVerifyAccountStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final today = _todayKey();
-    final lastChecked =
-        prefs.getString(AppConstants.prefKeyLastStatusCheckDate);
+    final lastChecked = prefs.getString(
+      AppConstants.prefKeyLastStatusCheckDate,
+    );
     if (lastChecked == today) return;
     await prefs.setString(AppConstants.prefKeyLastStatusCheckDate, today);
     getIt<AuthBloc>().add(const VerifyAccountStatusEvent());
@@ -104,11 +112,14 @@ class _HomeFeedBody extends StatelessWidget {
                 Center(
                   child: Column(
                     children: [
-                      Text(state.error ?? AppLocalization.strings.error,
-                          style: AppTextStyles.bodyMedium()),
+                      Text(
+                        state.error ?? AppLocalization.strings.error,
+                        style: AppTextStyles.bodyMedium(),
+                      ),
                       const SizedBox(height: 12),
                       TextButton(
-                        onPressed: () => context.read<HomeFeedCubit>().refresh(),
+                        onPressed: () =>
+                            context.read<HomeFeedCubit>().refresh(),
                         child: Text(AppLocalization.strings.retry),
                       ),
                     ],

@@ -45,7 +45,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     final isTablet = screenSize.width >= 768 && screenSize.width < 1200;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: BlocListener<AdminAuthBloc, AdminAuthState>(
         listener: (context, state) {
           if (state is AdminAuthAuthenticated) {
@@ -252,7 +252,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     final strings = AppLocalization.strings;
 
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -269,6 +269,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
   // Build login form
   Widget _buildLoginForm(BuildContext context, dynamic strings, bool compact) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -281,7 +282,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               Text(
                 strings.adminLoginWelcome,
                 style: AppTextStyles.displayMedium(
-                  color: AppTheme.textDark,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w700,
                 ),
                 maxLines: 1,
@@ -291,7 +292,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               Text(
                 strings.adminLoginDescription,
                 style: AppTextStyles.bodyLarge(
-                  color: AppTheme.textBrown.withValues(alpha: 0.7),
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -376,7 +377,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     },
                     child: Text(
                       strings.adminRememberMe,
-                      style: AppTextStyles.bodySmall(color: AppTheme.textBrown),
+                      style: AppTextStyles.bodySmall(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -425,7 +428,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             child: Text(
               strings.adminCopyright,
               style: AppTextStyles.bodySmall(
-                color: AppTheme.textBrown.withValues(alpha: 0.5),
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -443,6 +446,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     dynamic strings,
     bool compact,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -474,7 +478,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               Text(
                 strings.resetPassword,
                 style: AppTextStyles.displayMedium(
-                  color: AppTheme.textDark,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w700,
                 ),
                 maxLines: 1,
@@ -484,7 +488,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               Text(
                 strings.resetLinkMessage,
                 style: AppTextStyles.bodyLarge(
-                  color: AppTheme.textBrown.withValues(alpha: 0.7),
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -579,7 +583,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             child: Text(
               strings.adminCopyright,
               style: AppTextStyles.bodySmall(
-                color: AppTheme.textBrown.withValues(alpha: 0.5),
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

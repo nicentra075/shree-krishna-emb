@@ -202,6 +202,7 @@ abstract class LocaleStrings {
 
   // ========== Work & Projects ==========
   String get myWorkDashboard;
+  String get myOrders;
   String get myPurchases;
   String get all;
   String get open;
@@ -224,6 +225,9 @@ abstract class LocaleStrings {
   String get authorName;
   String get colorOrNeedleCount;
   String get designFormat;
+  String get designFiles;
+  String get download;
+  String get purchaseToDownload;
   String get stitchCount;
   String get heightLabel;
   String get widthLabel;
@@ -246,4 +250,43 @@ abstract class LocaleStrings {
   String get support;
   String get whatsappSupport;
   String get termsConditions;
+
+  // ========== Cart / Checkout / Purchases (Phase 2) ==========
+  String get myCart;
+  String get inCart;
+  String get viewCart;
+  String get goToCart;
+  String get cartEmptyMessage;
+  String get browseDesigns;
+  String get proceedToCheckout;
+  String get checkoutTitle;
+  String get orderSummary;
+  String get platformFee;
+  String get gst;
+  String get grandTotal;
+  String get payNow;
+  String get buyerEmail;
+  String get buyerEmailHint;
+  String get paymentSuccessful;
+  String get paymentSuccessMessage;
+  String get paymentCancelled;
+  String get paymentFailed;
+  String get getForFree;
+  String get owned;
+  String get purchaseToDownloadCta;
+  String get noPurchasesYet;
+  String get noPurchasesMessage;
+  String get purchasedOn;
+  String get suggestedForYou;
+  String get suggestedForYouSubtitle;
+  String get designDescription;
+  String get designInformation;
+  String get moreInThisCategory;
+  String get moreInThisCategorySubtitle;
+  String get exploreCategories;
+  String get exploreCategoriesSubtitle;
+  String get itemRemovedFromCart;
+  String get addedToCart;
+  String get cartLimitReached;
+  String get viewMyPurchases;
 }

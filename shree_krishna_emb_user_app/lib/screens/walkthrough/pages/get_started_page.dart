@@ -35,12 +35,13 @@ class _GetStartedPageState extends State<GetStartedPage>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppTheme.surfaceLight, const Color(0xFFFFF5E9)],
+          colors: [colorScheme.surface, colorScheme.surfaceContainerLow],
         ),
       ),
       child: Stack(
@@ -219,14 +220,14 @@ class _GetStartedPageState extends State<GetStartedPage>
                       textAlign: TextAlign.center,
                       text: TextSpan(
                         style: AppTextStyles.headlineLarge(
-                          color: AppTheme.textDark,
+                          color: colorScheme.onSurface,
                         ),
                         children: [
                           const TextSpan(text: 'One Platform,\n'),
                           TextSpan(
                             text: 'Infinite Possibilities',
                             style: AppTextStyles.headlineLarge(
-                              color: AppTheme.primaryDark,
+                              color: colorScheme.primary,
                             ),
                           ),
                         ],
@@ -243,7 +244,7 @@ class _GetStartedPageState extends State<GetStartedPage>
                       'Buy premium embroidery designs or sell your creations. Connect directly with artisans and businesses worldwide',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.bodyLarge(
-                        color: AppTheme.textBrown,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -256,7 +257,9 @@ class _GetStartedPageState extends State<GetStartedPage>
                     child: Text(
                       'SHREE KRISHNA EMB • PREMIUMCRAFTS',
                       style: AppTextStyles.labelSmall(
-                        color: AppTheme.textBrown.withValues(alpha: 0.5),
+                        color: colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
                       ),
                     ),
                   ),

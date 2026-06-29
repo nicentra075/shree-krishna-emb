@@ -8,6 +8,7 @@
   "main": "lib/src/index.js",
   "scripts": {
     "build": "tsc",
+    "gcp-build": "tsc",
     "test": "tsc && node --test \"lib/src/test/*.test.js\"",
     "lint": "tsc --noEmit",
     "serve": "npm run build && firebase emulators:start --only functions",

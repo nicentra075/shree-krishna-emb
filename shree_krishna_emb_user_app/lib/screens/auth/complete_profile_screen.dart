@@ -6,7 +6,6 @@ import 'package:shree_krishna_core/models/user_model.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
-import 'package:shree_krishna_emb/localisations/app_localization.dart';
 import 'package:shree_krishna_emb/core/utils/validators.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
@@ -63,7 +62,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     final isGoogleFlow = widget.args.type == 'google';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAF5),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -158,14 +157,18 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           const SizedBox(height: 16),
           Text(
             isGoogleFlow ? 'Almost There!' : 'Complete Your Profile',
-            style: AppTextStyles.headlineLarge(color: AppTheme.textDark),
+            style: AppTextStyles.headlineLarge(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             isGoogleFlow
                 ? 'Add your phone number to complete registration'
                 : 'Add your name and email to complete registration',
-            style: AppTextStyles.bodyLarge(color: AppTheme.textBrown),
+            style: AppTextStyles.bodyLarge(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -180,11 +183,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1A1C19).withValues(alpha: 0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 32,
               offset: const Offset(0, 12),
             ),
@@ -197,12 +200,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             children: [
               if (isGoogleFlow) ...[
                 _buildReadOnlyField(
+                  context: context,
                   label: 'Full Name',
                   value: widget.args.user.name ?? 'User',
                   icon: Icons.person_outline,
                 ),
                 const SizedBox(height: 20),
                 _buildReadOnlyField(
+                  context: context,
                   label: 'Email Address',
                   value: widget.args.user.email,
                   icon: Icons.mail_outline,
@@ -219,14 +224,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     children: [
                       Icon(
                         Icons.phone_outlined,
-                        color: AppTheme.primaryDark.withValues(alpha: 0.5),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '+91',
                         style: AppTextStyles.bodyMedium(
-                          color: AppTheme.textDark,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -243,7 +248,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   validator: (value) => Validators.validateName(value),
                   prefixIcon: Icon(
                     Icons.person_outline,
-                    color: AppTheme.primaryDark.withValues(alpha: 0.5),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
                 ),
@@ -256,12 +261,13 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   validator: (value) => Validators.validateEmail(value),
                   prefixIcon: Icon(
                     Icons.mail_outline,
-                    color: AppTheme.primaryDark.withValues(alpha: 0.5),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
                 ),
                 const SizedBox(height: 20),
                 _buildReadOnlyField(
+                  context: context,
                   label: 'Phone Number',
                   value: widget.args.phoneNumber ?? 'Phone',
                   icon: Icons.phone_outlined,
@@ -277,17 +283,19 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   }
 
   Widget _buildReadOnlyField({
+    required BuildContext context,
     required String label,
     required String value,
     required IconData icon,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: AppTextStyles.labelMedium(
-            color: AppTheme.textDark,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -295,22 +303,18 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: AppTheme.surfaceLight,
+            color: colorScheme.surfaceContainerLow,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE8E8E3), width: 1.5),
+            border: Border.all(color: colorScheme.outlineVariant, width: 1.5),
           ),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: AppTheme.primaryDark.withValues(alpha: 0.5),
-                size: 20,
-              ),
+              Icon(icon, color: colorScheme.onSurfaceVariant, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   value,
-                  style: AppTextStyles.bodyMedium(color: AppTheme.textDark),
+                  style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
                 ),
               ),
             ],

@@ -10,7 +10,6 @@ import 'package:shree_krishna_emb/screens/walkthrough/pages/get_started_page.dar
 import 'package:shree_krishna_emb/screens/walkthrough/pages/embroidery_designs_page.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/designer_community_page.dart';
 import 'package:shree_krishna_emb/utils/constants.dart';
-import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
 
@@ -114,6 +113,7 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
   Widget _buildBottomNavigation(BuildContext context, WalkthroughLoaded state) {
     final strings = AppLocalization.strings;
 
+    final surfaceColor = Theme.of(context).colorScheme.surface;
     return FadeInUp(
       duration: AppConstants.buttonAnimationDuration,
       child: Container(
@@ -122,8 +122,8 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.white.withValues(alpha: 0.0),
-              Colors.white.withValues(alpha: 0.95),
+              surfaceColor.withValues(alpha: 0.0),
+              surfaceColor.withValues(alpha: 0.95),
             ],
           ),
         ),
@@ -146,8 +146,8 @@ class _WalkthroughScreenState extends State<WalkthroughScreen> {
                   dotHeight: 8,
                   dotWidth: 8,
                   spacing: 8,
-                  activeDotColor: AppTheme.primaryDark,
-                  dotColor: const Color(0xFFDDD9D0),
+                  activeDotColor: Theme.of(context).colorScheme.primary,
+                  dotColor: Theme.of(context).colorScheme.outlineVariant,
                 ),
               ),
             ),

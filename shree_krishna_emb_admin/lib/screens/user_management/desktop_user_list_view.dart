@@ -567,40 +567,44 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                     },
                     child: const Text('View'),
                   ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => BlocProvider.value(
-                          value: context.read<UserListBloc>(),
-                          child: UserEditDialog(user: user),
-                        ),
-                      );
-                    },
-                    child: const Text('Edit'),
-                  ),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'suspend') {
-                        context.read<UserListBloc>().add(
-                          SuspendUserEvent(user.id, user.isActive),
+                  // Admin users are protected: no Edit / Suspend / Delete so an
+                  // admin account can't be changed or removed by mistake.
+                  if (user.role != 'admin') ...[
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<UserListBloc>(),
+                            child: UserEditDialog(user: user),
+                          ),
                         );
-                      } else if (value == 'delete') {
-                        _showDeleteConfirmation(context, user);
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem(
-                        value: 'suspend',
-                        child: Text(user.isActive ? 'Suspend' : 'Activate'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Delete'),
-                      ),
-                    ],
-                  ),
+                      },
+                      child: const Text('Edit'),
+                    ),
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'suspend') {
+                          context.read<UserListBloc>().add(
+                            SuspendUserEvent(user.id, user.isActive),
+                          );
+                        } else if (value == 'delete') {
+                          _showDeleteConfirmation(context, user);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        PopupMenuItem(
+                          value: 'suspend',
+                          child: Text(user.isActive ? 'Suspend' : 'Activate'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

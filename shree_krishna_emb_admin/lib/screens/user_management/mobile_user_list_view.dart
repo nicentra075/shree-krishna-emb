@@ -351,66 +351,70 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.primaryDark,
-                      side: BorderSide(color: AppTheme.primaryDark),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => BlocProvider.value(
-                          value: context.read<UserListBloc>(),
-                          child: UserEditDialog(user: user),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Edit',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'suspend') {
-                      context.read<UserListBloc>().add(
-                            SuspendUserEvent(user.id, user.isActive),
-                          );
-                    } else if (value == 'delete') {
-                      _showDeleteConfirmation(context, user);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => [
-                    PopupMenuItem(
-                      value: 'suspend',
-                      child: Text(user.isActive ? 'Suspend' : 'Activate'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Delete'),
-                    ),
-                  ],
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: colorScheme.outline.withValues(alpha: 0.4),
+                // Admin users are protected: no Edit / Suspend / Delete so an
+                // admin account can't be changed or removed by mistake.
+                if (user.role != 'admin') ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.primaryDark,
+                        side: BorderSide(color: AppTheme.primaryDark),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.more_vert,
-                      size: 20,
-                      color: colorScheme.onSurfaceVariant,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<UserListBloc>(),
+                            child: UserEditDialog(user: user),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Edit',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'suspend') {
+                        context.read<UserListBloc>().add(
+                              SuspendUserEvent(user.id, user.isActive),
+                            );
+                      } else if (value == 'delete') {
+                        _showDeleteConfirmation(context, user);
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem(
+                        value: 'suspend',
+                        child: Text(user.isActive ? 'Suspend' : 'Activate'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Delete'),
+                      ),
+                    ],
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: colorScheme.outline.withValues(alpha: 0.4),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.more_vert,
+                        size: 20,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ],

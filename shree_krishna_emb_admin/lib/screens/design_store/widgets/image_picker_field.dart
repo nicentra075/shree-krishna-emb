@@ -36,6 +36,9 @@ class _AddImageChooser extends StatefulWidget {
 class _AddImageChooserState extends State<_AddImageChooser> {
   bool _uploading = false;
   bool _showUrl = false;
+  int _uploadTotal = 0;
+  int _uploadDone = 0;
+  double _fileProgress = 0;
   final _urlController = TextEditingController();
 
   @override
@@ -44,11 +47,24 @@ class _AddImageChooserState extends State<_AddImageChooser> {
     super.dispose();
   }
 
+  /// Overall batch progress (0..1): finished files + the in-flight fraction.
+  double get _batchProgress => _uploadTotal == 0
+      ? 0
+      : ((_uploadDone + _fileProgress) / _uploadTotal).clamp(0.0, 1.0);
+
   Future<void> _upload() async {
     // Web-style upload: drag-and-drop area + browse, with multi-select.
-    final files = await showImageUploadSheet(context, multiple: widget.multiple);
+    final files = await showImageUploadSheet(
+      context,
+      multiple: widget.multiple,
+    );
     if (files == null || files.isEmpty || !mounted) return;
-    setState(() => _uploading = true);
+    setState(() {
+      _uploading = true;
+      _uploadTotal = files.length;
+      _uploadDone = 0;
+      _fileProgress = 0;
+    });
     final repo = GetIt.instance<MediaRepository>();
     final urls = <String>[];
     String? err;
@@ -59,8 +75,17 @@ class _AddImageChooserState extends State<_AddImageChooser> {
         filename: files[i].name,
         timestamp: DateTime.now().millisecondsSinceEpoch,
         seed: i,
+        onProgress: (p) {
+          if (mounted) setState(() => _fileProgress = p);
+        },
       );
       res.fold((f) => err ??= f.message, (a) => urls.add(a.url));
+      if (mounted) {
+        setState(() {
+          _uploadDone = i + 1;
+          _fileProgress = 0;
+        });
+      }
     }
     if (!mounted) return;
     setState(() => _uploading = false);
@@ -89,17 +114,54 @@ class _AddImageChooserState extends State<_AddImageChooser> {
 
     return AlertDialog(
       backgroundColor: colorScheme.surface,
-      title: Text(strings.addImage,
-          style: AppTextStyles.headlineMedium(
-              color: AppTheme.primaryDark, fontWeight: FontWeight.w700),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis),
+      title: Text(
+        strings.addImage,
+        style: AppTextStyles.headlineMedium(
+          color: AppTheme.primaryDark,
+          fontWeight: FontWeight.w700,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
       content: SizedBox(
         width: 360,
         child: _uploading
-            ? const Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(child: AppLoader()),
+            // Compact, fixed-height indicator. (A bare Center(AppLoader())
+            // expands to fill the dialog, ballooning it to full height.)
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _uploadTotal > 1
+                          ? strings.uploadingBatch(
+                              (_uploadDone + 1).clamp(1, _uploadTotal),
+                              _uploadTotal,
+                              (_batchProgress * 100).round(),
+                            )
+                          : strings.uploadingPercent(
+                              (_batchProgress * 100).round(),
+                            ),
+                      style: AppTextStyles.bodyMedium(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: _batchProgress,
+                        minHeight: 6,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        color: AppTheme.primaryDark,
+                      ),
+                    ),
+                  ],
+                ),
               )
             : Column(
                 mainAxisSize: MainAxisSize.min,
@@ -119,22 +181,21 @@ class _AddImageChooserState extends State<_AddImageChooser> {
                   if (_showUrl)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                      // Stack the Add button BELOW the field full-width so the
+                      // field's label doesn't push it out of vertical alignment
+                      // (and it stays tidy in multi-line / maxLines:3 mode).
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            child: AppTextField(
-                              label: strings.imageUrl,
-                              // In multi mode accept several URLs, one per line.
-                              hint: widget.multiple
-                                  ? 'https://...\nhttps://...'
-                                  : 'https://...',
-                              controller: _urlController,
-                              keyboardType: TextInputType.url,
-                              maxLines: widget.multiple ? 3 : 1,
-                            ),
+                          AppTextField(
+                            label: strings.imageUrl,
+                            // In multi mode accept several URLs, one per line.
+                            hint: 'https://...',
+                            controller: _urlController,
+                            keyboardType: TextInputType.url,
+                            maxLines: widget.multiple ? 3 : 1,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(height: 10),
                           AppButton(
                             label: strings.add,
                             size: AppButtonSize.small,
@@ -143,18 +204,21 @@ class _AddImageChooserState extends State<_AddImageChooser> {
                               if (raw.isEmpty) return;
                               final parts = widget.multiple
                                   ? raw
-                                      .split(RegExp(r'[\n,]'))
-                                      .map((e) => e.trim())
-                                      .where((e) => e.isNotEmpty)
-                                      .toList()
+                                        .split(RegExp(r'[\n,]'))
+                                        .map((e) => e.trim())
+                                        .where((e) => e.isNotEmpty)
+                                        .toList()
                                   : [raw];
                               final valid = parts
-                                  .where((u) =>
-                                      Uri.tryParse(u)?.hasScheme == true)
+                                  .where(
+                                    (u) => Uri.tryParse(u)?.hasScheme == true,
+                                  )
                                   .toList();
                               if (valid.isEmpty) {
                                 ResponsiveSnackbar.showError(
-                                    strings.imageUrl, context);
+                                  strings.imageUrl,
+                                  context,
+                                );
                                 return;
                               }
                               Navigator.pop(context, valid);
@@ -190,10 +254,12 @@ class _AddImageChooserState extends State<_AddImageChooser> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: AppTheme.primaryDark),
-      title: Text(label,
-          style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis),
+      title: Text(
+        label,
+        style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
       onTap: onTap,
     );
   }
@@ -226,10 +292,12 @@ class AppImagePickerField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis),
+        Text(
+          label,
+          style: AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         const SizedBox(height: 6),
         Row(
           children: [
@@ -239,14 +307,17 @@ class AppImagePickerField extends StatelessWidget {
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
-                border:
-                    Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.3),
+                ),
               ),
               clipBehavior: Clip.antiAlias,
               child: hasImage
                   ? AppNetworkImage(imageUrl: value, fit: BoxFit.cover)
-                  : Icon(Icons.image_outlined,
-                      color: colorScheme.onSurfaceVariant),
+                  : Icon(
+                      Icons.image_outlined,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
             ),
             const SizedBox(width: 12),
             Wrap(
@@ -264,8 +335,11 @@ class AppImagePickerField extends StatelessWidget {
                 if (hasImage)
                   IconButton(
                     tooltip: strings.delete,
-                    icon: const Icon(Icons.close,
-                        size: 18, color: Color(0xFFFF6B6B)),
+                    icon: const Icon(
+                      Icons.close,
+                      size: 18,
+                      color: Color(0xFFFF6B6B),
+                    ),
                     onPressed: () => onChanged(null),
                   ),
               ],
@@ -301,10 +375,12 @@ class AppMultiImagePicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis),
+        Text(
+          label,
+          style: AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         const SizedBox(height: 6),
         SizedBox(
           height: 84,
@@ -323,10 +399,13 @@ class AppMultiImagePicker extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                              color: colorScheme.outline.withValues(alpha: 0.3)),
+                            color: colorScheme.outline.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: AppNetworkImage(
-                            imageUrl: values[i], fit: BoxFit.cover),
+                          imageUrl: values[i],
+                          fit: BoxFit.cover,
+                        ),
                       ),
                       Positioned(
                         top: 2,
@@ -342,8 +421,11 @@ class AppMultiImagePicker extends StatelessWidget {
                               color: Colors.black.withValues(alpha: 0.5),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.close,
-                                size: 14, color: Colors.white),
+                            child: const Icon(
+                              Icons.close,
+                              size: 14,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -353,7 +435,10 @@ class AppMultiImagePicker extends StatelessWidget {
               // Add tile → 3-option chooser.
               InkWell(
                 onTap: () async {
-                  final urls = await showAddImageChooser(context, multiple: true);
+                  final urls = await showAddImageChooser(
+                    context,
+                    multiple: true,
+                  );
                   if (urls != null && urls.isNotEmpty) {
                     onChanged([...values, ...urls]);
                   }
@@ -365,19 +450,25 @@ class AppMultiImagePicker extends StatelessWidget {
                     color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: colorScheme.outline.withValues(alpha: 0.3)),
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.add_photo_alternate_outlined,
-                          color: AppTheme.primaryDark),
+                      Icon(
+                        Icons.add_photo_alternate_outlined,
+                        color: AppTheme.primaryDark,
+                      ),
                       const SizedBox(height: 2),
-                      Text(strings.addImage,
-                          style: AppTextStyles.labelSmall(
-                              color: colorScheme.onSurfaceVariant),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis),
+                      Text(
+                        strings.addImage,
+                        style: AppTextStyles.labelSmall(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
                 ),

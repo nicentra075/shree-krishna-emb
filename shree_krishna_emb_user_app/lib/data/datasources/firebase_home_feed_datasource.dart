@@ -93,6 +93,7 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
       finalPrice: (d['finalPrice'] as num?)?.toInt() ?? 0,
       isFree: d['isFree'] == true,
       firstImageUrl: (images != null && images.isNotEmpty) ? images.first : null,
+      description: d['description']?.toString(),
     );
   }
 

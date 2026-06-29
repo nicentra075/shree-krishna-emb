@@ -14,17 +14,22 @@ class FirebaseMediaDataSource {
   FirebaseMediaDataSource({
     required FirebaseFirestore firestore,
     required ImageStorageDataSource imageStorage,
-  })  : _firestore = firestore,
-        _imageStorage = imageStorage;
+  }) : _firestore = firestore,
+       _imageStorage = imageStorage;
 
   CollectionReference<Map<String, dynamic>> get _col =>
       _firestore.collection('media');
 
   Future<List<MediaAssetModel>> list() async {
     try {
-      final snap = await _col.orderBy('createdAt', descending: true).limit(300).get();
+      final snap = await _col
+          .orderBy('createdAt', descending: true)
+          .limit(300)
+          .get();
       return snap.docs
-          .map((d) => MediaAssetModel.fromFirebaseJson({...d.data(), 'id': d.id}))
+          .map(
+            (d) => MediaAssetModel.fromFirebaseJson({...d.data(), 'id': d.id}),
+          )
           .toList();
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to load media');
@@ -38,12 +43,14 @@ class FirebaseMediaDataSource {
     required String filename,
     required int timestamp,
     int seed = 0,
+    void Function(double progress)? onProgress,
   }) async {
     try {
       final uploaded = await _imageStorage.upload(
         bytes: bytes,
         folder: 'media',
         filename: '${timestamp}_${seed}_$filename',
+        onProgress: onProgress,
       );
       final doc = _col.doc();
       final asset = MediaAssetModel(

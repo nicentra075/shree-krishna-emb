@@ -204,7 +204,9 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(fit: StackFit.expand, children: [
-        if (imageUrl != null) AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
+        // Always render — AppNetworkImage shows the branded placeholder when
+        // imageUrl is null/empty (admin saved without an image).
+        AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
         Container(color: Colors.black.withValues(alpha: 0.25)),
         Center(
           child: Padding(

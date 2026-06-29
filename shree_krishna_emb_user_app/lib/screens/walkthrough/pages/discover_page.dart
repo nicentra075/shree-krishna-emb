@@ -13,18 +13,17 @@ class DiscoverPage extends StatefulWidget {
   State<DiscoverPage> createState() => _DiscoverPageState();
 }
 
-class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMixin {
+class _DiscoverPageState extends State<DiscoverPage>
+    with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppTheme.surfaceLight,
-            const Color(0xFFFFF5E9),
-          ],
+          colors: [colorScheme.surface, colorScheme.surfaceContainerLow],
         ),
       ),
       child: Stack(
@@ -47,7 +46,7 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                     Text(
                       'Shree Krishna EMB',
                       style: AppTextStyles.labelLarge(
-                        color: AppTheme.textBrown,
+                        color: colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -60,7 +59,7 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                       child: Text(
                         'SKIP',
                         style: AppTextStyles.labelSmall(
-                          color: AppTheme.primaryDark,
+                          color: colorScheme.primary,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.0,
                         ),
@@ -182,7 +181,7 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                       textAlign: TextAlign.center,
                       text: TextSpan(
                         style: AppTextStyles.headlineLarge(
-                          color: AppTheme.textDark,
+                          color: colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                         children: [
@@ -190,7 +189,7 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                           TextSpan(
                             text: 'Heritage Crafts',
                             style: AppTextStyles.headlineLarge(
-                              color: AppTheme.primaryDark,
+                              color: colorScheme.primary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -208,7 +207,7 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
                       'Connecting authentic artisans with global fashion businesses. Celebrating embroidery craftsmanship in the digital era',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.bodyLarge(
-                        color: AppTheme.textBrown,
+                        color: colorScheme.onSurfaceVariant,
                         height: 1.6,
                       ),
                     ),
@@ -222,5 +221,4 @@ class _DiscoverPageState extends State<DiscoverPage> with TickerProviderStateMix
       ),
     );
   }
-
 }

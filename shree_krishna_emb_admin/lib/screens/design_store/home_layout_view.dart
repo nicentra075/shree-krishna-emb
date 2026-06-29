@@ -502,7 +502,20 @@ class _SectionCardState extends State<_SectionCard> {
                 tooltip: AppLocalization.strings.delete,
                 icon: const Icon(Icons.delete_outline,
                     size: 20, color: Color(0xFFFF6B6B)),
-                onPressed: () => cubit.removeSection(section.id),
+                onPressed: () async {
+                  final strings = AppLocalization.strings;
+                  final confirmed = await AppDialog.showConfirm(
+                    context,
+                    title: strings.delete,
+                    message: section.title?.isNotEmpty == true
+                        ? '${strings.confirmDeleteMessage}\n\n${section.title!}'
+                        : strings.confirmDeleteMessage,
+                    confirmLabel: strings.delete,
+                    cancelLabel: strings.cancel,
+                    isDestructive: true,
+                  );
+                  if (confirmed == true) cubit.removeSection(section.id);
+                },
               ),
             ],
           ),

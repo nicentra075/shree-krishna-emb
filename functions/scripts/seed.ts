@@ -142,6 +142,18 @@ async function seed(): Promise<void> {
       fileName: `${seedDesign.id}.emb`,
       fileFormat: "EMB",
       fileSizeBytes: 350000 + index * 1000,
+      designFormats: ["EMB"],
+      // Downloadable source file, revealed in the user app once the design is
+      // owned. Placeholder URL for testing the owned-download flow.
+      designFiles: [
+        {
+          format: "EMB",
+          name: `${seedDesign.id}.emb`,
+          url: `https://picsum.photos/seed/${seedDesign.id}-file/600/600`,
+          path: `design_files/${seedDesign.id}.emb`,
+          sizeBytes: 350000 + index * 1000,
+        },
+      ],
       status: DesignStatus.active,
       isTrending: seedDesign.trending,
       avgRating: 0,

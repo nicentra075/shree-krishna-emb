@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_ui_toolbox/flutter_ui_toolbox.dart' hide AppTextField;
@@ -58,7 +57,7 @@ class _SignupScreenState extends State<SignupScreen> {
     final strings = AppLocalization.strings;
 
     return Scaffold(
-      backgroundColor: AppTheme.surfaceLight,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -155,13 +154,17 @@ class _SignupScreenState extends State<SignupScreen> {
 
           Text(
             'Create Account',
-            style: AppTextStyles.headlineLarge(color: AppTheme.textDark),
+            style: AppTextStyles.headlineLarge(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 8),
 
           Text(
             'Join ${AppLocalization.strings.appName} community',
-            style: AppTextStyles.bodyLarge(color: AppTheme.textBrown),
+            style: AppTextStyles.bodyLarge(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -176,11 +179,11 @@ class _SignupScreenState extends State<SignupScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.textDark.withValues(alpha: 0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 32,
               offset: const Offset(0, 12),
             ),
@@ -224,7 +227,7 @@ class _SignupScreenState extends State<SignupScreen> {
       validator: (value) => Validators.validateName(value),
       prefixIcon: Icon(
         Icons.person_outline,
-        color: AppTheme.primaryDark.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         size: 20,
       ),
     );
@@ -240,7 +243,7 @@ class _SignupScreenState extends State<SignupScreen> {
       validator: (value) => Validators.validateEmail(value),
       prefixIcon: Icon(
         Icons.mail_outline,
-        color: AppTheme.primaryDark.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         size: 20,
       ),
     );
@@ -259,14 +262,14 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           Icon(
             Icons.phone_outlined,
-            color: AppTheme.primaryDark.withValues(alpha: 0.5),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             size: 20,
           ),
           const SizedBox(width: 8),
           Text(
             '+91',
             style: AppTextStyles.bodyMedium(
-              color: AppTheme.textDark,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -286,7 +289,7 @@ class _SignupScreenState extends State<SignupScreen> {
       validator: (value) => Validators.validatePassword(value),
       prefixIcon: Icon(
         Icons.lock_outline,
-        color: AppTheme.primaryDark.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         size: 20,
       ),
       suffixIcon: GestureDetector(
@@ -297,7 +300,7 @@ class _SignupScreenState extends State<SignupScreen> {
         },
         child: Icon(
           _obscurePassword ? Icons.visibility_off : Icons.visibility,
-          color: AppTheme.primaryDark.withValues(alpha: 0.5),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           size: 20,
         ),
       ),
@@ -315,7 +318,7 @@ class _SignupScreenState extends State<SignupScreen> {
           Validators.validateConfirmPassword(_passwordController.text, value),
       prefixIcon: Icon(
         Icons.lock_outline,
-        color: AppTheme.primaryDark.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         size: 20,
       ),
       suffixIcon: GestureDetector(
@@ -326,7 +329,7 @@ class _SignupScreenState extends State<SignupScreen> {
         },
         child: Icon(
           _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-          color: AppTheme.primaryDark.withValues(alpha: 0.5),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           size: 20,
         ),
       ),
@@ -382,19 +385,25 @@ class _SignupScreenState extends State<SignupScreen> {
           Row(
             children: [
               Expanded(
-                child: Divider(color: AppTheme.borderLight, thickness: 1),
+                child: Divider(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  thickness: 1,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   'Or continue with',
                   style: AppTextStyles.bodySmall(
-                    color: AppTheme.textBrown.withValues(alpha: 0.6),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
               Expanded(
-                child: Divider(color: AppTheme.borderLight, thickness: 1),
+                child: Divider(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  thickness: 1,
+                ),
               ),
             ],
           ),
@@ -403,6 +412,7 @@ class _SignupScreenState extends State<SignupScreen> {
             children: [
               Expanded(
                 child: _buildSocialButton(
+                  context: context,
                   icon: Icons.email_outlined,
                   label: 'Google',
                   onTap: () {},
@@ -411,6 +421,7 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildSocialButton(
+                  context: context,
                   icon: Icons.phone_outlined,
                   label: 'Phone',
                   onTap: () {},
@@ -424,29 +435,31 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Widget _buildSocialButton({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          border: Border.all(color: AppTheme.borderLight, width: 1.5),
+          border: Border.all(color: colorScheme.outlineVariant, width: 1.5),
           borderRadius: BorderRadius.circular(14),
-          color: Colors.white,
+          color: colorScheme.surfaceContainerLowest,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 18, color: AppTheme.primaryDark),
+            Icon(icon, size: 18, color: colorScheme.primary),
             const SizedBox(width: 8),
             Text(
               label,
               style: AppTextStyles.labelMedium(
                 fontWeight: FontWeight.w600,
-                color: AppTheme.textBrown,
+                color: colorScheme.onSurface,
               ),
             ),
           ],
@@ -463,13 +476,15 @@ class _SignupScreenState extends State<SignupScreen> {
         child: RichText(
           text: TextSpan(
             text: "Already have an account? ",
-            style: AppTextStyles.bodyMedium(color: AppTheme.textBrown),
+            style: AppTextStyles.bodyMedium(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             children: [
               TextSpan(
                 text: 'Sign In',
                 style: AppTextStyles.bodyMedium(
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryDark,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
@@ -487,7 +502,6 @@ class _SignupScreenState extends State<SignupScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
 
     context.read<AuthBloc>().add(
       SignUpEvent(

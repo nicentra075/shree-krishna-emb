@@ -80,6 +80,19 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get recentActivity => 'Recent Activity';
   @override
+  String get newDesign => 'New Design';
+  @override
+  String get by => 'by';
+  @override
+  String get justNow => 'Just now';
+  @override
+  String minutesAgo(int minutes) =>
+      '$minutes minute${minutes == 1 ? '' : 's'} ago';
+  @override
+  String hoursAgo(int hours) => '$hours hour${hours == 1 ? '' : 's'} ago';
+  @override
+  String daysAgo(int days) => '$days day${days == 1 ? '' : 's'} ago';
+  @override
   String get analytics => 'Analytics';
   @override
   String get statistics => 'Statistics';
@@ -121,6 +134,11 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get uploading => 'Uploading';
   @override
+  String uploadingPercent(int percent) => 'Uploading $percent%';
+  @override
+  String uploadingBatch(int done, int total, int percent) =>
+      'Uploading $done/$total · $percent%';
+  @override
   String get dragDropHint =>
       'Drag & drop images here, or use Upload to add them in one shot.';
   @override
@@ -137,6 +155,16 @@ class EnUSStrings implements LocaleStrings {
   String get selectFromDevice => 'Select from device';
   @override
   String get selected => 'selected';
+  @override
+  String get designFiles => 'Design Files';
+  @override
+  String get designFileLibrary => 'Design File Library';
+  @override
+  String get uploadDesignFiles => 'Upload Design Files';
+  @override
+  String get addDesignFile => 'Add file';
+  @override
+  String get useFile => 'Use';
   @override
   String get alsoDeleteCategoriesDesigns =>
       'Also delete its categories and designs';
@@ -336,7 +364,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get support => 'Support';
   @override
-  String get searchPlaceholder => 'Search designers, designs or transactions...';
+  String get searchPlaceholder =>
+      'Search designers, designs or transactions...';
   @override
   String get insightsTitle => 'Shree Krishna Insights';
   @override
@@ -441,7 +470,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get adminLoginDescription => 'Sign in to access the admin dashboard';
   @override
-  String get adminLoginTagline => 'Streamline operations, track orders, and grow your embroidery business with our powerful admin dashboard.';
+  String get adminLoginTagline =>
+      'Streamline operations, track orders, and grow your embroidery business with our powerful admin dashboard.';
   @override
   String get adminLoginWelcome => 'Welcome Admin';
   @override
@@ -459,12 +489,14 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get adminSignIn => 'Sign In';
   @override
-  String get adminCopyright => '© 2026 Shree Krishna Embroidery. All rights reserved.';
+  String get adminCopyright =>
+      '© 2026 Shree Krishna Embroidery. All rights reserved.';
 
   @override
   String get enterYourEmail => 'Enter your email address';
   @override
-  String get resetLinkMessage => 'We\'ll send you a link to reset your password';
+  String get resetLinkMessage =>
+      'We\'ll send you a link to reset your password';
   @override
   String get sendResetLink => 'Send Reset Link';
   @override
@@ -562,4 +594,203 @@ class EnUSStrings implements LocaleStrings {
   String get sortPriceHighLow => 'Price: High to Low';
   @override
   String get statusLabel => 'Status';
+
+  // ---- Transactions / Orders ----
+  @override
+  String get orderId => 'Order ID';
+  @override
+  String get buyer => 'Buyer';
+  @override
+  String get items => 'Items';
+  @override
+  String get amount => 'Amount';
+  @override
+  String get allStatuses => 'All statuses';
+  @override
+  String get statusCreated => 'Created';
+  @override
+  String get statusPaid => 'Paid';
+  @override
+  String get statusFailed => 'Failed';
+  @override
+  String get statusRefundInitiated => 'Refund Initiated';
+  @override
+  String get statusRefunded => 'Refunded';
+  @override
+  String get paymentId => 'Payment ID';
+  @override
+  String get invoice => 'Invoice';
+  @override
+  String get timeline => 'Timeline';
+  @override
+  String get orderPlaced => 'Order placed';
+  @override
+  String get paidOn => 'Paid';
+  @override
+  String get refundedOn => 'Refunded';
+  @override
+  String get subtotal => 'Subtotal';
+  @override
+  String get platformFee => 'Platform Fee';
+  @override
+  String get gst => 'GST';
+  @override
+  String get total => 'Total';
+  @override
+  String get refund => 'Refund';
+  @override
+  String get refundOrder => 'Refund Order';
+  @override
+  String get refundReason => 'Refund Reason';
+  @override
+  String get refundReasonHint => 'Reason for the refund';
+  @override
+  String get refundConfirmTitle => 'Refund this order?';
+  @override
+  String get refundConfirmMessage =>
+      'This initiates a refund via the payment gateway. This cannot be undone.';
+  @override
+  String get refundSuccess => 'Refund initiated successfully';
+  @override
+  String get refundFailed => 'Refund failed';
+  @override
+  String get noTransactions => 'No transactions yet';
+  @override
+  String get filterByStatus => 'Filter by status';
+  @override
+  String get clearFilters => 'Clear filters';
+  @override
+  String get selectDateRange => 'Select date range';
+
+  // ---- Dashboard (live) ----
+  @override
+  String get totalDesigns => 'Total Designs';
+  @override
+  String get activeDesigns => 'Active Designs';
+  @override
+  String get pendingDesigns => 'Pending Designs';
+  @override
+  String get totalDesigners => 'Designers';
+  @override
+  String get ordersToday => 'Orders Today';
+  @override
+  String get revenueToday => 'Revenue Today';
+  @override
+  String get revenueLast7Days => 'Revenue (7 days)';
+  @override
+  String get totalRevenueAllTime => 'Total Revenue';
+  @override
+  String get revenueTrend => 'Revenue Trend';
+  @override
+  String get last7Days => 'Last 7 days';
+  @override
+  String get retryLabel => 'Retry';
+
+  // ---- Reports ----
+  @override
+  String get totalSales => 'Total Sales';
+  @override
+  String get ordersCount => 'Orders';
+  @override
+  String get averageOrderValue => 'Avg. Order Value';
+  @override
+  String get newUsers => 'New Users';
+  @override
+  String get topDesigns => 'Top Designs';
+  @override
+  String get topCategories => 'Top Categories';
+  @override
+  String get exportCsv => 'Export CSV';
+  @override
+  String get exportSalesSummary => 'Export Summary';
+  @override
+  String get exportLineItems => 'Export Line Items';
+  @override
+  String get unitsSold => 'Units';
+  @override
+  String get revenue => 'Revenue';
+  @override
+  String get exportSuccess => 'Exported successfully';
+  @override
+  String get exportCopiedToClipboard => 'CSV copied to clipboard';
+  @override
+  String get noReportData => 'No data for this period';
+
+  // ---- Payouts ----
+  @override
+  String get designer => 'Designer';
+  @override
+  String get earningsOwed => 'Earnings Owed';
+  @override
+  String get totalOwed => 'Total Owed';
+  @override
+  String get owed => 'Owed';
+  @override
+  String get grossSales => 'Gross Sales';
+  @override
+  String get noEarnings => 'No designer earnings yet';
+  @override
+  String get payoutsInterimNote =>
+      'Interim read-only view. Actual payouts arrive with the wallet module.';
+
+  // ---- Platform Fees / Payments settings ----
+  @override
+  String get platformFeePercent => 'Platform Fee (%)';
+  @override
+  String get gstPercent => 'GST (%)';
+  @override
+  String get sellerInfo => 'Seller Info';
+  @override
+  String get invoicePrefix => 'Invoice Prefix';
+  @override
+  String get sellerName => 'Seller Name';
+  @override
+  String get payments => 'Payments';
+  @override
+  String get paymentMode => 'Payment Mode';
+  @override
+  String get testMode => 'Test';
+  @override
+  String get liveMode => 'Live';
+  @override
+  String get liveModeWarning =>
+      'Live mode processes REAL payments. Make sure your live Razorpay keys are correct.';
+  @override
+  String get razorpayTestKey => 'Razorpay Test Key ID';
+  @override
+  String get razorpayLiveKey => 'Razorpay Live Key ID';
+  @override
+  String get razorpayKeyHint => 'rzp_xxx (Key ID only — not the Secret Key)';
+  @override
+  String get razorpayTestKeyHint => 'rzp_test_xxxxxxxx (Key ID only — not the Secret Key)';
+  @override
+  String get razorpayLiveKeyHint => 'rzp_live_xxxxxxxx (Key ID only — not the Secret Key)';
+  @override
+  String get razorpaySecretNote =>
+      'The Secret Key is encrypted and stored securely on the server — it is never shown again after saving. You can update it anytime.';
+  @override
+  String get razorpayTestSecretKey => 'Razorpay Test Secret Key';
+  @override
+  String get razorpayLiveSecretKey => 'Razorpay Live Secret Key';
+  @override
+  String get razorpaySecretHint => 'Paste the Key Secret';
+  @override
+  String get razorpaySecretSavedHint => 'Saved — leave blank to keep current';
+  @override
+  String get razorpaySecretSaved => 'Secret key saved securely';
+  @override
+  String get feeValidationError => 'Enter a value between 0 and 100';
+  @override
+  String get settingsTabGeneral => 'General';
+  @override
+  String get settingsTabPayments => 'Payments';
+  @override
+  String get settingsTabNotifications => 'Notifications';
+  @override
+  String get settingsTabSeed => 'Seed';
+  @override
+  String get demoData => 'Demo Data';
+  @override
+  String get notificationSettingsComingSoon =>
+      'Notification settings coming soon';
 }
