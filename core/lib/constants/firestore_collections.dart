@@ -35,6 +35,16 @@ class FirestoreCollections {
   static const String configHomeFeedDoc = 'homeFeed';
   static const String statsGlobalDoc = 'global';
   static const String countersInvoicesDoc = 'invoices';
+
+  // ---- notifications ----
+  /// config/notifications (single doc) — admin notification settings.
+  static const String configNotificationsDoc = 'notifications';
+  /// users/{uid}/fcm_tokens/{token}
+  static const String fcmTokens = 'fcm_tokens';
+  /// users/{uid}/notifications/{id}
+  static const String userNotifications = 'notifications';
+  /// admin_notifications/{id} (top-level shared admin feed)
+  static const String adminNotifications = 'admin_notifications';
 }
 
 /// Callable Cloud Function names + deployment region.
