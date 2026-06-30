@@ -18,6 +18,9 @@ export const Collections = {
   activity: "activity",
   adminOtps: "adminOtps",
   counters: "counters",
+  fcmTokens: "fcm_tokens",
+  userNotifications: "notifications",
+  adminNotifications: "admin_notifications",
   // Subcollections
   purchases: "purchases", // users/{uid}/purchases/{designId}
   reviews: "reviews", // designs/{designId}/reviews/{reviewerUid}
@@ -27,6 +30,7 @@ export const Docs = {
   configPlatform: "platform",
   configSecrets: "secrets",
   configHomeFeed: "homeFeed",
+  configNotifications: "notifications",
   statsGlobal: "global",
   countersInvoices: "invoices",
 } as const;
@@ -83,3 +87,13 @@ export const ActivityType = {
   refundInitiated: "refund_initiated",
   refundCompleted: "refund_completed",
 } as const;
+
+/** Mirrors Dart AppNotificationType.value. */
+export const NotificationType = {
+  newDesign: "newDesign",
+  purchase: "purchase",
+  broadcast: "broadcast",
+} as const;
+
+/** FCM topic every logged-in user subscribes to. */
+export const TOPIC_ALL_USERS = "all_users";
