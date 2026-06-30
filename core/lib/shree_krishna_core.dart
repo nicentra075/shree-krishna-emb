@@ -37,6 +37,7 @@ export 'models/platform_settings_model.dart';
 export 'models/stats_model.dart';
 export 'models/activity_model.dart';
 export 'models/app_notification_model.dart';
+export 'models/notification_settings_model.dart';
 
 // Entities (Domain Layer)
 // Add entity exports here as needed
