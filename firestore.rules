@@ -218,6 +218,38 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ==================== config/notifications (admin) ====================
+    match /config/notifications {
+      allow read:  if isAdmin();
+      allow write: if isAdmin()
+        && request.resource.data.dailySlots is list
+        && request.resource.data.dailySlots.size() <= 4;
+    }
+
+    // ==================== fcm tokens (owner) ====================
+    match /users/{uid}/fcm_tokens/{tokenId} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create, update, delete: if isOwner(uid);
+    }
+
+    // ==================== user inbox (functions write) ====================
+    match /users/{uid}/notifications/{id} {
+      allow read:   if isOwner(uid) || isAdmin();
+      allow create: if false;
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if isOwner(uid);
+    }
+
+    // ==================== admin inbox (functions write) ====================
+    match /admin_notifications/{id} {
+      allow read:   if isAdmin();
+      allow create: if false;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy']);
+      allow delete: if isAdmin();
+    }
+
     // Default deny for anything not matched above.
     match /{document=**} {
       allow read, write: if false;
