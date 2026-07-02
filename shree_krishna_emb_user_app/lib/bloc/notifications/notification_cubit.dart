@@ -44,6 +44,18 @@ class NotificationCubit extends Cubit<NotificationState> {
     );
   }
 
+  Future<void> markRead(String id) async {
+    final uid = _uid;
+    if (uid == null) return;
+    final result = await repository.markRead(uid, id);
+    result.fold(
+      (failure) => emit(state.copyWith(status: NotificationStatus.error, error: failure.message)),
+      // Success: the watch stream will push the refreshed list; clear any
+      // stale error so it doesn't linger in state.
+      (_) => emit(state.copyWith(error: null)),
+    );
+  }
+
   Future<void> delete(String id) async {
     final uid = _uid;
     if (uid == null) return;
