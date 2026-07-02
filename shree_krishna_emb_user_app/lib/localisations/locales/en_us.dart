@@ -524,4 +524,14 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get notificationsEmptyHint =>
       'New designs and updates will appear here.';
+
+  // ========== Relative Timestamps ==========
+  @override
+  String get timestampJustNow => 'now';
+  @override
+  String timeAgoMinutes(int minutes) => '${minutes}m';
+  @override
+  String timeAgoHours(int hours) => '${hours}h';
+  @override
+  String timeAgoDays(int days) => '${days}d';
 }

@@ -296,4 +296,8 @@ abstract class LocaleStrings {
   String get markAllRead;
   String get deleteNotification;
   String get notificationsEmptyHint;
+  String get timestampJustNow;
+  String timeAgoMinutes(int minutes);
+  String timeAgoHours(int hours);
+  String timeAgoDays(int days);
 }

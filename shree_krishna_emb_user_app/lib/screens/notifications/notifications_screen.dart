@@ -199,10 +199,10 @@ class _NotificationTile extends StatelessWidget {
   String _formatTimestamp(DateTime dt) {
     final now = DateTime.now();
     final diff = now.difference(dt);
-    if (diff.inMinutes < 1) return 'now';
-    if (diff.inHours < 1) return '${diff.inMinutes}m';
-    if (diff.inDays < 1) return '${diff.inHours}h';
-    if (diff.inDays < 7) return '${diff.inDays}d';
+    if (diff.inMinutes < 1) return AppLocalization.strings.timestampJustNow;
+    if (diff.inHours < 1) return AppLocalization.strings.timeAgoMinutes(diff.inMinutes);
+    if (diff.inDays < 1) return AppLocalization.strings.timeAgoHours(diff.inHours);
+    if (diff.inDays < 7) return AppLocalization.strings.timeAgoDays(diff.inDays);
     return '${dt.day}/${dt.month}/${dt.year}';
   }
 }

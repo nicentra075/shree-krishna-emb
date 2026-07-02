@@ -523,4 +523,14 @@ class HiINStrings implements LocaleStrings {
   String get deleteNotification => 'हटाएं';
   @override
   String get notificationsEmptyHint => 'नई डिज़ाइन और अपडेट यहाँ दिखेंगे।';
+
+  // ========== Relative Timestamps ==========
+  @override
+  String get timestampJustNow => 'अभी';
+  @override
+  String timeAgoMinutes(int minutes) => '$minutes मि';
+  @override
+  String timeAgoHours(int hours) => '$hours घं';
+  @override
+  String timeAgoDays(int days) => '$days दि';
 }
