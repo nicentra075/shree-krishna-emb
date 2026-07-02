@@ -17,8 +17,16 @@ import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
 import 'package:shree_krishna_emb/bloc/purchases/purchases_cubit.dart';
 import 'package:shree_krishna_emb/bloc/platform_config/platform_config_cubit.dart';
 import 'package:shree_krishna_emb/bloc/checkout/checkout_cubit.dart';
+import 'package:shree_krishna_emb/bloc/notifications/notification_cubit.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_fcm_token_datasource.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_notifications_datasource.dart';
 import 'package:shree_krishna_emb/data/datasources/firebase_wishlist_datasource.dart';
+import 'package:shree_krishna_emb/data/repositories/fcm_token_repository_impl.dart';
+import 'package:shree_krishna_emb/data/repositories/notifications_repository_impl.dart';
 import 'package:shree_krishna_emb/data/repositories/wishlist_repository_impl.dart';
+import 'package:shree_krishna_emb/data/services/notification_service.dart';
+import 'package:shree_krishna_emb/domain/repositories/fcm_token_repository.dart';
+import 'package:shree_krishna_emb/domain/repositories/notifications_repository.dart';
 import 'package:shree_krishna_emb/domain/repositories/wishlist_repository.dart';
 import 'package:shree_krishna_emb/data/datasources/firebase_cart_datasource.dart';
 import 'package:shree_krishna_emb/data/repositories/cart_repository_impl.dart';
@@ -171,6 +179,27 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
     PurchasesRepositoryImpl(dataSource: getIt()),
   );
   getIt.registerSingleton<PurchasesCubit>(PurchasesCubit(repository: getIt()));
+
+  // ===== Push notifications (FCM token registry + in-app feed) =====
+  getIt.registerSingleton<FcmTokenDataSource>(
+    FirebaseFcmTokenDataSource(firestore: getIt()),
+  );
+  getIt.registerSingleton<FcmTokenRepository>(
+    FcmTokenRepositoryImpl(dataSource: getIt()),
+  );
+  getIt.registerSingleton<NotificationService>(
+    NotificationService(tokenRepository: getIt()),
+  );
+  getIt.registerSingleton<NotificationsDataSource>(
+    FirebaseNotificationsDataSource(firestore: getIt()),
+  );
+  getIt.registerSingleton<NotificationsRepository>(
+    NotificationsRepositoryImpl(dataSource: getIt()),
+  );
+  // Singleton so the notification bell/badge stays in sync app-wide.
+  getIt.registerSingleton<NotificationCubit>(
+    NotificationCubit(repository: getIt()),
+  );
 
   // ===== Checkout =====
   // Client-side order writer (test/demo paths only).

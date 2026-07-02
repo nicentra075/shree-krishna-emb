@@ -13,6 +13,7 @@ import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
 import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
 import 'package:shree_krishna_emb/bloc/purchases/purchases_cubit.dart';
 import 'package:shree_krishna_emb/bloc/platform_config/platform_config_cubit.dart';
+import 'package:shree_krishna_emb/bloc/notifications/notification_cubit.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 import 'package:shree_krishna_emb/core/utils/global_navigator.dart';
@@ -98,6 +99,9 @@ class MainApp extends StatelessWidget {
         BlocProvider<PurchasesCubit>.value(value: getIt<PurchasesCubit>()),
         BlocProvider<PlatformConfigCubit>.value(
           value: getIt<PlatformConfigCubit>(),
+        ),
+        BlocProvider<NotificationCubit>.value(
+          value: getIt<NotificationCubit>(),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
