@@ -10,6 +10,7 @@ import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/dashboard/dashboard_stats_cubit.dart';
+import 'package:shree_krishna_emb_admin/bloc/notifications/admin_notifications_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/user_management/user_list_bloc.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_dashboard_stats_datasource.dart'
     show DashboardStats;
@@ -17,6 +18,7 @@ import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
 import 'package:shree_krishna_emb_admin/screens/design_store/design_store_content_view.dart';
+import 'package:shree_krishna_emb_admin/screens/notifications/admin_notifications_screen.dart';
 import 'package:shree_krishna_emb_admin/screens/payouts/payouts_content_view.dart';
 import 'package:shree_krishna_emb_admin/screens/reports/reports_content_view.dart';
 import 'package:shree_krishna_emb_admin/screens/settings/settings_content_view.dart';
@@ -38,6 +40,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   /// Key for the mobile Scaffold so the app-bar menu button can open the
   /// drawer (Scaffold.of(context) from the build context can't reach it).
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Start the shared admin notifications feed as soon as we know who the
+    // signed-in admin is — the dashboard only mounts post-auth, so the
+    // current AdminAuthBloc state already has it.
+    final authState = GetIt.instance<AdminAuthBloc>().state;
+    if (authState is AdminAuthAuthenticated) {
+      GetIt.instance<AdminNotificationsCubit>().start(authState.adminId);
+    }
+  }
 
   /// Build up-to-2-letter initials from a display name for the avatar.
   String _initials(String name) {
@@ -68,6 +82,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
             } else if (state is AdminAuthError) {
               AppSnackbar.showError(state.message);
+            } else if (state is AdminAuthAuthenticated) {
+              // Covers re-login as a different admin while the dashboard is
+              // already mounted (initState only catches the first sign-in).
+              GetIt.instance<AdminNotificationsCubit>().start(state.adminId);
             }
           },
           child: isMobile
@@ -290,10 +308,51 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 );
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined, size: 24),
-              color: Colors.grey.withValues(alpha: 0.6),
-              onPressed: () {},
+            BlocBuilder<AdminNotificationsCubit, AdminNotificationsState>(
+              bloc: GetIt.instance<AdminNotificationsCubit>(),
+              builder: (context, notifState) {
+                final unread = notifState.unreadCount;
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications_outlined, size: 24),
+                      color: Colors.grey.withValues(alpha: 0.6),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AdminNotificationsScreen(),
+                        ),
+                      ),
+                    ),
+                    if (unread > 0)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.error,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            unread > 9 ? '9+' : '$unread',
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onError,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
             ),
             IconButton(
               icon: const Icon(Icons.settings_outlined, size: 24),
