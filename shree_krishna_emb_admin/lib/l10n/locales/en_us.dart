@@ -793,4 +793,38 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get notificationSettingsComingSoon =>
       'Notification settings coming soon';
+
+  // ---- Notification settings (admin) ----
+  @override
+  String get notifications => 'Notifications';
+  @override
+  String get enablePushNotifications => 'Enable push notifications';
+  @override
+  String get purchaseAlerts => 'Purchase alerts';
+  @override
+  String get newDesignAlerts => 'New-design alerts to users';
+  @override
+  String get dailySendTimes => 'Daily send times (max 4)';
+  @override
+  String get addSendTime => 'Add send time';
+  @override
+  String get maxFourSlots => 'You can set up to 4 send times per day.';
+
+  // ---- Broadcast (admin) ----
+  @override
+  String get sendBroadcast => 'Send broadcast';
+  @override
+  String get broadcastTitle => 'Title';
+  @override
+  String get broadcastBody => 'Message';
+  @override
+  String get sendToAllUsers => 'Send to all users';
+  @override
+  String get broadcastSent => 'Notification sent to all users';
+
+  // ---- Admin notification inbox ----
+  @override
+  String get markAllRead => 'Mark all read';
+  @override
+  String get noAdminNotifications => 'No notifications yet';
 }

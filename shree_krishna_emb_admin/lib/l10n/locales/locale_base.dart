@@ -423,4 +423,24 @@ abstract class LocaleStrings {
   String get settingsTabSeed;
   String get demoData;
   String get notificationSettingsComingSoon;
+
+  // ---- Notification settings (admin) ----
+  String get notifications;
+  String get enablePushNotifications;
+  String get purchaseAlerts;
+  String get newDesignAlerts;
+  String get dailySendTimes;
+  String get addSendTime;
+  String get maxFourSlots;
+
+  // ---- Broadcast (admin) ----
+  String get sendBroadcast;
+  String get broadcastTitle;
+  String get broadcastBody;
+  String get sendToAllUsers;
+  String get broadcastSent;
+
+  // ---- Admin notification inbox ----
+  String get markAllRead;
+  String get noAdminNotifications;
 }

@@ -791,4 +791,38 @@ class HiINStrings implements LocaleStrings {
   String get demoData => 'डेमो डेटा';
   @override
   String get notificationSettingsComingSoon => 'सूचना सेटिंग्स जल्द आ रही हैं';
+
+  // ---- Notification settings (admin) ----
+  @override
+  String get notifications => 'सूचनाएं';
+  @override
+  String get enablePushNotifications => 'पुश सूचनाएं सक्षम करें';
+  @override
+  String get purchaseAlerts => 'खरीद अलर्ट';
+  @override
+  String get newDesignAlerts => 'उपयोगकर्ताओं को नई डिज़ाइन अलर्ट';
+  @override
+  String get dailySendTimes => 'दैनिक भेजने का समय (अधिकतम 4)';
+  @override
+  String get addSendTime => 'समय जोड़ें';
+  @override
+  String get maxFourSlots => 'आप प्रतिदिन 4 समय तक सेट कर सकते हैं।';
+
+  // ---- Broadcast (admin) ----
+  @override
+  String get sendBroadcast => 'ब्रॉडकास्ट भेजें';
+  @override
+  String get broadcastTitle => 'शीर्षक';
+  @override
+  String get broadcastBody => 'संदेश';
+  @override
+  String get sendToAllUsers => 'सभी उपयोगकर्ताओं को भेजें';
+  @override
+  String get broadcastSent => 'सभी उपयोगकर्ताओं को सूचना भेजी गई';
+
+  // ---- Admin notification inbox ----
+  @override
+  String get markAllRead => 'सभी पढ़ी हुई चिह्नित करें';
+  @override
+  String get noAdminNotifications => 'अभी कोई सूचना नहीं';
 }
