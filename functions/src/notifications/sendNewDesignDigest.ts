@@ -114,7 +114,9 @@ async function claimSlot(
 
     if (firedToday.includes(due) || firedToday.length >= maxSlotsPerDay) return false;
 
-    const markFired = { ...firedSlots, [today]: [...firedToday, due] };
+    // Prune stale day-keys: persist only today's slots so firedSlots doesn't
+    // grow unbounded across days (design spec §6.4).
+    const markFired = { [today]: [...firedToday, due] };
     tx.set(ref, { firedSlots: markFired, newDesignCursor: newCursorIso }, { merge: true });
     return true;
   });
