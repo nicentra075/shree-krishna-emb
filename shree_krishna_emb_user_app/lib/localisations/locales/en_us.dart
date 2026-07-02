@@ -513,4 +513,15 @@ class EnUSStrings implements LocaleStrings {
   String get cartLimitReached => 'Cart limit reached';
   @override
   String get viewMyPurchases => 'My Purchases';
+
+  // ========== Notifications ==========
+  @override
+  String get noNotifications => 'No notifications yet';
+  @override
+  String get markAllRead => 'Mark all read';
+  @override
+  String get deleteNotification => 'Delete';
+  @override
+  String get notificationsEmptyHint =>
+      'New designs and updates will appear here.';
 }

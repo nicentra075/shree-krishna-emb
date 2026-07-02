@@ -289,4 +289,11 @@ abstract class LocaleStrings {
   String get addedToCart;
   String get cartLimitReached;
   String get viewMyPurchases;
+
+  // ========== Notifications ==========
+  // Note: `notifications` (screen/menu title) already declared above under Settings.
+  String get noNotifications;
+  String get markAllRead;
+  String get deleteNotification;
+  String get notificationsEmptyHint;
 }

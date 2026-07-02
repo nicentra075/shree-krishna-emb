@@ -513,4 +513,14 @@ class HiINStrings implements LocaleStrings {
   String get cartLimitReached => 'कार्ट सीमा पूरी हुई';
   @override
   String get viewMyPurchases => 'मेरी खरीदारी';
+
+  // ========== Notifications ==========
+  @override
+  String get noNotifications => 'अभी कोई सूचना नहीं';
+  @override
+  String get markAllRead => 'सभी पढ़ी हुई चिह्नित करें';
+  @override
+  String get deleteNotification => 'हटाएं';
+  @override
+  String get notificationsEmptyHint => 'नई डिज़ाइन और अपडेट यहाँ दिखेंगे।';
 }
