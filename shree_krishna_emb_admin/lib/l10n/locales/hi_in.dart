@@ -819,10 +819,21 @@ class HiINStrings implements LocaleStrings {
   String get sendToAllUsers => 'सभी उपयोगकर्ताओं को भेजें';
   @override
   String get broadcastSent => 'सभी उपयोगकर्ताओं को सूचना भेजी गई';
+  @override
+  String get broadcastConfirmMessage =>
+      'यह सभी उपयोगकर्ताओं को पुश सूचना भेजेगा। जारी रखें?';
+  @override
+  String get broadcastTitleRequired => 'शीर्षक आवश्यक है';
+  @override
+  String get broadcastTitleTooLong => 'शीर्षक अधिकतम 120 अक्षर का हो सकता है';
+  @override
+  String get broadcastBodyRequired => 'संदेश आवश्यक है';
 
   // ---- Admin notification inbox ----
   @override
   String get markAllRead => 'सभी पढ़ी हुई चिह्नित करें';
   @override
   String get noAdminNotifications => 'अभी कोई सूचना नहीं';
+  @override
+  String get adminNotificationsTitle => 'सूचनाएं';
 }

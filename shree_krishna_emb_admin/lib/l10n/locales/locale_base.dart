@@ -439,8 +439,13 @@ abstract class LocaleStrings {
   String get broadcastBody;
   String get sendToAllUsers;
   String get broadcastSent;
+  String get broadcastConfirmMessage;
+  String get broadcastTitleRequired;
+  String get broadcastTitleTooLong;
+  String get broadcastBodyRequired;
 
   // ---- Admin notification inbox ----
   String get markAllRead;
   String get noAdminNotifications;
+  String get adminNotificationsTitle;
 }

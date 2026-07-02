@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/dashboard/dashboard_stats_cubit.dart';
+import 'package:shree_krishna_emb_admin/bloc/notifications/broadcast_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/categories_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/collections_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/designs_cubit.dart';
@@ -20,6 +21,7 @@ import 'package:shree_krishna_emb_admin/bloc/platform_config/platform_config_cub
 import 'package:shree_krishna_emb_admin/bloc/reports/reports_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/transactions/orders_cubit.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_admin_auth_datasource.dart';
+import 'package:shree_krishna_emb_admin/data/services/broadcast_service.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_image_storage_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_media_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_notification_settings_datasource.dart';
@@ -270,5 +272,13 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
     () => NotificationSettingsCubit(
       repository: getIt<NotificationSettingsRepository>(),
     ),
+  );
+
+  // BROADCAST (admin ad-hoc announcement to all users via Cloud Function).
+  getIt.registerSingleton<BroadcastService>(
+    FunctionsBroadcastService(functions: getIt<FirebaseFunctions>()),
+  );
+  getIt.registerFactory<BroadcastCubit>(
+    () => BroadcastCubit(service: getIt<BroadcastService>()),
   );
 }

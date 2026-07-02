@@ -821,10 +821,21 @@ class EnUSStrings implements LocaleStrings {
   String get sendToAllUsers => 'Send to all users';
   @override
   String get broadcastSent => 'Notification sent to all users';
+  @override
+  String get broadcastConfirmMessage =>
+      'This will send a push notification to every user. Continue?';
+  @override
+  String get broadcastTitleRequired => 'Title is required';
+  @override
+  String get broadcastTitleTooLong => 'Title must be 120 characters or fewer';
+  @override
+  String get broadcastBodyRequired => 'Message is required';
 
   // ---- Admin notification inbox ----
   @override
   String get markAllRead => 'Mark all read';
   @override
   String get noAdminNotifications => 'No notifications yet';
+  @override
+  String get adminNotificationsTitle => 'Notifications';
 }
