@@ -9,8 +9,11 @@ import 'package:shree_krishna_emb/screens/work/work_screen.dart';
 import 'package:shree_krishna_emb/screens/purchases/my_purchases_screen.dart';
 import 'package:shree_krishna_emb/bloc/work/work_bloc.dart';
 import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
+import 'package:shree_krishna_emb/bloc/notifications/notification_cubit.dart';
+import 'package:shree_krishna_emb/bloc/notifications/notification_state.dart';
 import 'package:shree_krishna_emb/screens/cart/cart_screen.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
+import 'package:shree_krishna_emb/routes/app_routes.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -151,33 +154,55 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  /// Notification bell with an unread indicator dot.
+  /// Notification bell with a live unread-count badge, bound to the
+  /// app-wide [NotificationCubit].
   Widget _buildNotificationAction(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // TODO: Navigate to notifications
-      },
-      child: Stack(
-        children: [
-          Icon(
-            Icons.notifications_outlined,
-            color: AppTheme.primaryLight,
-            size: 24,
-          ),
-          Positioned(
-            right: 0,
-            top: 0,
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
+    return BlocBuilder<NotificationCubit, NotificationState>(
+      buildWhen: (prev, curr) => prev.unreadCount != curr.unreadCount,
+      builder: (context, state) {
+        final count = state.unreadCount;
+        return GestureDetector(
+          onTap: () => AppRoutes.navigateToNotifications(context),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(
+                Icons.notifications_outlined,
+                color: AppTheme.primaryLight,
+                size: 24,
               ),
-            ),
+              if (count > 0)
+                Positioned(
+                  right: -4,
+                  top: -4,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        count > 9 ? '9+' : '$count',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.labelSmall(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ).copyWith(fontSize: 9),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

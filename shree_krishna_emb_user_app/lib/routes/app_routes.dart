@@ -15,6 +15,7 @@ import 'package:shree_krishna_emb/screens/catalog/view_all_screen.dart';
 import 'package:shree_krishna_emb/screens/catalog/design_detail_screen.dart';
 import 'package:shree_krishna_emb/screens/catalog/favorites_screen.dart';
 import 'package:shree_krishna_emb/screens/settings/settings_screen.dart';
+import 'package:shree_krishna_emb/screens/notifications/notifications_screen.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 
@@ -96,6 +97,9 @@ class AppRoutes {
 
   /// Favorites (wishlist) screen.
   static const String favorites = '/favorites';
+
+  /// Notification center screen.
+  static const String notifications = '/notifications';
 
   // Add more routes here as you build the app
   // Convention: use lowercase with forward slash prefix
@@ -246,6 +250,13 @@ class AppRoutes {
           transitionType: _TransitionType.fadeInSlide,
         );
 
+      case notifications:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const NotificationsScreen(),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
       // Add more routes here:
       // case home:
       //   return _buildRoute(
@@ -335,6 +346,11 @@ class AppRoutes {
       BuildContext context, String designId) {
     return Navigator.of(context)
         .pushNamed(designDetail, arguments: designId);
+  }
+
+  /// Navigate to the notification center screen.
+  static Future<void> navigateToNotifications(BuildContext context) {
+    return Navigator.of(context).pushNamed(notifications);
   }
 
   /// Routes a home/section target string to the right screen.
