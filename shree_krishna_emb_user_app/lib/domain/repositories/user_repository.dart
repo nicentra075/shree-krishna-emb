@@ -27,4 +27,5 @@ abstract class UserRepository {
 
   /// Search users
   Future<Either<Failure, List<UserModel>>> searchUsers(String query);
+  
 }

@@ -78,6 +78,14 @@ flutter build ios --release          # iOS (needs macOS + Xcode signing)
 # 3) Build + deploy the user app:
 #      cd shree_krishna_emb_user_app && flutter build web --release && firebase deploy --only hosting
 
+# 3) Build : 
+cd shree_krishna_emb_user_app
+
+flutter build apk --release          # Android APK         -> build/app/outputs/flutter-apk/
+flutter build appbundle --release    # Android App Bundle  -> build/app/outputs/bundle/  (Play Store)
+
+
+
 
 # ==========================================================================
 # BACKEND  ->  deploy from PROJECT ROOT (not the app folders)
@@ -89,3 +97,56 @@ firebase deploy --only firestore:rules
 firebase deploy --only firestore:indexes
 firebase deploy --only storage
 firebase deploy --only functions
+
+
+# ==========================================================================
+# FIREBASE APP DISTRIBUTION  (share test builds with testers, via firebase CLI)
+# ==========================================================================
+# App Distribution takes an APK or IPA (NOT an .aab app bundle) and the
+# Firebase APP ID (NOT the applicationId). App IDs for this project
+# (from each app's google-services.json / GoogleService-Info.plist):
+#   USER  android : 1:879320012130:android:6ec1a05e0b37ce34d8083b
+#   ADMIN android : 1:879320012130:android:ea7f7a3abf5e4402d8083b
+#   USER  ios     : 1:879320012130:ios:99cf6a44d6abd146d8083b
+#
+# Always pin the account with access:  --account nicentra.solutions@gmail.com
+#
+# One-time: create a tester group in the console
+#   Firebase console -> App Distribution -> Testers & Groups -> New group
+#   (give it an alias, e.g. "testers"). Or skip groups and use --testers emails.
+
+# --- USER app (Android): build release APK, then distribute --------------
+cd shree_krishna_emb_user_app
+flutter build apk --release
+firebase appdistribution:distribute \
+  build/app/outputs/flutter-apk/app-release.apk \
+  --app 1:879320012130:android:6ec1a05e0b37ce34d8083b \
+  --groups "tester-group" \
+  --release-notes "Added the test razorpay feature and full purchase flow of the designs" \
+  --account nicentra.solutions@gmail.com
+
+# Distribute to specific emails instead of a group:
+#   ...--testers "a@example.com,b@example.com"   (use INSTEAD of --groups)
+# Long notes / many testers from files:
+#   ...--release-notes-file notes.txt   --testers-file testers.txt
+
+# --- ADMIN app (Android) -------------------------------------------------
+cd shree_krishna_emb_admin
+flutter build apk --release
+firebase appdistribution:distribute \
+  build/app/outputs/flutter-apk/app-release.apk \
+  --app 1:879320012130:android:ea7f7a3abf5e4402d8083b \
+  --groups "tester-group" \
+  --release-notes "Admin test build" \
+  --account nicentra.solutions@gmail.com
+
+# --- USER app (iOS) — needs macOS + Xcode signing + an .ipa --------------
+# App Distribution for iOS requires each tester's device UDID registered
+# (ad-hoc provisioning); for open testing use TestFlight instead.
+# cd shree_krishna_emb_user_app
+# flutter build ipa --release
+# firebase appdistribution:distribute \
+#   build/ios/ipa/*.ipa \
+#   --app 1:879320012130:ios:99cf6a44d6abd146d8083b \
+#   --groups "testers" \
+#   --account nicentra.solutions@gmail.com
