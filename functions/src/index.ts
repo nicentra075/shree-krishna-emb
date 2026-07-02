@@ -11,6 +11,12 @@
  *   aggregates/onOrderWrite        (trigger)   stats/global + statsDaily
  *   users/assignUserId             (trigger)   unique sequential userId
  *
+ * Push notifications — exported here:
+ *   notifications/broadcastNotification (onCall)    admin ad-hoc announcement
+ *   notifications/onOrderFinalized      (trigger)   admin purchase inbox alert
+ *   notifications/onDesignWritten       (trigger)   stamp activatedAt
+ *   notifications/sendNewDesignDigest   (scheduled) new-design digest, <=4/day
+ *
  * Deploy: see functions/RAZORPAY_SETUP.md for secrets + webhook setup.
  */
 import { setGlobalOptions } from "firebase-functions/v2";
@@ -33,3 +39,9 @@ export { onOrderWrite } from "./aggregates/stats";
 
 // ---- Users ------------------------------------------------------------------
 export { assignUserId } from "./users/assignUserId";
+
+// ---- Notifications ------------------------------------------------------------------
+export { broadcastNotification } from "./notifications/broadcastNotification";
+export { onOrderFinalized } from "./notifications/onOrderFinalized";
+export { onDesignWritten } from "./notifications/onDesignWritten";
+export { sendNewDesignDigest } from "./notifications/sendNewDesignDigest";
