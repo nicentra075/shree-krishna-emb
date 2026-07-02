@@ -21,6 +21,7 @@ import 'package:shree_krishna_emb_admin/bloc/transactions/orders_cubit.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_admin_auth_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_image_storage_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_media_datasource.dart';
+import 'package:shree_krishna_emb_admin/data/datasources/firebase_notification_settings_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_design_file_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_catalog_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_dashboard_stats_datasource.dart';
@@ -35,6 +36,7 @@ import 'package:shree_krishna_emb_admin/data/repositories/catalog_repository_imp
 import 'package:shree_krishna_emb_admin/data/repositories/dashboard_stats_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/home_config_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/media_repository_impl.dart';
+import 'package:shree_krishna_emb_admin/data/repositories/notification_settings_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/design_file_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/orders_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/payouts_repository_impl.dart';
@@ -43,6 +45,7 @@ import 'package:shree_krishna_emb_admin/data/repositories/reports_repository_imp
 import 'package:shree_krishna_emb_admin/data/repositories/user_list_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/dashboard_stats_repository.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/media_repository.dart';
+import 'package:shree_krishna_emb_admin/domain/repositories/notification_settings_repository.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/design_file_repository.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/admin_auth_repository.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/catalog_repository.dart';
@@ -250,5 +253,16 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
   );
   getIt.registerFactory<PayoutsCubit>(
     () => PayoutsCubit(repository: getIt<PayoutsRepository>()),
+  );
+
+  // NOTIFICATION SETTINGS (`config/notifications`) - master toggle,
+  // purchase/new-design alert toggles, daily send-time slots.
+  getIt.registerSingleton<NotificationSettingsDataSource>(
+    FirebaseNotificationSettingsDataSource(firestore: getIt<FirebaseFirestore>()),
+  );
+  getIt.registerSingleton<NotificationSettingsRepository>(
+    NotificationSettingsRepositoryImpl(
+      dataSource: getIt<NotificationSettingsDataSource>(),
+    ),
   );
 }
