@@ -47,9 +47,6 @@ export const sendNewDesignDigest = onSchedule("every 30 minutes", async () => {
   const due = selectDueSlot({ slots, firedToday, nowHHmm: hhmm(now, offset) });
   if (!due) return;
 
-  // Mark fired up-front (so empty windows don't re-poll every 30 min).
-  const markFired = { ...firedSlots, [today]: [...firedToday, due] };
-
   const q = db
     .collection(Collections.designs)
     .where("status", "==", DesignStatus.active)
@@ -58,31 +55,67 @@ export const sendNewDesignDigest = onSchedule("every 30 minutes", async () => {
 
   const designs = await q.get();
 
-  if (designs.empty) {
-    await ref.set({ firedSlots: markFired }, { merge: true });
-    return;
-  }
-
   const count = designs.size;
-  const newest = designs.docs[designs.docs.length - 1];
-  const nd = newest.data() as Record<string, unknown>;
+  const newest = count > 0 ? designs.docs[designs.docs.length - 1] : undefined;
+  const nd = newest?.data() as Record<string, unknown> | undefined;
+  const newestActivatedAt = nd?.activatedAt as { toDate?: () => Date } | undefined;
+  const newCursorIso =
+    typeof newestActivatedAt?.toDate === "function" ? newestActivatedAt.toDate().toISOString() : cursorRaw;
+
+  // Atomically claim the slot (and advance the cursor) so two overlapping
+  // scheduler invocations can never both decide the same slot is due.
+  const claimed = await claimSlot(ref, { today, due, maxSlotsPerDay: MAX_SLOTS_PER_DAY, newCursorIso });
+  if (!claimed) return;
+
+  if (designs.empty) return;
+
   const image =
-    (nd.thumbUrl as string) ?? (nd.previewUrl as string) ?? ((nd.images as string[] | undefined)?.[0]) ?? null;
+    (nd?.thumbUrl as string) ?? (nd?.previewUrl as string) ?? ((nd?.images as string[] | undefined)?.[0]) ?? null;
 
   const payload = {
     type: NotificationType.newDesign,
     title: count === 1 ? "New design just dropped ✨" : `${count} new designs just dropped ✨`,
     body: "Tap to explore the latest designs.",
     imageUrl: image,
-    data: { route: "design", designId: newest.id },
+    data: { route: "design", designId: newest!.id },
   };
 
   await sendToTopic(TOPIC_ALL_USERS, payload);
   await fanOutInbox(payload);
-
-  // Advance cursor + persist fired slot.
-  const newestActivatedAt = nd.activatedAt as { toDate?: () => Date } | undefined;
-  const cursorIso =
-    typeof newestActivatedAt?.toDate === "function" ? newestActivatedAt.toDate().toISOString() : new Date().toISOString();
-  await ref.set({ firedSlots: markFired, newDesignCursor: cursorIso }, { merge: true });
 });
+
+interface ClaimSlotArgs {
+  today: string;
+  due: string;
+  maxSlotsPerDay: number;
+  newCursorIso: string;
+}
+
+/**
+ * Atomically re-checks and claims `due` for `today` inside a transaction:
+ * re-reads config/notifications, aborts (returns false) if the slot is
+ * already fired or the daily cap is already hit, otherwise writes the
+ * updated firedSlots + newDesignCursor and returns true.
+ *
+ * Ordering: the slot is claimed BEFORE the send happens in the caller. A
+ * crash between claim and send means a slot is marked fired but no digest
+ * went out (users miss one digest) — acceptable, and far safer than the
+ * alternative of sending duplicate digests to all users.
+ */
+async function claimSlot(
+  ref: FirebaseFirestore.DocumentReference,
+  { today, due, maxSlotsPerDay, newCursorIso }: ClaimSlotArgs,
+): Promise<boolean> {
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const s = (snap.data() as Record<string, unknown>) ?? {};
+    const firedSlots = (s.firedSlots as Record<string, string[]>) ?? {};
+    const firedToday = firedSlots[today] ?? [];
+
+    if (firedToday.includes(due) || firedToday.length >= maxSlotsPerDay) return false;
+
+    const markFired = { ...firedSlots, [today]: [...firedToday, due] };
+    tx.set(ref, { firedSlots: markFired, newDesignCursor: newCursorIso }, { merge: true });
+    return true;
+  });
+}
