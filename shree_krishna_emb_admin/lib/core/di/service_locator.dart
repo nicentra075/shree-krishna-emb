@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/dashboard/dashboard_stats_cubit.dart';
+import 'package:shree_krishna_emb_admin/bloc/notifications/admin_notifications_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/notifications/broadcast_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/categories_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/collections_cubit.dart';
@@ -21,6 +22,7 @@ import 'package:shree_krishna_emb_admin/bloc/platform_config/platform_config_cub
 import 'package:shree_krishna_emb_admin/bloc/reports/reports_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/transactions/orders_cubit.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_admin_auth_datasource.dart';
+import 'package:shree_krishna_emb_admin/data/datasources/firebase_admin_notifications_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/services/broadcast_service.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_image_storage_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_media_datasource.dart';
@@ -35,6 +37,7 @@ import 'package:shree_krishna_emb_admin/data/datasources/firebase_platform_confi
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_reports_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_user_list_datasource.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/admin_auth_repository_impl.dart';
+import 'package:shree_krishna_emb_admin/data/repositories/admin_notifications_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/catalog_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/dashboard_stats_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/home_config_repository_impl.dart';
@@ -46,6 +49,7 @@ import 'package:shree_krishna_emb_admin/data/repositories/payouts_repository_imp
 import 'package:shree_krishna_emb_admin/data/repositories/platform_config_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/reports_repository_impl.dart';
 import 'package:shree_krishna_emb_admin/data/repositories/user_list_repository_impl.dart';
+import 'package:shree_krishna_emb_admin/domain/repositories/admin_notifications_repository.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/dashboard_stats_repository.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/media_repository.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/notification_settings_repository.dart';
@@ -280,5 +284,21 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
   );
   getIt.registerFactory<BroadcastCubit>(
     () => BroadcastCubit(service: getIt<BroadcastService>()),
+  );
+
+  // ADMIN NOTIFICATIONS INBOX (`admin_notifications`) - shared purchase-alert
+  // / broadcast feed. Singleton cubit so the dashboard bell badge and the
+  // inbox screen share one live subscription (started via .start(adminId)
+  // once the admin is authenticated).
+  getIt.registerSingleton<AdminNotificationsDataSource>(
+    FirebaseAdminNotificationsDataSource(firestore: getIt<FirebaseFirestore>()),
+  );
+  getIt.registerSingleton<AdminNotificationsRepository>(
+    AdminNotificationsRepositoryImpl(
+      dataSource: getIt<AdminNotificationsDataSource>(),
+    ),
+  );
+  getIt.registerSingleton<AdminNotificationsCubit>(
+    AdminNotificationsCubit(repository: getIt<AdminNotificationsRepository>()),
   );
 }
