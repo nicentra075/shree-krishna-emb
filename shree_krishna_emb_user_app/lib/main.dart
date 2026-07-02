@@ -98,8 +98,19 @@ Future<void> _enableScreenProtection() async {
   }
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  // Cached uid of the last authenticated user. AuthUnauthenticated/
+  // AuthSuspended fire *after* FirebaseAuth.signOut() completes, so
+  // FirebaseAuth.instance.currentUser is already null by then - we can't
+  // rely on it to know whose FCM token to remove. Track it ourselves.
+  String? _lastUid;
 
   @override
   Widget build(BuildContext context) {
@@ -125,12 +136,14 @@ class MainApp extends StatelessWidget {
         listener: (context, state) async {
           final svc = getIt<NotificationService>();
           if (state is AuthAuthenticated) {
+            _lastUid = state.user.id;
             await svc.onLogin(state.user.id);
             getIt<NotificationCubit>().start(state.user.id);
-          } else if (state is AuthUnauthenticated) {
-            final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+          } else if (state is AuthUnauthenticated || state is AuthSuspended) {
+            final uid = _lastUid ?? FirebaseAuth.instance.currentUser?.uid ?? '';
             await svc.onLogout(uid);
             getIt<NotificationCubit>().stop();
+            _lastUid = null;
           }
         },
         child: BlocBuilder<ThemeCubit, ThemeMode>(

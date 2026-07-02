@@ -4,6 +4,7 @@ import 'package:shree_krishna_core/errors/failures.dart';
 import 'package:shree_krishna_core/models/app_notification_model.dart';
 import 'package:shree_krishna_core/utils/either.dart';
 import 'package:shree_krishna_emb/bloc/notifications/notification_cubit.dart';
+import 'package:shree_krishna_emb/bloc/notifications/notification_state.dart';
 import 'package:shree_krishna_emb/domain/repositories/notifications_repository.dart';
 
 class _Repo implements NotificationsRepository {
@@ -31,17 +32,21 @@ class _Repo implements NotificationsRepository {
   int markAllReadCalls = 0;
   int deleteCalls = 0;
   String? lastDeleteId;
+  bool failMarkAllRead = false;
+  bool failDelete = false;
 
   @override
   Future<Either<Failure, void>> delete(String uid, String id) async {
     deleteCalls++;
     lastDeleteId = id;
+    if (failDelete) return const Left(ServerFailure('delete failed'));
     return const Right(null);
   }
 
   @override
   Future<Either<Failure, void>> markAllRead(String uid) async {
     markAllReadCalls++;
+    if (failMarkAllRead) return const Left(ServerFailure('markAllRead failed'));
     return const Right(null);
   }
 
@@ -91,6 +96,42 @@ void main() {
     await cubit.delete('a');
     expect(repo.deleteCalls, 1);
     expect(repo.lastDeleteId, 'a');
+    await cubit.close();
+  });
+
+  test('markAllRead emits error state when repository returns Left', () async {
+    final repo = _Repo()..failMarkAllRead = true;
+    final cubit = NotificationCubit(repository: repo);
+    cubit.start('u1');
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    await cubit.markAllRead();
+    expect(cubit.state.status, NotificationStatus.error);
+    expect(cubit.state.error, 'markAllRead failed');
+    await cubit.close();
+  });
+
+  test('delete emits error state when repository returns Left', () async {
+    final repo = _Repo()..failDelete = true;
+    final cubit = NotificationCubit(repository: repo);
+    cubit.start('u1');
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    await cubit.delete('a');
+    expect(cubit.state.status, NotificationStatus.error);
+    expect(cubit.state.error, 'delete failed');
+    await cubit.close();
+  });
+
+  test('markAllRead clears a stale error on success', () async {
+    final repo = _Repo()..failMarkAllRead = true;
+    final cubit = NotificationCubit(repository: repo);
+    cubit.start('u1');
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    await cubit.markAllRead();
+    expect(cubit.state.error, isNotNull);
+
+    repo.failMarkAllRead = false;
+    await cubit.markAllRead();
+    expect(cubit.state.error, isNull);
     await cubit.close();
   });
 }
