@@ -14,6 +14,8 @@ import 'package:shree_krishna_emb/bloc/notifications/notification_state.dart';
 import 'package:shree_krishna_emb/screens/cart/cart_screen.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
+import 'package:shree_krishna_emb/core/di/service_locator.dart';
+import 'package:shree_krishna_emb/data/services/notification_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -25,6 +27,23 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedBottomNav = 0;
   DateTime? _lastBackPressTime;
+  bool _consumedInitialMessage = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Deferred from NotificationService.onLogin: at that point the splash
+    // screen still owns the navigator, so a terminated-launch deep link
+    // pushed there would be wiped out when splash clears the stack on its
+    // way to home. By the time MainScreen (the `home` route target) is
+    // mounted, that stack-clear has already happened, so it's safe to push
+    // the design detail screen on top now.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_consumedInitialMessage) return;
+      _consumedInitialMessage = true;
+      getIt<NotificationService>().consumeInitialMessage();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

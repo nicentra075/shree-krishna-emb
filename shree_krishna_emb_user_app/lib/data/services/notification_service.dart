@@ -79,6 +79,13 @@ class NotificationService {
   }
 
   /// Registers this device for push after a successful login.
+  ///
+  /// Deliberately does NOT call [consumeInitialMessage] here: on a
+  /// terminated-app launch, onLogin runs while the splash screen still owns
+  /// the navigator, so a route pushed here would be wiped out when splash
+  /// completes and clears the stack via `pushNamedAndRemoveUntil`. The home
+  /// screen (`MainScreen`) calls [consumeInitialMessage] itself once it is
+  /// mounted, so the deep-linked route survives.
   Future<void> onLogin(String uid) async {
     try {
       await _fm.requestPermission();
@@ -93,7 +100,6 @@ class NotificationService {
       });
 
       await _fm.subscribeToTopic(topicAllUsers);
-      await consumeInitialMessage();
     } catch (_) {
       // Non-fatal: push setup should never block login. getToken() in
       // particular can throw on web without a configured VAPID key.
