@@ -2,13 +2,17 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:screen_protector/screen_protector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/firebase_options.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
+import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
 import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
 import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
 import 'package:shree_krishna_emb/bloc/purchases/purchases_cubit.dart';
@@ -17,6 +21,7 @@ import 'package:shree_krishna_emb/bloc/notifications/notification_cubit.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 import 'package:shree_krishna_emb/core/utils/global_navigator.dart';
+import 'package:shree_krishna_emb/data/services/notification_service.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
@@ -49,10 +54,18 @@ void main() {
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
+      // Must be registered before runApp so background/terminated pushes are
+      // handled even if the app was launched by tapping a notification.
+      FirebaseMessaging.onBackgroundMessage(fcmBackgroundHandler);
+
       final prefs = await SharedPreferences.getInstance();
       await AppLocalization.initialize(prefs);
 
       await setupServiceLocator(prefs);
+
+      // Sets up local-notification display + foreground/background tap
+      // listeners. Token registration happens per-user in the auth listener.
+      await getIt<NotificationService>().init();
 
       // Initialize snackbar with global navigator
       AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
@@ -94,6 +107,7 @@ class MainApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
+        BlocProvider<AuthBloc>.value(value: getIt<AuthBloc>()),
         BlocProvider<WishlistCubit>.value(value: getIt<WishlistCubit>()),
         BlocProvider<CartCubit>.value(value: getIt<CartCubit>()),
         BlocProvider<PurchasesCubit>.value(value: getIt<PurchasesCubit>()),
@@ -104,27 +118,43 @@ class MainApp extends StatelessWidget {
           value: getIt<NotificationCubit>(),
         ),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeMode>(
-        builder: (context, themeMode) {
-          // Rebuild the whole tree on locale change (strings are static)
-          return ValueListenableBuilder<String>(
-            valueListenable: AppLocalization.localeNotifier,
-            builder: (context, locale, _) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: 'Shree Krishna Embroidery',
-                theme: AppTheme.lightTheme,
-                darkTheme: AppTheme.darkTheme,
-                themeMode: themeMode,
-                // Global navigator key for accessing context anywhere in the app
-                navigatorKey: GlobalNavigator.navigatorKey,
-                // Centralized routing system
-                initialRoute: AppRoutes.splash,
-                onGenerateRoute: AppRoutes.onGenerateRoute,
-              );
-            },
-          );
+      // App-wide push/notification-feed lifecycle: register/clear the FCM
+      // token and start/stop the in-app notification stream as the signed-in
+      // user changes, regardless of which screen is currently active.
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) async {
+          final svc = getIt<NotificationService>();
+          if (state is AuthAuthenticated) {
+            await svc.onLogin(state.user.id);
+            getIt<NotificationCubit>().start(state.user.id);
+          } else if (state is AuthUnauthenticated) {
+            final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+            await svc.onLogout(uid);
+            getIt<NotificationCubit>().stop();
+          }
         },
+        child: BlocBuilder<ThemeCubit, ThemeMode>(
+          builder: (context, themeMode) {
+            // Rebuild the whole tree on locale change (strings are static)
+            return ValueListenableBuilder<String>(
+              valueListenable: AppLocalization.localeNotifier,
+              builder: (context, locale, _) {
+                return MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  title: 'Shree Krishna Embroidery',
+                  theme: AppTheme.lightTheme,
+                  darkTheme: AppTheme.darkTheme,
+                  themeMode: themeMode,
+                  // Global navigator key for accessing context anywhere in the app
+                  navigatorKey: GlobalNavigator.navigatorKey,
+                  // Centralized routing system
+                  initialRoute: AppRoutes.splash,
+                  onGenerateRoute: AppRoutes.onGenerateRoute,
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
