@@ -13,6 +13,7 @@ import 'package:shree_krishna_emb_admin/bloc/design_store/collections_cubit.dart
 import 'package:shree_krishna_emb_admin/bloc/design_store/designs_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/home_layout_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/media/media_library_cubit.dart';
+import 'package:shree_krishna_emb_admin/bloc/settings/notification_settings_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/media/design_file_library_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/payouts/payouts_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/platform_config/platform_config_cubit.dart';
@@ -263,6 +264,11 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
   getIt.registerSingleton<NotificationSettingsRepository>(
     NotificationSettingsRepositoryImpl(
       dataSource: getIt<NotificationSettingsDataSource>(),
+    ),
+  );
+  getIt.registerFactory<NotificationSettingsCubit>(
+    () => NotificationSettingsCubit(
+      repository: getIt<NotificationSettingsRepository>(),
     ),
   );
 }
