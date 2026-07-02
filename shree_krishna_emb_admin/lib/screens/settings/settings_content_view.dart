@@ -7,6 +7,7 @@ import 'package:shree_krishna_emb_admin/core/dev/dummy_data_seeder.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
+import 'package:shree_krishna_emb_admin/screens/settings/widgets/notification_settings_form.dart';
 import 'package:shree_krishna_emb_admin/screens/settings/widgets/payments_section.dart';
 
 /// Settings CONTENT only (no Scaffold) so it can be embedded in the
@@ -126,7 +127,7 @@ class _SettingsContentViewState extends State<SettingsContentView>
         return _buildSectionCard(
           icon: Icons.notifications_outlined,
           title: strings.settingsTabNotifications,
-          child: _buildNotificationsPlaceholder(strings),
+          child: const NotificationSettingsForm(),
         );
       case 3:
         return _buildSectionCard(
@@ -155,34 +156,6 @@ class _SettingsContentViewState extends State<SettingsContentView>
           ],
         );
     }
-  }
-
-  Widget _buildNotificationsPlaceholder(dynamic strings) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(
-              Icons.notifications_off_outlined,
-              size: 40,
-              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              strings.notificationSettingsComingSoon,
-              style: AppTextStyles.bodyMedium(
-                color: colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildSectionCard({
