@@ -828,6 +828,36 @@ class HiINStrings implements LocaleStrings {
   String get broadcastTitleTooLong => 'शीर्षक अधिकतम 120 अक्षर का हो सकता है';
   @override
   String get broadcastBodyRequired => 'संदेश आवश्यक है';
+  @override
+  String get broadcastComposeHeading =>
+      'सभी उपयोगकर्ताओं को सूचना भेजें';
+  @override
+  String get suggestedTemplates => 'सुझाव';
+  @override
+  String get tplNewCollectionTitle => 'नया कलेक्शन आ गया 🎉';
+  @override
+  String get tplNewCollectionBody =>
+      'नई एम्ब्रॉयडरी डिज़ाइन उपलब्ध हैं — नवीनतम कलेक्शन देखें।';
+  @override
+  String get tplSaleTitle => 'सीमित समय का ऑफर 🔥';
+  @override
+  String get tplSaleBody =>
+      'चुनिंदा डिज़ाइनों पर खास छूट। खत्म होने से पहले पाएं!';
+  @override
+  String get tplFestivalTitle => 'त्योहार विशेष ✨';
+  @override
+  String get tplFestivalBody =>
+      'हमारी त्योहारी एम्ब्रॉयडरी डिज़ाइनों के साथ जश्न मनाएं — नए विकल्प जोड़े गए।';
+  @override
+  String get tplRestockTitle => 'फिर से उपलब्ध 📦';
+  @override
+  String get tplRestockBody =>
+      'लोकप्रिय डिज़ाइन फिर से उपलब्ध हैं। अभी पाएं।';
+  @override
+  String get tplFreeDesignTitle => 'मुफ्त डिज़ाइन उपलब्ध 🎁';
+  @override
+  String get tplFreeDesignBody =>
+      'एक नई मुफ्त डिज़ाइन उपलब्ध है — आज ही डाउनलोड करें।';
 
   // ---- Admin notification inbox ----
   @override

@@ -830,6 +830,35 @@ class EnUSStrings implements LocaleStrings {
   String get broadcastTitleTooLong => 'Title must be 120 characters or fewer';
   @override
   String get broadcastBodyRequired => 'Message is required';
+  @override
+  String get broadcastComposeHeading => 'Send a notification to all users';
+  @override
+  String get suggestedTemplates => 'Suggested';
+  @override
+  String get tplNewCollectionTitle => 'New collection just dropped 🎉';
+  @override
+  String get tplNewCollectionBody =>
+      'Fresh embroidery designs are live — explore the latest collection.';
+  @override
+  String get tplSaleTitle => 'Limited-time offer 🔥';
+  @override
+  String get tplSaleBody =>
+      "Special discounts on select designs. Grab them before they're gone!";
+  @override
+  String get tplFestivalTitle => 'Festival special ✨';
+  @override
+  String get tplFestivalBody =>
+      'Celebrate with our festive embroidery designs — new picks added.';
+  @override
+  String get tplRestockTitle => 'Back in stock 📦';
+  @override
+  String get tplRestockBody =>
+      'Popular designs are available again. Get yours now.';
+  @override
+  String get tplFreeDesignTitle => 'Free design drop 🎁';
+  @override
+  String get tplFreeDesignBody =>
+      'A new free design is available — download it today.';
 
   // ---- Admin notification inbox ----
   @override

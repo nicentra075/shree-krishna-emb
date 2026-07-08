@@ -443,6 +443,18 @@ abstract class LocaleStrings {
   String get broadcastTitleRequired;
   String get broadcastTitleTooLong;
   String get broadcastBodyRequired;
+  String get broadcastComposeHeading;
+  String get suggestedTemplates;
+  String get tplNewCollectionTitle;
+  String get tplNewCollectionBody;
+  String get tplSaleTitle;
+  String get tplSaleBody;
+  String get tplFestivalTitle;
+  String get tplFestivalBody;
+  String get tplRestockTitle;
+  String get tplRestockBody;
+  String get tplFreeDesignTitle;
+  String get tplFreeDesignBody;
 
   // ---- Admin notification inbox ----
   String get markAllRead;

@@ -7,7 +7,7 @@ import 'package:shree_krishna_emb_admin/core/dev/dummy_data_seeder.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
-import 'package:shree_krishna_emb_admin/screens/notifications/broadcast_composer_dialog.dart';
+import 'package:shree_krishna_emb_admin/screens/settings/widgets/broadcast_composer_section.dart';
 import 'package:shree_krishna_emb_admin/screens/settings/widgets/notification_settings_form.dart';
 import 'package:shree_krishna_emb_admin/screens/settings/widgets/payments_section.dart';
 
@@ -135,26 +135,7 @@ class _SettingsContentViewState extends State<SettingsContentView>
               const SizedBox(height: 24),
               const Divider(),
               const SizedBox(height: 16),
-              Text(
-                strings.sendBroadcast,
-                style: AppTextStyles.labelMedium(fontWeight: FontWeight.w700),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                strings.broadcastConfirmMessage,
-                style: AppTextStyles.bodySmall(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 12),
-              AppButton(
-                label: strings.sendBroadcast,
-                onPressed: () => showBroadcastComposer(context),
-              ),
+              const BroadcastComposerSection(),
             ],
           ),
         );
