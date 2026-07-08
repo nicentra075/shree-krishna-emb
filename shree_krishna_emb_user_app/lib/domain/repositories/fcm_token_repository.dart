@@ -5,5 +5,5 @@ import 'package:shree_krishna_core/utils/either.dart';
 /// Backend-agnostic.
 abstract class FcmTokenRepository {
   Future<Either<Failure, void>> register(String uid, String token, String platform);
-  Future<Either<Failure, void>> remove(String uid, String token);
+  Future<Either<Failure, void>> remove(String uid);
 }

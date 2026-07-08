@@ -6,8 +6,7 @@ import 'package:shree_krishna_emb/data/repositories/fcm_token_repository_impl.da
 
 class _ThrowingDs implements FcmTokenDataSource {
   @override
-  Future<void> deleteToken(String uid, String token) async =>
-      throw Exception('boom');
+  Future<void> deleteToken(String uid) async => throw Exception('boom');
   @override
   Future<void> registerToken(String uid, String token, String platform) async =>
       throw Exception('boom');
@@ -15,10 +14,10 @@ class _ThrowingDs implements FcmTokenDataSource {
 
 class _OkDs implements FcmTokenDataSource {
   String? lastToken;
-  String? deletedToken;
+  String? deletedUid;
   @override
-  Future<void> deleteToken(String uid, String token) async {
-    deletedToken = token;
+  Future<void> deleteToken(String uid) async {
+    deletedUid = uid;
   }
 
   @override
@@ -46,14 +45,14 @@ void main() {
   test('remove success returns Right', () async {
     final ds = _OkDs();
     final repo = FcmTokenRepositoryImpl(dataSource: ds);
-    final r = await repo.remove('u1', 't1');
+    final r = await repo.remove('u1');
     expect(r, isA<Right<Failure, void>>());
-    expect(ds.deletedToken, 't1');
+    expect(ds.deletedUid, 'u1');
   });
 
   test('remove failure returns Left(Failure)', () async {
     final repo = FcmTokenRepositoryImpl(dataSource: _ThrowingDs());
-    final r = await repo.remove('u1', 't1');
+    final r = await repo.remove('u1');
     expect(r, isA<Left<Failure, void>>());
     r.fold((f) => expect(f, isA<Failure>()), (_) => fail('should be Left'));
   });

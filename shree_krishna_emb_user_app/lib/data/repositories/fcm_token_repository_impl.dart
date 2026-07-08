@@ -23,9 +23,9 @@ class FcmTokenRepositoryImpl implements FcmTokenRepository {
   }
 
   @override
-  Future<Either<Failure, void>> remove(String uid, String token) async {
+  Future<Either<Failure, void>> remove(String uid) async {
     try {
-      await dataSource.deleteToken(uid, token);
+      await dataSource.deleteToken(uid);
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

@@ -109,8 +109,7 @@ class NotificationService {
   /// Cleans up push registration on logout.
   Future<void> onLogout(String uid) async {
     try {
-      final token = await _fm.getToken();
-      if (token != null) await tokenRepository.remove(uid, token);
+      await tokenRepository.remove(uid);
       await _fm.unsubscribeFromTopic(topicAllUsers);
       await _fm.deleteToken();
     } catch (_) {
