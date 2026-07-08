@@ -472,4 +472,5 @@ abstract class LocaleStrings {
   String get markAllRead;
   String get noAdminNotifications;
   String get adminNotificationsTitle;
+  String get viewMore;
 }

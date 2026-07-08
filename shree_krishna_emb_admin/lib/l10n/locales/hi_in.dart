@@ -895,4 +895,6 @@ class HiINStrings implements LocaleStrings {
   String get noAdminNotifications => 'अभी कोई सूचना नहीं';
   @override
   String get adminNotificationsTitle => 'सूचनाएं';
+  @override
+  String get viewMore => 'और देखें';
 }

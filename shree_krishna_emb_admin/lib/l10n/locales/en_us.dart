@@ -899,4 +899,6 @@ class EnUSStrings implements LocaleStrings {
   String get noAdminNotifications => 'No notifications yet';
   @override
   String get adminNotificationsTitle => 'Notifications';
+  @override
+  String get viewMore => 'View more';
 }

@@ -18,6 +18,7 @@ import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/routes/app_routes.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository.dart';
 import 'package:shree_krishna_emb_admin/screens/design_store/design_store_content_view.dart';
+import 'package:shree_krishna_emb_admin/screens/notifications/admin_notifications_popup.dart';
 import 'package:shree_krishna_emb_admin/screens/notifications/admin_notifications_screen.dart';
 import 'package:shree_krishna_emb_admin/screens/payouts/payouts_content_view.dart';
 import 'package:shree_krishna_emb_admin/screens/reports/reports_content_view.dart';
@@ -41,6 +42,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   /// drawer (Scaffold.of(context) from the build context can't reach it).
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  /// Key on the bell's container so the notifications preview popup can be
+  /// anchored to its on-screen position.
+  final GlobalKey _notificationBellKey = GlobalKey();
+  OverlayEntry? _notificationsOverlay;
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +57,60 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     if (authState is AdminAuthAuthenticated) {
       GetIt.instance<AdminNotificationsCubit>().start(authState.adminId);
     }
+  }
+
+  @override
+  void dispose() {
+    _notificationsOverlay?.remove();
+    _notificationsOverlay = null;
+    super.dispose();
+  }
+
+  /// Opens (or closes, if already open) the last-5 notifications preview
+  /// popup anchored below the header bell.
+  void _toggleNotificationsPopup(BuildContext context) {
+    if (_notificationsOverlay != null) {
+      _closeNotificationsPopup();
+      return;
+    }
+    final renderBox =
+        _notificationBellKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final bellOffset = renderBox.localToGlobal(Offset.zero);
+    final bellSize = renderBox.size;
+    final screenSize = MediaQuery.of(context).size;
+
+    _notificationsOverlay = OverlayEntry(
+      builder: (overlayContext) {
+        return Stack(
+          children: [
+            // Transparent barrier: tapping outside the popup dismisses it.
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _closeNotificationsPopup,
+              ),
+            ),
+            Positioned(
+              top: bellOffset.dy + bellSize.height + 8,
+              right: (screenSize.width - bellOffset.dx - bellSize.width)
+                  .clamp(8.0, screenSize.width - 8.0),
+              child: AdminNotificationsPopup(
+                onClose: _closeNotificationsPopup,
+                onViewMore: () =>
+                    setState(() => _selectedSection = 'notifications'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    Overlay.of(context).insert(_notificationsOverlay!);
+  }
+
+  void _closeNotificationsPopup() {
+    _notificationsOverlay?.remove();
+    _notificationsOverlay = null;
   }
 
   /// Build up-to-2-letter initials from a display name for the avatar.
@@ -139,6 +199,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return const ReportsContentView();
       case 'payouts':
         return const PayoutsContentView();
+      case 'notifications':
+        return const AdminNotificationsView();
       default:
         return _buildDashboardContent();
     }
@@ -313,16 +375,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               builder: (context, notifState) {
                 final unread = notifState.unreadCount;
                 return Stack(
+                  key: _notificationBellKey,
                   clipBehavior: Clip.none,
                   children: [
                     IconButton(
                       icon: const Icon(Icons.notifications_outlined, size: 24),
                       color: Colors.grey.withValues(alpha: 0.6),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const AdminNotificationsScreen(),
-                        ),
-                      ),
+                      onPressed: () => _toggleNotificationsPopup(context),
                     ),
                     if (unread > 0)
                       Positioned(
@@ -547,6 +606,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                BlocBuilder<AdminNotificationsCubit, AdminNotificationsState>(
+                  bloc: GetIt.instance<AdminNotificationsCubit>(),
+                  builder: (context, notifState) {
+                    return _buildSidebarItem(
+                      icon: Icons.notifications_outlined,
+                      label: AppLocalization.strings.adminNotificationsTitle,
+                      isActive: _selectedSection == 'notifications',
+                      onTap: () =>
+                          setState(() => _selectedSection = 'notifications'),
+                      badgeCount: notifState.unreadCount,
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
                 _buildSidebarItem(
                   icon: Icons.settings_outlined,
                   label: AppLocalization.strings.settings,
@@ -621,6 +694,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required String label,
     required bool isActive,
     required VoidCallback onTap,
+    int badgeCount = 0,
   }) {
     return Container(
       color: isActive
@@ -657,6 +731,30 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                if (badgeCount > 0)
+                  Container(
+                    margin: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    constraints: const BoxConstraints(minWidth: 18),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.error,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      badgeCount > 9 ? '9+' : '$badgeCount',
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onError,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 if (isActive)
                   Container(
                     width: 4,
