@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/bloc/settings/notification_settings_cubit.dart';
 import 'package:shree_krishna_emb_admin/core/dev/dummy_data_seeder.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
@@ -25,23 +27,94 @@ class SettingsContentView extends StatefulWidget {
 
 class _SettingsContentViewState extends State<SettingsContentView>
     with SingleTickerProviderStateMixin {
+  static const int _notificationsTabIndex = 2;
+
   bool _seeding = false;
   late final TabController _tabController;
+
+  /// Owned here (rather than by [NotificationSettingsForm]) so the edited
+  /// config — and its dirty state — survives the admin switching tabs, and
+  /// so this screen can guard against navigating away with unsaved edits.
+  late final NotificationSettingsCubit _notificationCubit;
+
+  int _previousTabIndex = 0;
+
+  /// Guards against the tab-switch listener re-entering itself while we're
+  /// programmatically snapping the controller back/forward from inside the
+  /// unsaved-changes confirm dialog flow.
+  bool _guardingTabSwitch = false;
 
   @override
   void initState() {
     super.initState();
+    _notificationCubit = GetIt.instance<NotificationSettingsCubit>()..load();
     _tabController = TabController(length: 4, vsync: this)
-      ..addListener(() {
-        // Rebuild so the selected tab's content swaps in.
-        if (!_tabController.indexIsChanging) setState(() {});
-      });
+      ..addListener(_handleTabControllerChange);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _notificationCubit.close();
     super.dispose();
+  }
+
+  void _handleTabControllerChange() {
+    // Wait for the switch animation to settle before reacting.
+    if (_tabController.indexIsChanging) return;
+
+    final newIndex = _tabController.index;
+
+    if (_guardingTabSwitch) {
+      // We're the ones driving this index change (from within
+      // _guardTabSwitch) — just let the content rebuild.
+      setState(() {});
+      return;
+    }
+
+    if (_previousTabIndex == _notificationsTabIndex &&
+        newIndex != _notificationsTabIndex &&
+        _notificationCubit.state.hasUnsavedChanges) {
+      _guardTabSwitch(newIndex);
+      return;
+    }
+
+    _previousTabIndex = newIndex;
+    setState(() {});
+  }
+
+  /// Called when the admin switches away from the Notifications tab while
+  /// it has unsaved edits. Confirms whether to discard them (allowing the
+  /// switch) or keep editing (snapping the tab bar back to Notifications).
+  Future<void> _guardTabSwitch(int attemptedIndex) async {
+    _guardingTabSwitch = true;
+    final strings = AppLocalization.strings;
+
+    final discard = await AppDialog.showConfirm(
+      context,
+      title: strings.discardChanges,
+      message: strings.discardChangesBody,
+      confirmLabel: strings.discard,
+      cancelLabel: strings.keepEditing,
+      isDestructive: true,
+    );
+
+    if (!mounted) {
+      _guardingTabSwitch = false;
+      return;
+    }
+
+    if (discard == true) {
+      _notificationCubit.discardChanges();
+      _previousTabIndex = attemptedIndex;
+      _tabController.index = attemptedIndex;
+    } else {
+      _previousTabIndex = _notificationsTabIndex;
+      _tabController.index = _notificationsTabIndex;
+    }
+
+    _guardingTabSwitch = false;
+    setState(() {});
   }
 
   @override
@@ -128,15 +201,18 @@ class _SettingsContentViewState extends State<SettingsContentView>
         return _buildSectionCard(
           icon: Icons.notifications_outlined,
           title: strings.settingsTabNotifications,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const NotificationSettingsForm(),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 16),
-              const BroadcastComposerSection(),
-            ],
+          child: BlocProvider<NotificationSettingsCubit>.value(
+            value: _notificationCubit,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const NotificationSettingsForm(),
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 16),
+                const BroadcastComposerSection(),
+              ],
+            ),
           ),
         );
       case 3:

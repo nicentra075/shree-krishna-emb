@@ -9,7 +9,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   final NotificationSettingsRepository repository;
 
   NotificationSettingsCubit({required this.repository})
-      : super(const NotificationSettingsState());
+    : super(const NotificationSettingsState());
 
   static const int maxSlots = 4;
 
@@ -18,20 +18,27 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
     final result = await repository.load();
     result.fold(
       (failure) => emit(
-        state.copyWith(status: NotifSettingsStatus.error, error: failure.message),
+        state.copyWith(
+          status: NotifSettingsStatus.error,
+          error: failure.message,
+        ),
       ),
       (settings) => emit(
-        state.copyWith(status: NotifSettingsStatus.ready, settings: settings),
+        state.copyWith(
+          status: NotifSettingsStatus.ready,
+          settings: settings,
+          lastSaved: settings,
+        ),
       ),
     );
   }
 
   void _update(NotificationSettingsEntity entity) => emit(
-        state.copyWith(
-          status: NotifSettingsStatus.ready,
-          settings: NotificationSettingsModel.fromEntity(entity),
-        ),
-      );
+    state.copyWith(
+      status: NotifSettingsStatus.ready,
+      settings: NotificationSettingsModel.fromEntity(entity),
+    ),
+  );
 
   void toggleMaster(bool value) =>
       _update(state.settings.copyWith(masterEnabled: value));
@@ -66,9 +73,31 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
     final result = await repository.save(state.settings, adminUid);
     result.fold(
       (failure) => emit(
-        state.copyWith(status: NotifSettingsStatus.error, error: failure.message),
+        state.copyWith(
+          status: NotifSettingsStatus.error,
+          error: failure.message,
+        ),
       ),
-      (_) => emit(state.copyWith(status: NotifSettingsStatus.saved)),
+      (_) => emit(
+        state.copyWith(
+          status: NotifSettingsStatus.saved,
+          lastSaved: state.settings,
+        ),
+      ),
+    );
+  }
+
+  /// Reverts any in-progress edits back to the last successfully
+  /// loaded/saved config. No-op if nothing has been loaded yet.
+  void discardChanges() {
+    final saved = state.lastSaved;
+    if (saved == null) return;
+    emit(
+      state.copyWith(
+        status: NotifSettingsStatus.ready,
+        settings: saved,
+        error: null,
+      ),
     );
   }
 }

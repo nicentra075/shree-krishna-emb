@@ -762,9 +762,11 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get razorpayKeyHint => 'rzp_xxx (Key ID only — not the Secret Key)';
   @override
-  String get razorpayTestKeyHint => 'rzp_test_xxxxxxxx (Key ID only — not the Secret Key)';
+  String get razorpayTestKeyHint =>
+      'rzp_test_xxxxxxxx (Key ID only — not the Secret Key)';
   @override
-  String get razorpayLiveKeyHint => 'rzp_live_xxxxxxxx (Key ID only — not the Secret Key)';
+  String get razorpayLiveKeyHint =>
+      'rzp_live_xxxxxxxx (Key ID only — not the Secret Key)';
   @override
   String get razorpaySecretNote =>
       'The Secret Key is encrypted and stored securely on the server — it is never shown again after saving. You can update it anytime.';
@@ -806,9 +808,28 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get dailySendTimes => 'Daily send times (max 4)';
   @override
+  String get dailySendTimesHelp =>
+      'New-design notifications are sent to users at these times each day '
+      '(up to 4). At each time, users get one digest summarizing designs '
+      'added since the previous send. Times use IST (Asia/Kolkata).';
+  @override
   String get addSendTime => 'Add send time';
   @override
   String get maxFourSlots => 'You can set up to 4 send times per day.';
+
+  // ---- Unsaved-changes guard (admin settings) ----
+  @override
+  String get unsavedChanges => 'You have unsaved changes';
+  @override
+  String get discardChanges => 'Discard unsaved changes?';
+  @override
+  String get discardChangesBody =>
+      'Your edits to notification settings have not been saved. Discard '
+      'them and switch tabs?';
+  @override
+  String get discard => 'Discard';
+  @override
+  String get keepEditing => 'Keep editing';
 
   // ---- Broadcast (admin) ----
   @override
@@ -822,8 +843,19 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get broadcastSent => 'Notification sent to all users';
   @override
+  String broadcastSentCount(int count) =>
+      'Notification sent to $count user${count == 1 ? '' : 's'}';
+  @override
   String get broadcastConfirmMessage =>
       'This will send a push notification to every user. Continue?';
+  @override
+  String get confirmBroadcastTitle => 'Send to all users?';
+  @override
+  String get confirmBroadcastBody =>
+      "This notification will be delivered to every user. This can't be "
+      'undone.';
+  @override
+  String get send => 'Send';
   @override
   String get broadcastTitleRequired => 'Title is required';
   @override

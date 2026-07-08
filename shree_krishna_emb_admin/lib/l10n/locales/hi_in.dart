@@ -760,9 +760,11 @@ class HiINStrings implements LocaleStrings {
   @override
   String get razorpayKeyHint => 'rzp_xxx (केवल Key ID — सीक्रेट की नहीं)';
   @override
-  String get razorpayTestKeyHint => 'rzp_test_xxxxxxxx (केवल Key ID — सीक्रेट की नहीं)';
+  String get razorpayTestKeyHint =>
+      'rzp_test_xxxxxxxx (केवल Key ID — सीक्रेट की नहीं)';
   @override
-  String get razorpayLiveKeyHint => 'rzp_live_xxxxxxxx (केवल Key ID — सीक्रेट की नहीं)';
+  String get razorpayLiveKeyHint =>
+      'rzp_live_xxxxxxxx (केवल Key ID — सीक्रेट की नहीं)';
   @override
   String get razorpaySecretNote =>
       'सीक्रेट की एन्क्रिप्ट करके सर्वर पर सुरक्षित रूप से संग्रहीत होती है — सेव करने के बाद यह दोबारा नहीं दिखाई जाती। आप इसे कभी भी अपडेट कर सकते हैं।';
@@ -804,9 +806,28 @@ class HiINStrings implements LocaleStrings {
   @override
   String get dailySendTimes => 'दैनिक भेजने का समय (अधिकतम 4)';
   @override
+  String get dailySendTimesHelp =>
+      'नई-डिज़ाइन सूचनाएं हर दिन इन समयों पर उपयोगकर्ताओं को भेजी जाती हैं '
+      '(अधिकतम 4)। हर समय पर, उपयोगकर्ताओं को पिछले भेजे जाने के बाद जोड़ी '
+      'गई डिज़ाइनों का सारांश मिलता है। समय IST (Asia/Kolkata) में हैं।';
+  @override
   String get addSendTime => 'समय जोड़ें';
   @override
   String get maxFourSlots => 'आप प्रतिदिन 4 समय तक सेट कर सकते हैं।';
+
+  // ---- Unsaved-changes guard (admin settings) ----
+  @override
+  String get unsavedChanges => 'आपके परिवर्तन सहेजे नहीं गए हैं';
+  @override
+  String get discardChanges => 'असहेजे परिवर्तन छोड़ें?';
+  @override
+  String get discardChangesBody =>
+      'सूचना सेटिंग्स में आपके परिवर्तन सहेजे नहीं गए हैं। इन्हें छोड़कर '
+      'टैब बदलें?';
+  @override
+  String get discard => 'छोड़ें';
+  @override
+  String get keepEditing => 'संपादन जारी रखें';
 
   // ---- Broadcast (admin) ----
   @override
@@ -820,8 +841,18 @@ class HiINStrings implements LocaleStrings {
   @override
   String get broadcastSent => 'सभी उपयोगकर्ताओं को सूचना भेजी गई';
   @override
+  String broadcastSentCount(int count) =>
+      '$count उपयोगकर्ता(ओं) को सूचना भेजी गई';
+  @override
   String get broadcastConfirmMessage =>
       'यह सभी उपयोगकर्ताओं को पुश सूचना भेजेगा। जारी रखें?';
+  @override
+  String get confirmBroadcastTitle => 'सभी उपयोगकर्ताओं को भेजें?';
+  @override
+  String get confirmBroadcastBody =>
+      'यह सूचना हर उपयोगकर्ता को भेजी जाएगी। इसे पूर्ववत नहीं किया जा सकता।';
+  @override
+  String get send => 'भेजें';
   @override
   String get broadcastTitleRequired => 'शीर्षक आवश्यक है';
   @override
@@ -829,8 +860,7 @@ class HiINStrings implements LocaleStrings {
   @override
   String get broadcastBodyRequired => 'संदेश आवश्यक है';
   @override
-  String get broadcastComposeHeading =>
-      'सभी उपयोगकर्ताओं को सूचना भेजें';
+  String get broadcastComposeHeading => 'सभी उपयोगकर्ताओं को सूचना भेजें';
   @override
   String get suggestedTemplates => 'सुझाव';
   @override
@@ -851,8 +881,7 @@ class HiINStrings implements LocaleStrings {
   @override
   String get tplRestockTitle => 'फिर से उपलब्ध 📦';
   @override
-  String get tplRestockBody =>
-      'लोकप्रिय डिज़ाइन फिर से उपलब्ध हैं। अभी पाएं।';
+  String get tplRestockBody => 'लोकप्रिय डिज़ाइन फिर से उपलब्ध हैं। अभी पाएं।';
   @override
   String get tplFreeDesignTitle => 'मुफ्त डिज़ाइन उपलब्ध 🎁';
   @override

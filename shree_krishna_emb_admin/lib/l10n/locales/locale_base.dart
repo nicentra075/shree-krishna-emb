@@ -430,8 +430,16 @@ abstract class LocaleStrings {
   String get purchaseAlerts;
   String get newDesignAlerts;
   String get dailySendTimes;
+  String get dailySendTimesHelp;
   String get addSendTime;
   String get maxFourSlots;
+
+  // ---- Unsaved-changes guard (admin settings) ----
+  String get unsavedChanges;
+  String get discardChanges;
+  String get discardChangesBody;
+  String get discard;
+  String get keepEditing;
 
   // ---- Broadcast (admin) ----
   String get sendBroadcast;
@@ -439,7 +447,11 @@ abstract class LocaleStrings {
   String get broadcastBody;
   String get sendToAllUsers;
   String get broadcastSent;
+  String broadcastSentCount(int count);
   String get broadcastConfirmMessage;
+  String get confirmBroadcastTitle;
+  String get confirmBroadcastBody;
+  String get send;
   String get broadcastTitleRequired;
   String get broadcastTitleTooLong;
   String get broadcastBodyRequired;

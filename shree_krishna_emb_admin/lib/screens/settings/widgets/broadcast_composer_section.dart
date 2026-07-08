@@ -117,8 +117,18 @@ class _ComposerBodyState extends State<_ComposerBody> {
     return null;
   }
 
-  void _handleSend(BuildContext context, LocaleStrings s) {
+  Future<void> _handleSend(BuildContext context, LocaleStrings s) async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final confirmed = await AppDialog.showConfirm(
+      context,
+      title: s.confirmBroadcastTitle,
+      message: s.confirmBroadcastBody,
+      confirmLabel: s.send,
+      cancelLabel: s.cancel,
+    );
+    if (confirmed != true || !context.mounted) return;
+
     context.read<BroadcastCubit>().send(
       _titleController.text.trim(),
       _bodyController.text.trim(),
@@ -134,7 +144,7 @@ class _ComposerBodyState extends State<_ComposerBody> {
       listener: (context, state) {
         if (state.status == BroadcastStatus.sent) {
           ResponsiveSnackbar.showSuccess(
-            '${s.broadcastSent} (${state.recipientCount})',
+            s.broadcastSentCount(state.recipientCount),
             context,
           );
           _titleController.clear();
@@ -217,9 +227,7 @@ class _ComposerBodyState extends State<_ComposerBody> {
                   child: AppButton(
                     label: s.sendToAllUsers,
                     isLoading: sending,
-                    onPressed: sending
-                        ? () {}
-                        : () => _handleSend(context, s),
+                    onPressed: sending ? () {} : () => _handleSend(context, s),
                   ),
                 ),
               ],
