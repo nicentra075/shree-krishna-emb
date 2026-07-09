@@ -522,6 +522,8 @@ class HiINStrings implements LocaleStrings {
   @override
   String get deleteNotification => 'हटाएं';
   @override
+  String get notificationDeleted => 'सूचना हटाई गई';
+  @override
   String get notificationsEmptyHint => 'नई डिज़ाइन और अपडेट यहाँ दिखेंगे।';
 
   // ========== Relative Timestamps ==========

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shree_krishna_core/enums/app_notification_type.dart';
 import 'package:shree_krishna_core/models/app_notification_model.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 
@@ -72,7 +73,10 @@ class NotificationsScreen extends StatelessWidget {
                       isSmallScreen: isSmallScreen,
                       onDismissed: () {
                         context.read<NotificationCubit>().delete(item.id);
-                        AppSnackbar.showInfo(strings.deleteNotification);
+                        AppSnackbar.showError(
+                          AppLocalization.strings.notificationDeleted,
+                          customIcon: Icons.delete_outline,
+                        );
                       },
                       onTap: () {
                         context.read<NotificationCubit>().markRead(item.id);
@@ -109,91 +113,150 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final badge = _badgeFor(item.type, colorScheme);
+    final horizontalPad = isSmallScreen ? 12.0 : 16.0;
 
     return Dismissible(
       key: ValueKey(item.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: colorScheme.errorContainer,
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          color: colorScheme.error,
+          borderRadius: BorderRadius.circular(16),
+        ),
         alignment: Alignment.centerRight,
-        padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 12 : 20),
-        child: Icon(Icons.delete_outline, color: colorScheme.onErrorContainer),
+        padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? 16 : 20),
+        child: Icon(Icons.delete_outline, color: colorScheme.onError),
       ),
       onDismissed: (_) => onDismissed(),
-      child: Material(
-        color: item.read
-            ? Colors.transparent
-            : colorScheme.primaryContainer.withValues(alpha: 0.18),
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isSmallScreen ? 12 : 16,
-              vertical: 12,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  item.read
-                      ? Icons.notifications_none
-                      : Icons.notifications_active,
-                  color: item.read ? colorScheme.outline : colorScheme.primary,
-                  size: isSmallScreen ? 20 : 24,
-                ),
-                SizedBox(width: isSmallScreen ? 8 : 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.labelMedium(
-                          color: colorScheme.onSurface,
-                          fontWeight:
-                              item.read ? FontWeight.normal : FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.body,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.bodySmall(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _formatTimestamp(item.createdAt),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.labelSmall(
-                          color: colorScheme.outline,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!item.read) ...[
-                  SizedBox(width: isSmallScreen ? 4 : 8),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          color: item.read
+              ? colorScheme.surfaceContainerLow
+              : colorScheme.primaryContainer.withValues(alpha: 0.22),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPad,
+                vertical: 12,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Container(
-                    width: 8,
-                    height: 8,
+                    width: isSmallScreen ? 36 : 42,
+                    height: isSmallScreen ? 36 : 42,
                     decoration: BoxDecoration(
-                      color: colorScheme.error,
+                      color: badge.background,
                       shape: BoxShape.circle,
                     ),
+                    child: Icon(
+                      badge.icon,
+                      color: badge.foreground,
+                      size: isSmallScreen ? 18 : 20,
+                    ),
                   ),
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.labelLarge(
+                                  color: colorScheme.onSurface,
+                                  fontWeight: item.read
+                                      ? FontWeight.normal
+                                      : FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _formatTimestamp(item.createdAt),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.labelSmall(
+                                color: colorScheme.outline,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.body,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodySmall(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (!item.read) ...[
+                    SizedBox(width: isSmallScreen ? 4 : 8),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: colorScheme.error,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  /// Icon + tint colors for the leading type badge, derived from the theme's
+  /// color scheme so the tile stays theme-aware in light and dark mode.
+  ({IconData icon, Color background, Color foreground}) _badgeFor(
+    AppNotificationType type,
+    ColorScheme colorScheme,
+  ) {
+    switch (type) {
+      case AppNotificationType.newDesign:
+        return (
+          icon: Icons.auto_awesome,
+          background: colorScheme.primaryContainer,
+          foreground: colorScheme.onPrimaryContainer,
+        );
+      case AppNotificationType.purchase:
+        return (
+          icon: Icons.shopping_bag_outlined,
+          background: colorScheme.secondaryContainer,
+          foreground: colorScheme.onSecondaryContainer,
+        );
+      case AppNotificationType.broadcast:
+        return (
+          icon: Icons.campaign_outlined,
+          background: colorScheme.tertiaryContainer,
+          foreground: colorScheme.onTertiaryContainer,
+        );
+    }
   }
 
   String _formatTimestamp(DateTime dt) {

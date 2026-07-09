@@ -522,6 +522,8 @@ class EnUSStrings implements LocaleStrings {
   @override
   String get deleteNotification => 'Delete';
   @override
+  String get notificationDeleted => 'Notification deleted';
+  @override
   String get notificationsEmptyHint =>
       'New designs and updates will appear here.';
 
