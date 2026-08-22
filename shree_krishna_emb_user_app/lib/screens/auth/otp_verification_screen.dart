@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ui_toolbox/flutter_ui_toolbox.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
@@ -84,6 +85,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             AppSnackbar.showSuccess('Phone verified successfully!');
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
+                // ignore: use_build_context_synchronously
                 AppRoutes.navigateToHome(context);
               }
             });
@@ -290,9 +292,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _handleVerifyOtp(BuildContext context) {
     final otp = _otpControllers.map((controller) => controller.text).join();
-    print(
-      '🔵 [OtpVerificationScreen] OTP entered: $otp (length: ${otp.length})',
-    );
+    log('🔵 [OtpVerificationScreen] OTP entered: $otp (length: ${otp.length})');
 
     if (otp.length != 6) {
       AppSnackbar.showError('Please enter a valid 6-digit code');
@@ -300,12 +300,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     }
 
     if (_verificationId == null || _phoneNumber == null) {
-      print('🔴 [OtpVerificationScreen] Missing verificationId or phoneNumber');
+      log('🔴 [OtpVerificationScreen] Missing verificationId or phoneNumber');
       AppSnackbar.showError('Verification ID or phone number is missing');
       return;
     }
 
-    print(
+    log(
       '🔵 [OtpVerificationScreen] Dispatching VerifyPhoneOtpEvent - OTP: $otp, VerificationId: $_verificationId, Phone: $_phoneNumber',
     );
     context.read<AuthBloc>().add(

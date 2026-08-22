@@ -286,11 +286,7 @@ class _PaymentsFormState extends State<_PaymentsForm> {
     required bool secretAlreadySet,
   }) {
     return [
-      AppTextField(
-        controller: keyController,
-        label: keyLabel,
-        hint: keyHint,
-      ),
+      AppTextField(controller: keyController, label: keyLabel, hint: keyHint),
       const SizedBox(height: 16),
       AppTextField(
         controller: secretController,
@@ -302,9 +298,7 @@ class _PaymentsFormState extends State<_PaymentsForm> {
         prefixIcon: const Icon(Icons.key_outlined),
         suffixIcon: GestureDetector(
           onTap: () => setState(() => _obscureSecret = !_obscureSecret),
-          child: Icon(
-            _obscureSecret ? Icons.visibility_off : Icons.visibility,
-          ),
+          child: Icon(_obscureSecret ? Icons.visibility_off : Icons.visibility),
         ),
       ),
       const SizedBox(height: 8),

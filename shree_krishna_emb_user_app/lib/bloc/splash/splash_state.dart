@@ -41,10 +41,7 @@ class SplashLoading extends SplashState {
   final Duration elapsed;
   final bool skipWalkthrough;
 
-  const SplashLoading({
-    required this.elapsed,
-    this.skipWalkthrough = false,
-  });
+  const SplashLoading({required this.elapsed, this.skipWalkthrough = false});
 
   @override
   List<Object?> get props => [elapsed, skipWalkthrough];

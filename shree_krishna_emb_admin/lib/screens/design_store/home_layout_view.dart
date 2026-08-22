@@ -110,7 +110,8 @@ class _HomeLayoutBody extends StatelessWidget {
               ),
             ),
             // Persistent banner reminding the admin to publish.
-            if (state.dirty) _UnpublishedBanner(onPublish: () => _save(context)),
+            if (state.dirty)
+              _UnpublishedBanner(onPublish: () => _save(context)),
             Expanded(child: _body(context, state, colorScheme)),
           ],
         );
@@ -156,7 +157,7 @@ class _HomeLayoutBody extends StatelessWidget {
     return ReorderableListView.builder(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       itemCount: sections.length,
-      onReorder: layoutCubit.reorder,
+      onReorderItem: layoutCubit.reorder,
       // We render our own drag handle on the left; hide the default right one.
       buildDefaultDragHandles: false,
       proxyDecorator: (child, index, animation) => MultiBlocProvider(
@@ -183,8 +184,7 @@ class _HomeLayoutBody extends StatelessWidget {
       context: context,
       builder: (_) => Dialog(
         backgroundColor: colorScheme.surface,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 460, maxHeight: 620),
           child: Column(
@@ -212,7 +212,8 @@ class _HomeLayoutBody extends StatelessWidget {
                           Text(
                             strings.addSectionSubtitle,
                             style: AppTextStyles.bodySmall(
-                                color: colorScheme.onSurfaceVariant),
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -221,7 +222,10 @@ class _HomeLayoutBody extends StatelessWidget {
                     ),
                     IconButton(
                       tooltip: strings.cancel,
-                      icon: Icon(Icons.close, color: colorScheme.onSurfaceVariant),
+                      icon: Icon(
+                        Icons.close,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -286,13 +290,18 @@ class _StatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(dirty ? Icons.edit_note : Icons.check_circle,
-              size: 14, color: color),
+          Icon(
+            dirty ? Icons.edit_note : Icons.check_circle,
+            size: 14,
+            color: color,
+          ),
           const SizedBox(width: 6),
           Text(
             dirty ? strings.unpublishedChanges : strings.published,
             style: AppTextStyles.labelSmall(
-                color: color, fontWeight: FontWeight.w600),
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -327,7 +336,8 @@ class _UnpublishedBanner extends StatelessWidget {
             child: Text(
               strings.unpublishedBannerMessage,
               style: AppTextStyles.bodySmall(
-                  color: Theme.of(context).colorScheme.onSurface),
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -338,7 +348,9 @@ class _UnpublishedBanner extends StatelessWidget {
             child: Text(
               strings.publishNow,
               style: AppTextStyles.labelMedium(
-                  color: AppTheme.primaryDark, fontWeight: FontWeight.w700),
+                color: AppTheme.primaryDark,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],
@@ -373,8 +385,11 @@ class _SectionTypeOption extends StatelessWidget {
                   color: AppTheme.primaryDark.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(sectionTypeIcon(type),
-                    size: 20, color: AppTheme.primaryDark),
+                child: Icon(
+                  sectionTypeIcon(type),
+                  size: 20,
+                  color: AppTheme.primaryDark,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -384,8 +399,9 @@ class _SectionTypeOption extends StatelessWidget {
                     Text(
                       sectionTypeLabel(type),
                       style: AppTextStyles.labelMedium(
-                          color: colorScheme.onSurface,
-                          fontWeight: FontWeight.w600),
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -393,7 +409,8 @@ class _SectionTypeOption extends StatelessWidget {
                     Text(
                       sectionTypeDescription(type),
                       style: AppTextStyles.bodySmall(
-                          color: colorScheme.onSurfaceVariant),
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -401,8 +418,11 @@ class _SectionTypeOption extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.add_circle_outline,
-                  size: 20, color: AppTheme.primaryDark),
+              Icon(
+                Icons.add_circle_outline,
+                size: 20,
+                color: AppTheme.primaryDark,
+              ),
             ],
           ),
         ),
@@ -445,8 +465,10 @@ class _SectionCardState extends State<_SectionCard> {
             children: [
               ReorderableDragStartListener(
                 index: widget.index,
-                child: Icon(Icons.drag_handle,
-                    color: colorScheme.onSurfaceVariant),
+                child: Icon(
+                  Icons.drag_handle,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(width: 12),
               // Tap the title area to expand/collapse (view the binding).
@@ -483,8 +505,9 @@ class _SectionCardState extends State<_SectionCard> {
               IconButton(
                 tooltip: _expanded ? 'Hide details' : 'View details',
                 icon: Icon(
-                    _expanded ? Icons.expand_less : Icons.expand_more,
-                    color: colorScheme.onSurfaceVariant),
+                  _expanded ? Icons.expand_less : Icons.expand_more,
+                  color: colorScheme.onSurfaceVariant,
+                ),
                 onPressed: () => setState(() => _expanded = !_expanded),
               ),
               Switch(
@@ -494,14 +517,20 @@ class _SectionCardState extends State<_SectionCard> {
               ),
               IconButton(
                 tooltip: AppLocalization.strings.edit,
-                icon: Icon(Icons.edit_outlined,
-                    size: 20, color: AppTheme.primaryDark),
+                icon: Icon(
+                  Icons.edit_outlined,
+                  size: 20,
+                  color: AppTheme.primaryDark,
+                ),
                 onPressed: () => _edit(context),
               ),
               IconButton(
                 tooltip: AppLocalization.strings.delete,
-                icon: const Icon(Icons.delete_outline,
-                    size: 20, color: Color(0xFFFF6B6B)),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  size: 20,
+                  color: Color(0xFFFF6B6B),
+                ),
                 onPressed: () async {
                   final strings = AppLocalization.strings;
                   final confirmed = await AppDialog.showConfirm(
@@ -574,18 +603,24 @@ class _SectionCardState extends State<_SectionCard> {
                   children: [
                     SizedBox(
                       width: 130,
-                      child: Text(r.$1,
-                          style: AppTextStyles.labelSmall(
-                              color: colorScheme.onSurfaceVariant),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        r.$1,
+                        style: AppTextStyles.labelSmall(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     Expanded(
-                      child: Text(r.$2,
-                          style: AppTextStyles.bodySmall(
-                              color: colorScheme.onSurface),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        r.$2,
+                        style: AppTextStyles.bodySmall(
+                          color: colorScheme.onSurface,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -680,11 +715,11 @@ class _SectionCardState extends State<_SectionCard> {
   }
 
   String _sortLabel(String sort) => switch (sort) {
-        'popularity' => 'Popularity',
-        'priceAsc' => 'Price: low → high',
-        'priceDesc' => 'Price: high → low',
-        _ => 'Newest',
-      };
+    'popularity' => 'Popularity',
+    'priceAsc' => 'Price: low → high',
+    'priceDesc' => 'Price: high → low',
+    _ => 'Newest',
+  };
 
   void _edit(BuildContext context) {
     final layoutCubit = context.read<HomeLayoutCubit>();

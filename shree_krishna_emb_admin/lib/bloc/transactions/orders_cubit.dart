@@ -90,7 +90,12 @@ class OrdersState extends Equatable {
 class OrdersCubit extends Cubit<OrdersState> {
   final OrdersRepository repository;
 
-  OrdersCubit({required this.repository}) : super(const OrdersState());
+  /// When set (designer sessions — D2), every load is restricted to orders
+  /// containing this author's designs. Injected by the service locator.
+  final String? scopedOwnerUid;
+
+  OrdersCubit({required this.repository, this.scopedOwnerUid})
+    : super(const OrdersState());
 
   Future<void> load({bool forceRefresh = false}) async {
     emit(state.copyWith(status: CatalogStatus.loading));
@@ -102,6 +107,7 @@ class OrdersCubit extends Cubit<OrdersState> {
       end: state.end,
       search: state.search,
       forceRefresh: forceRefresh,
+      ownerUid: scopedOwnerUid,
     );
     if (isClosed) return;
     result.fold(

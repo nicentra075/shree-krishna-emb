@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 
 /// App Theme Configuration
 /// Based on "The Modern Heirloom" Design System
@@ -105,9 +104,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: secondaryDark,
           side: const BorderSide(color: outlineVariant, width: 1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: _textStyle('Manrope', 14, FontWeight.w600, secondaryDark),
         ),
       ),
@@ -133,16 +130,17 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: primaryDark, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
 
       // Card Theme
       cardTheme: CardThemeData(
         color: surfaceContainerLowestLight,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
 
       // Chip Theme
@@ -151,9 +149,7 @@ class AppTheme {
         selectedColor: secondaryDark,
         labelStyle: _textStyle('Manrope', 12, FontWeight.w500, onSurfaceLight),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
 
       // Bottom Navigation Theme
@@ -161,8 +157,18 @@ class AppTheme {
         backgroundColor: surfaceLight,
         selectedItemColor: primaryDark,
         unselectedItemColor: onSurfaceLight.withValues(alpha: 0.6),
-        selectedLabelStyle: _textStyle('Manrope', 12, FontWeight.w600, primaryDark),
-        unselectedLabelStyle: _textStyle('Manrope', 12, FontWeight.w500, onSurfaceLight),
+        selectedLabelStyle: _textStyle(
+          'Manrope',
+          12,
+          FontWeight.w600,
+          primaryDark,
+        ),
+        unselectedLabelStyle: _textStyle(
+          'Manrope',
+          12,
+          FontWeight.w500,
+          onSurfaceLight,
+        ),
         elevation: 8,
         type: BottomNavigationBarType.fixed,
       ),
@@ -233,9 +239,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: secondaryLight,
           side: const BorderSide(color: outlineVariant, width: 1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: _textStyle('Manrope', 14, FontWeight.w600, secondaryLight),
         ),
       ),
@@ -261,16 +265,17 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: primaryLight, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
 
       // Card Theme
       cardTheme: CardThemeData(
         color: surfaceContainerLowestDark,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
 
       // Chip Theme
@@ -279,9 +284,7 @@ class AppTheme {
         selectedColor: secondaryLight,
         labelStyle: _textStyle('Manrope', 12, FontWeight.w500, onSurfaceDark),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
 
       // Bottom Navigation Theme
@@ -289,8 +292,18 @@ class AppTheme {
         backgroundColor: surfaceDark,
         selectedItemColor: primaryLight,
         unselectedItemColor: onSurfaceDark.withValues(alpha: 0.6),
-        selectedLabelStyle: _textStyle('Manrope', 12, FontWeight.w600, primaryLight),
-        unselectedLabelStyle: _textStyle('Manrope', 12, FontWeight.w500, onSurfaceDark),
+        selectedLabelStyle: _textStyle(
+          'Manrope',
+          12,
+          FontWeight.w600,
+          primaryLight,
+        ),
+        unselectedLabelStyle: _textStyle(
+          'Manrope',
+          12,
+          FontWeight.w500,
+          onSurfaceDark,
+        ),
         elevation: 8,
         type: BottomNavigationBarType.fixed,
       ),
@@ -369,10 +382,7 @@ class AppTheme {
     return BoxDecoration(
       color: surfaceContainerLowestLight.withValues(alpha: 0.8),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(
-        color: Colors.white.withValues(alpha: 0.2),
-        width: 1,
-      ),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
     );
   }
 }

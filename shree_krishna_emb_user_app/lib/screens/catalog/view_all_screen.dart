@@ -48,7 +48,9 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
     if (t.startsWith('collection:')) {
       // A collection drills into its categories; if it has none we fall back
       // to showing its designs, so title follows what actually loaded.
-      if (_items.isNotEmpty && _items.first is DesignItem) return strings.designs;
+      if (_items.isNotEmpty && _items.first is DesignItem) {
+        return strings.designs;
+      }
       return strings.categories;
     }
     if (t.startsWith('category:')) return strings.designs;
@@ -99,10 +101,10 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
       body: _loading
           ? const Center(child: AppLoader())
           : _error != null
-              ? Center(child: Text(_error!))
-              : _items.isEmpty
-                  ? Center(child: Text(AppLocalization.strings.noData))
-                  : _grid(),
+          ? Center(child: Text(_error!))
+          : _items.isEmpty
+          ? Center(child: Text(AppLocalization.strings.noData))
+          : _grid(),
     );
   }
 
@@ -125,19 +127,18 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
   Widget _card(HomeItem item) {
     return switch (item) {
       DesignItem d => GestureDetector(
-          onTap: () => AppRoutes.navigateToDesignDetail(context, d.id),
-          child: _designCard(d),
-        ),
+        onTap: () => AppRoutes.navigateToDesignDetail(context, d.id),
+        child: _designCard(d),
+      ),
       CollectionItem c => GestureDetector(
-          onTap: () =>
-              AppRoutes.navigateToViewAll(context, 'collection:${c.id}'),
-          child: _tileCard(c.name, c.imageUrl),
-        ),
+        onTap: () => AppRoutes.navigateToViewAll(context, 'collection:${c.id}'),
+        child: _tileCard(c.name, c.imageUrl),
+      ),
       SellerItem s => _sellerCard(s),
       CategoryItem c => GestureDetector(
-          onTap: () => AppRoutes.navigateToViewAll(context, 'category:${c.id}'),
-          child: _tileCard(c.name, c.imageUrl),
-        ),
+        onTap: () => AppRoutes.navigateToViewAll(context, 'category:${c.id}'),
+        child: _tileCard(c.name, c.imageUrl),
+      ),
       _ => const SizedBox.shrink(),
     };
   }
@@ -158,7 +159,9 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
               fit: StackFit.expand,
               children: [
                 AppNetworkImage(
-                    imageUrl: d.firstImageUrl, width: double.infinity),
+                  imageUrl: d.firstImageUrl,
+                  width: double.infinity,
+                ),
                 Positioned(
                   top: 8,
                   right: 8,
@@ -177,17 +180,21 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(d.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style:
-                        AppTextStyles.labelSmall(fontWeight: FontWeight.w600)),
-                Text(d.isFree ? AppLocalization.strings.free : '₹${d.finalPrice}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.labelSmall(
-                        color: AppTheme.primaryLight,
-                        fontWeight: FontWeight.bold)),
+                Text(
+                  d.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelSmall(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  d.isFree ? AppLocalization.strings.free : '₹${d.finalPrice}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelSmall(
+                    color: AppTheme.primaryLight,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
@@ -203,23 +210,30 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
         color: AppTheme.secondaryLight.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Stack(fit: StackFit.expand, children: [
-        // Always render — AppNetworkImage shows the branded placeholder when
-        // imageUrl is null/empty (admin saved without an image).
-        AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
-        Container(color: Colors.black.withValues(alpha: 0.25)),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Text(name,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Always render — AppNetworkImage shows the branded placeholder when
+          // imageUrl is null/empty (admin saved without an image).
+          AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
+          Container(color: Colors.black.withValues(alpha: 0.25)),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                name,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.labelMedium(
-                    color: Colors.white, fontWeight: FontWeight.w700)),
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
@@ -229,7 +243,8 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
         CircleAvatar(
           radius: 36,
           backgroundColor: AppTheme.primaryLight.withValues(alpha: 0.1),
-          backgroundImage: (s.storeImageUrl != null && s.storeImageUrl!.isNotEmpty)
+          backgroundImage:
+              (s.storeImageUrl != null && s.storeImageUrl!.isNotEmpty)
               ? NetworkImage(s.storeImageUrl!)
               : null,
           child: (s.storeImageUrl == null || s.storeImageUrl!.isEmpty)
@@ -237,11 +252,13 @@ class _ViewAllScreenState extends State<ViewAllScreen> {
               : null,
         ),
         const SizedBox(height: 6),
-        Text(s.displayName,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.labelSmall(fontWeight: FontWeight.w600)),
+        Text(
+          s.displayName,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.labelSmall(fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }

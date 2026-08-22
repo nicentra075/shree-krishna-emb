@@ -6,10 +6,7 @@ import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 class UserDetailsDialog extends StatelessWidget {
   final UserListItemModel user;
 
-  const UserDetailsDialog({
-    super.key,
-    required this.user,
-  });
+  const UserDetailsDialog({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +24,16 @@ class UserDetailsDialog extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundImage: user.photoUrl != null && user.photoUrl!.isNotEmpty
+                    backgroundImage:
+                        user.photoUrl != null && user.photoUrl!.isNotEmpty
                         ? NetworkImage(user.photoUrl!)
                         : null,
                     child: user.photoUrl == null || user.photoUrl!.isEmpty
-                        ? Text(user.name.isNotEmpty ? user.name[0].toUpperCase() : '?')
+                        ? Text(
+                            user.name.isNotEmpty
+                                ? user.name[0].toUpperCase()
+                                : '?',
+                          )
                         : null,
                   ),
                   const SizedBox(width: 16),
@@ -50,9 +52,14 @@ class UserDetailsDialog extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryLight.withValues(alpha: 0.15),
+                            color: AppTheme.primaryLight.withValues(
+                              alpha: 0.15,
+                            ),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -70,7 +77,10 @@ class UserDetailsDialog extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: user.isActive
                           ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
@@ -96,9 +106,10 @@ class UserDetailsDialog extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Divider(
-                  color: Theme.of(context).colorScheme.outline.withValues(
-                        alpha: 0.2,
-                      )),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.2),
+              ),
               const SizedBox(height: 24),
               // Account Details Section
               Text(
@@ -113,14 +124,19 @@ class UserDetailsDialog extends StatelessWidget {
               const SizedBox(height: 12),
               _buildDetailRow(context, 'Email', user.email),
               const SizedBox(height: 12),
-              _buildDetailRow(context, 'Phone Number', user.phoneNumber ?? 'N/A'),
+              _buildDetailRow(
+                context,
+                'Phone Number',
+                user.phoneNumber ?? 'N/A',
+              ),
               // Designer store details
               if (user.role == 'designer') ...[
                 const SizedBox(height: 24),
                 Divider(
-                    color: Theme.of(context).colorScheme.outline.withValues(
-                          alpha: 0.2,
-                        )),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
+                ),
                 const SizedBox(height: 24),
                 Text(
                   'Designer Store',
@@ -133,19 +149,29 @@ class UserDetailsDialog extends StatelessWidget {
                 _buildDetailRow(context, 'Store Name', user.storeName ?? 'N/A'),
                 const SizedBox(height: 12),
                 _buildDetailRow(
-                    context, 'Store Image URL', user.storeImageUrl ?? 'N/A'),
+                  context,
+                  'Store Image URL',
+                  user.storeImageUrl ?? 'N/A',
+                ),
                 const SizedBox(height: 12),
                 _buildDetailRow(
-                    context, 'Store Description', user.storeDescription ?? 'N/A'),
+                  context,
+                  'Store Description',
+                  user.storeDescription ?? 'N/A',
+                ),
                 const SizedBox(height: 12),
-                _buildDetailRow(context, 'Authorised Seller',
-                    user.isAuthorisedSeller ? 'Yes' : 'No'),
+                _buildDetailRow(
+                  context,
+                  'Authorised Seller',
+                  user.isAuthorisedSeller ? 'Yes' : 'No',
+                ),
               ],
               const SizedBox(height: 24),
               Divider(
-                  color: Theme.of(context).colorScheme.outline.withValues(
-                        alpha: 0.2,
-                      )),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.2),
+              ),
               const SizedBox(height: 24),
               // Activity Details Section
               Text(
@@ -156,7 +182,11 @@ class UserDetailsDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _buildDetailRow(context, 'Login Method', user.loginMethod ?? 'N/A'),
+              _buildDetailRow(
+                context,
+                'Login Method',
+                user.loginMethod ?? 'N/A',
+              ),
               const SizedBox(height: 12),
               _buildDetailRow(
                 context,
@@ -217,9 +247,7 @@ class UserDetailsDialog extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: AppTextStyles.bodyMedium(
-            color: colorScheme.onSurface,
-          ),
+          style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),

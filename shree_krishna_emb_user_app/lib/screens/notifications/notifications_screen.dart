@@ -29,7 +29,8 @@ class NotificationsScreen extends StatelessWidget {
             builder: (context, state) {
               if (state.unreadCount == 0) return const SizedBox.shrink();
               return TextButton(
-                onPressed: () => context.read<NotificationCubit>().markAllRead(),
+                onPressed: () =>
+                    context.read<NotificationCubit>().markAllRead(),
                 child: Text(
                   strings.markAllRead,
                   maxLines: 1,
@@ -65,7 +66,8 @@ class NotificationsScreen extends StatelessWidget {
                     vertical: 8,
                   ),
                   itemCount: state.items.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final item = state.items[index];
                     return _NotificationTile(
@@ -263,9 +265,15 @@ class _NotificationTile extends StatelessWidget {
     final now = DateTime.now();
     final diff = now.difference(dt);
     if (diff.inMinutes < 1) return AppLocalization.strings.timestampJustNow;
-    if (diff.inHours < 1) return AppLocalization.strings.timeAgoMinutes(diff.inMinutes);
-    if (diff.inDays < 1) return AppLocalization.strings.timeAgoHours(diff.inHours);
-    if (diff.inDays < 7) return AppLocalization.strings.timeAgoDays(diff.inDays);
+    if (diff.inHours < 1) {
+      return AppLocalization.strings.timeAgoMinutes(diff.inMinutes);
+    }
+    if (diff.inDays < 1) {
+      return AppLocalization.strings.timeAgoHours(diff.inHours);
+    }
+    if (diff.inDays < 7) {
+      return AppLocalization.strings.timeAgoDays(diff.inDays);
+    }
     return '${dt.day}/${dt.month}/${dt.year}';
   }
 }

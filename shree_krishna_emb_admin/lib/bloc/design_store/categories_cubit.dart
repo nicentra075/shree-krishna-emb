@@ -31,12 +31,11 @@ class CategoriesState extends Equatable {
 
   /// Categories after applying the active/inactive status filter.
   List<CategoryModel> get visibleCategories => switch (statusFilter) {
-        CatalogStatusFilter.all => categories,
-        CatalogStatusFilter.active =>
-          categories.where((c) => c.isActive).toList(),
-        CatalogStatusFilter.inactive =>
-          categories.where((c) => !c.isActive).toList(),
-      };
+    CatalogStatusFilter.all => categories,
+    CatalogStatusFilter.active => categories.where((c) => c.isActive).toList(),
+    CatalogStatusFilter.inactive =>
+      categories.where((c) => !c.isActive).toList(),
+  };
 
   CategoriesState copyWith({
     CatalogStatus? status,
@@ -46,20 +45,26 @@ class CategoriesState extends Equatable {
     int? page,
     int? pageSize,
     String? error,
-  }) =>
-      CategoriesState(
-        status: status ?? this.status,
-        categories: categories ?? this.categories,
-        collectionId: collectionId ?? this.collectionId,
-        statusFilter: statusFilter ?? this.statusFilter,
-        page: page ?? this.page,
-        pageSize: pageSize ?? this.pageSize,
-        error: error,
-      );
+  }) => CategoriesState(
+    status: status ?? this.status,
+    categories: categories ?? this.categories,
+    collectionId: collectionId ?? this.collectionId,
+    statusFilter: statusFilter ?? this.statusFilter,
+    page: page ?? this.page,
+    pageSize: pageSize ?? this.pageSize,
+    error: error,
+  );
 
   @override
-  List<Object?> get props =>
-      [status, categories, collectionId, statusFilter, page, pageSize, error];
+  List<Object?> get props => [
+    status,
+    categories,
+    collectionId,
+    statusFilter,
+    page,
+    pageSize,
+    error,
+  ];
 }
 
 class CategoriesCubit extends Cubit<CategoriesState> {
@@ -67,34 +72,37 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   final ImageStorageDataSource imageStorage;
 
   CategoriesCubit({required this.repository, required this.imageStorage})
-      : super(const CategoriesState());
+    : super(const CategoriesState());
 
   void setPage(int page) => emit(state.copyWith(page: page));
 
   void setStatusFilter(CatalogStatusFilter filter) =>
       emit(state.copyWith(statusFilter: filter, page: 1));
 
-  void setPageSize(int size) =>
-      emit(state.copyWith(pageSize: size, page: 1));
+  void setPageSize(int size) => emit(state.copyWith(pageSize: size, page: 1));
 
   Future<void> load({String? collectionId, bool forceRefresh = false}) async {
-    emit(state.copyWith(
-        status: CatalogStatus.loading, collectionId: collectionId));
+    emit(
+      state.copyWith(status: CatalogStatus.loading, collectionId: collectionId),
+    );
     final result = await repository.getCategories(
       collectionId: collectionId,
       forceRefresh: forceRefresh,
     );
     if (isClosed) return;
     result.fold(
-      (failure) =>
-          emit(state.copyWith(status: CatalogStatus.error, error: failure.message)),
-      (categories) => emit(CategoriesState(
-        status: CatalogStatus.loaded,
-        categories: categories,
-        collectionId: collectionId,
-        statusFilter: state.statusFilter,
-        pageSize: state.pageSize,
-      )),
+      (failure) => emit(
+        state.copyWith(status: CatalogStatus.error, error: failure.message),
+      ),
+      (categories) => emit(
+        CategoriesState(
+          status: CatalogStatus.loaded,
+          categories: categories,
+          collectionId: collectionId,
+          statusFilter: state.statusFilter,
+          pageSize: state.pageSize,
+        ),
+      ),
     );
   }
 
@@ -131,8 +139,10 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   /// Number of designs that belong to [categoryId] — shown in the cascade
   /// confirmation.
   Future<int> designCount(String categoryId) async {
-    final res =
-        await repository.getDesigns(categoryId: categoryId, forceRefresh: true);
+    final res = await repository.getDesigns(
+      categoryId: categoryId,
+      forceRefresh: true,
+    );
     return res.fold((_) => 0, (l) => l.length);
   }
 
@@ -140,13 +150,13 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   /// message on the first failure, or null on success.
   Future<String?> removeCascade(String id) async {
     final imageUrls = <String>[];
-    final res =
-        await repository.getDesigns(categoryId: id, forceRefresh: true);
+    final res = await repository.getDesigns(categoryId: id, forceRefresh: true);
     final designs = res.fold((_) => <DesignModel>[], (l) => l);
     for (final d in designs) {
       imageUrls.addAll(d.images);
-      final err = (await repository.deleteDesign(d.id))
-          .fold((f) => f.message, (_) => null);
+      final err = (await repository.deleteDesign(
+        d.id,
+      )).fold((f) => f.message, (_) => null);
       if (err != null) return err;
     }
     final selfUrl = state.categories

@@ -14,7 +14,10 @@ import 'package:shree_krishna_emb_admin/core/utils/app_logger.dart';
 abstract class OrdersDataSource {
   /// Returns the full, date-desc ordered order list (served from cache when
   /// fresh). Filtering/pagination is done by the repository/cubit.
-  Future<List<OrderModel>> getAllOrders({bool forceRefresh});
+  ///
+  /// [ownerUid] (designer sessions — D2) restricts the read to orders whose
+  /// `ownerIds` contains the uid; rules deny designers anything broader.
+  Future<List<OrderModel>> getAllOrders({bool forceRefresh, String? ownerUid});
 
   /// Invalidate the cache so the next read hits Firestore (used after a refund).
   void invalidate();
@@ -44,21 +47,36 @@ class FirebaseOrdersDataSource implements OrdersDataSource {
   }
 
   @override
-  Future<List<OrderModel>> getAllOrders({bool forceRefresh = false}) async {
+  Future<List<OrderModel>> getAllOrders({
+    bool forceRefresh = false,
+    String? ownerUid,
+  }) async {
     final cache = _cache;
-    if (!forceRefresh && cache != null && _fresh) {
+    if (ownerUid == null && !forceRefresh && cache != null && _fresh) {
       return cache;
     }
     try {
-      final snap = await _firestore
-          .collection(FirestoreCollections.orders)
-          .orderBy('createdAt', descending: true)
-          .limit(_maxFetch)
-          .get();
+      // Designer scope filters in the QUERY (rules require it) and skips
+      // orderBy so no composite index is needed — sorted client-side.
+      final snap = ownerUid == null
+          ? await _firestore
+                .collection(FirestoreCollections.orders)
+                .orderBy('createdAt', descending: true)
+                .limit(_maxFetch)
+                .get()
+          : await _firestore
+                .collection(FirestoreCollections.orders)
+                .where('ownerIds', arrayContains: ownerUid)
+                .limit(_maxFetch)
+                .get();
 
       final orders = snap.docs
           .map((d) => OrderModel.fromFirebaseJson(d.data(), d.id))
           .toList();
+      if (ownerUid != null) {
+        orders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        return orders; // designer reads are small — no shared cache
+      }
 
       _cache = orders;
       _cachedAt = DateTime.now();

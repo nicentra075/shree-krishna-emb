@@ -6,7 +6,7 @@ class WishlistRepositoryImpl implements WishlistRepository {
   final WishlistDataSource _dataSource;
 
   WishlistRepositoryImpl({required WishlistDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   @override
   Future<Either<Failure, WishlistModel>> load() async {

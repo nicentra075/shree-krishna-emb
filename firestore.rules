@@ -33,6 +33,16 @@ service cloud.firestore {
       return isAuthed() && request.auth.uid == uid;
     }
 
+    // Designers get a scoped admin-panel workspace (Phase 1 decision D2).
+    // Claim synced from users/{uid}.role by the syncRoleClaim functions;
+    // Firestore fallback mirrors isAdmin() for pre-claim sessions.
+    function isDesigner() {
+      return isAuthed() && (
+        request.auth.token.role == 'designer' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'designer'
+      );
+    }
+
     // True only while the platform is in payment TEST mode
     // (config/platform.paymentTestMode == true). Used to let the client-side
     // demo/test checkout write its OWN order + purchase docs. In LIVE mode this
@@ -84,22 +94,34 @@ service cloud.firestore {
     // ==================== collections ====================
     match /collections/{collectionId} {
       allow read: if isAuthed();
-      allow write: if isAdmin();
+      // Designers may ADD to the shared taxonomy but not mutate/remove it.
+      allow create: if isAdmin() || isDesigner();
+      allow update, delete: if isAdmin();
     }
 
     // ==================== designs ====================
     match /designs/{designId} {
-      // User app must filter status == 'active' in every query.
+      // User app must filter status == 'active' in every query. Designers may
+      // list their OWN designs regardless of status (their workspace view).
       allow get, list: if isAdmin() ||
+        (isDesigner() && resource.data.authorId == request.auth.uid) ||
         (isAuthed() && resource.data.status == 'active');
-      // Admin-managed catalog. `name` required; `price` is a non-negative int
-      // (0 when the design is free — finalPrice is computed on the client).
-      allow create, update: if isAdmin() &&
+      // `name` required; `price` is a non-negative int (0 when the design is
+      // free — finalPrice is computed on the client). `authorId` is the owner
+      // field (D2): designers may only create/update/delete their own designs.
+      allow create, update: if (
+          isAdmin() ||
+          (isDesigner() &&
+            request.resource.data.authorId == request.auth.uid &&
+            (request.method == 'create' ||
+              resource.data.authorId == request.auth.uid))
+        ) &&
         request.resource.data.name is string &&
         request.resource.data.name.size() > 0 &&
         request.resource.data.price is int &&
         request.resource.data.price >= 0;
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() ||
+        (isDesigner() && resource.data.authorId == request.auth.uid);
 
       // Reviews — doc id = reviewer uid; create/update gated on purchase.
       match /reviews/{reviewerUid} {
@@ -118,7 +140,9 @@ service cloud.firestore {
     // ==================== categories ====================
     match /categories/{categoryId} {
       allow read: if isAuthed();
-      allow write: if isAdmin();
+      // Designers may ADD to the shared taxonomy but not mutate/remove it.
+      allow create: if isAdmin() || isDesigner();
+      allow update, delete: if isAdmin();
     }
 
     // ==================== orders ====================
@@ -126,8 +150,12 @@ service cloud.firestore {
     // finalizeOrder via the Admin SDK). TEST mode: the signed-in buyer may
     // write their own demo order from the client-side checkout.
     match /orders/{orderId} {
+      // Buyers read their own orders; designers read orders that contain
+      // their designs (ownerIds stamped by finalizeOrder — D2/C4).
       allow read: if isAdmin() ||
-        (isAuthed() && resource.data.userId == request.auth.uid);
+        (isAuthed() && resource.data.userId == request.auth.uid) ||
+        (isDesigner() &&
+          request.auth.uid in resource.data.get('ownerIds', []));
       // PHASE-2 / TEST-MODE DEMO ONLY — auto-denied in Live mode.
       allow create: if isAuthed()
         && paymentTestMode()

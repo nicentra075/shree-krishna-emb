@@ -30,19 +30,17 @@ class HomeLayoutState extends Equatable {
     bool? dirty,
     bool? saving,
     String? error,
-  }) =>
-      HomeLayoutState(
-        status: status ?? this.status,
-        version: version ?? this.version,
-        sections: sections ?? this.sections,
-        dirty: dirty ?? this.dirty,
-        saving: saving ?? this.saving,
-        error: error,
-      );
+  }) => HomeLayoutState(
+    status: status ?? this.status,
+    version: version ?? this.version,
+    sections: sections ?? this.sections,
+    dirty: dirty ?? this.dirty,
+    saving: saving ?? this.saving,
+    error: error,
+  );
 
   @override
-  List<Object?> get props =>
-      [status, version, sections, dirty, saving, error];
+  List<Object?> get props => [status, version, sections, dirty, saving, error];
 }
 
 class HomeLayoutCubit extends Cubit<HomeLayoutState> {
@@ -56,13 +54,16 @@ class HomeLayoutCubit extends Cubit<HomeLayoutState> {
     final result = await repository.read();
     if (isClosed) return; // screen left while the read was in flight
     result.fold(
-      (failure) => emit(state.copyWith(
-          status: HomeLayoutStatus.error, error: failure.message)),
-      (config) => emit(HomeLayoutState(
-        status: HomeLayoutStatus.loaded,
-        version: config.version,
-        sections: config.sections,
-      )),
+      (failure) => emit(
+        state.copyWith(status: HomeLayoutStatus.error, error: failure.message),
+      ),
+      (config) => emit(
+        HomeLayoutState(
+          status: HomeLayoutStatus.loaded,
+          version: config.version,
+          sections: config.sections,
+        ),
+      ),
     );
   }
 
@@ -73,14 +74,18 @@ class HomeLayoutCubit extends Cubit<HomeLayoutState> {
 
   void addSection(HomeSectionType type) {
     final defaultSource = switch (type) {
-      HomeSectionType.banner =>
-        const HomeSourceConfig(kind: HomeSourceKind.manual),
-      HomeSectionType.authorisedSellersHorizontal =>
-        const HomeSourceConfig(kind: HomeSourceKind.authorisedSellers, limit: 12),
-      HomeSectionType.recentlyViewed =>
-        const HomeSourceConfig(kind: HomeSourceKind.recentlyViewed, limit: 10),
-      HomeSectionType.collectionsGrid ||
-      HomeSectionType.categoriesHorizontal =>
+      HomeSectionType.banner => const HomeSourceConfig(
+        kind: HomeSourceKind.manual,
+      ),
+      HomeSectionType.authorisedSellersHorizontal => const HomeSourceConfig(
+        kind: HomeSourceKind.authorisedSellers,
+        limit: 12,
+      ),
+      HomeSectionType.recentlyViewed => const HomeSourceConfig(
+        kind: HomeSourceKind.recentlyViewed,
+        limit: 10,
+      ),
+      HomeSectionType.collectionsGrid || HomeSectionType.categoriesHorizontal =>
         const HomeSourceConfig(kind: HomeSourceKind.query, limit: 8),
       _ => const HomeSourceConfig(kind: HomeSourceKind.query, limit: 10),
     };
@@ -90,34 +95,38 @@ class HomeLayoutCubit extends Cubit<HomeLayoutState> {
       position: state.sections.length,
       source: defaultSource,
     );
-    emit(state.copyWith(
-      sections: [...state.sections, section],
-      dirty: true,
-    ));
+    emit(state.copyWith(sections: [...state.sections, section], dirty: true));
   }
 
   void removeSection(String id) {
-    emit(state.copyWith(
-      sections: state.sections.where((s) => s.id != id).toList(),
-      dirty: true,
-    ));
+    emit(
+      state.copyWith(
+        sections: state.sections.where((s) => s.id != id).toList(),
+        dirty: true,
+      ),
+    );
   }
 
   void toggleSection(String id) {
-    emit(state.copyWith(
-      sections: state.sections
-          .map((s) => s.id == id ? s.copyWith(enabled: !s.enabled) : s)
-          .toList(),
-      dirty: true,
-    ));
+    emit(
+      state.copyWith(
+        sections: state.sections
+            .map((s) => s.id == id ? s.copyWith(enabled: !s.enabled) : s)
+            .toList(),
+        dirty: true,
+      ),
+    );
   }
 
   void editSection(HomeSectionConfig updated) {
-    emit(state.copyWith(
-      sections:
-          state.sections.map((s) => s.id == updated.id ? updated : s).toList(),
-      dirty: true,
-    ));
+    emit(
+      state.copyWith(
+        sections: state.sections
+            .map((s) => s.id == updated.id ? updated : s)
+            .toList(),
+        dirty: true,
+      ),
+    );
   }
 
   void reorder(int oldIndex, int newIndex) {
@@ -131,7 +140,10 @@ class HomeLayoutCubit extends Cubit<HomeLayoutState> {
   /// Returns an error message on failure, or null on success.
   Future<String?> save() async {
     emit(state.copyWith(saving: true));
-    final config = HomeFeedConfig(version: state.version, sections: state.sections);
+    final config = HomeFeedConfig(
+      version: state.version,
+      sections: state.sections,
+    );
     final result = await repository.save(config);
     if (isClosed) return null;
     return result.fold(
@@ -140,7 +152,13 @@ class HomeLayoutCubit extends Cubit<HomeLayoutState> {
         return failure.message;
       },
       (_) {
-        emit(state.copyWith(saving: false, dirty: false, version: state.version + 1));
+        emit(
+          state.copyWith(
+            saving: false,
+            dirty: false,
+            version: state.version + 1,
+          ),
+        );
         return null;
       },
     );

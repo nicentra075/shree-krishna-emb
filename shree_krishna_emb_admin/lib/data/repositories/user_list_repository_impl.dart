@@ -9,7 +9,7 @@ class UserListRepositoryImpl implements UserListRepository {
   final UserListDataSource _dataSource;
 
   UserListRepositoryImpl({required UserListDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   @override
   Future<Either<Failure, List<UserListItemModel>>> getUsers({

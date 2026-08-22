@@ -47,18 +47,22 @@ class CollectionPicker extends StatelessWidget {
           if (includeAll)
             DropdownMenuItem<String?>(
               value: null,
-              child: Text('${AppLocalization.strings.collections} — ${AppLocalization.strings.active}',
-                  style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
+              child: Text(
+                '${AppLocalization.strings.collections} — ${AppLocalization.strings.active}',
+                style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ...collections.map(
             (c) => DropdownMenuItem<String?>(
               value: c.id,
-              child: Text(c.name,
-                  style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
+              child: Text(
+                c.name,
+                style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ],
@@ -111,19 +115,22 @@ class CategoryPicker extends StatelessWidget {
           if (includeAll)
             DropdownMenuItem<String?>(
               value: null,
-              child: Text('All ${AppLocalization.strings.categories}',
-                  style:
-                      AppTextStyles.bodyMedium(color: colorScheme.onSurface),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
+              child: Text(
+                'All ${AppLocalization.strings.categories}',
+                style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ...categories.map(
             (c) => DropdownMenuItem<String?>(
               value: c.id,
-              child: Text(c.name,
-                  style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
+              child: Text(
+                c.name,
+                style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ],
@@ -145,11 +152,14 @@ class _PickerBox extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Text(label!,
-              style:
-                  AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+          Text(
+            label!,
+            style: AppTextStyles.labelSmall(
+              color: colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 6),
         ],
         Container(
@@ -158,8 +168,9 @@ class _PickerBox extends StatelessWidget {
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
-            border:
-                Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.3),
+            ),
           ),
           alignment: Alignment.center,
           child: child,

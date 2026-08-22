@@ -10,6 +10,8 @@
  *   payments/initiateRefund        (onCall)    admin-only refund
  *   aggregates/onOrderWrite        (trigger)   stats/global + statsDaily
  *   users/assignUserId             (trigger)   unique sequential userId
+ *   users/onUserRoleWritten        (trigger)   mirror role -> custom claim
+ *   users/refreshRoleClaim         (onCall)    self-serve claim sync + token refresh
  *
  * Push notifications — exported here:
  *   notifications/broadcastNotification (onCall)    admin ad-hoc announcement
@@ -39,6 +41,10 @@ export { onOrderWrite } from "./aggregates/stats";
 
 // ---- Users ------------------------------------------------------------------
 export { assignUserId } from "./users/assignUserId";
+export { onUserRoleWritten, refreshRoleClaim } from "./users/syncRoleClaim";
+
+// ---- Reviews ----------------------------------------------------------------
+export { onReviewWritten } from "./reviews/onReviewWritten";
 
 // ---- Notifications ------------------------------------------------------------------
 export { broadcastNotification } from "./notifications/broadcastNotification";

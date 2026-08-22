@@ -12,8 +12,8 @@ class AdminAuthBloc extends Bloc<AdminAuthEvent, AdminAuthState> {
   final AdminAuthRepository _repository;
 
   AdminAuthBloc({required AdminAuthRepository repository})
-      : _repository = repository,
-        super(const AdminAuthInitial()) {
+    : _repository = repository,
+      super(const AdminAuthInitial()) {
     on<AdminSignInEvent>(_onSignIn);
     on<AdminSignOutEvent>(_onSignOut);
     on<AdminCheckAuthStatusEvent>(_onCheckAuthStatus);
@@ -32,12 +32,14 @@ class AdminAuthBloc extends Bloc<AdminAuthEvent, AdminAuthState> {
 
     result.fold(
       (failure) => emit(AdminAuthError(failure.message)),
-      (success) => emit(AdminAuthAuthenticated(
-        adminId: success.adminId,
-        email: success.email,
-        name: success.name,
-        role: success.role,
-      )),
+      (success) => emit(
+        AdminAuthAuthenticated(
+          adminId: success.adminId,
+          email: success.email,
+          name: success.name,
+          role: success.role,
+        ),
+      ),
     );
   }
 
@@ -59,20 +61,19 @@ class AdminAuthBloc extends Bloc<AdminAuthEvent, AdminAuthState> {
   ) async {
     final result = await _repository.checkAuthStatus();
 
-    result.fold(
-      (failure) => emit(AdminAuthError(failure.message)),
-      (success) {
-        if (success != null) {
-          emit(AdminAuthAuthenticated(
+    result.fold((failure) => emit(AdminAuthError(failure.message)), (success) {
+      if (success != null) {
+        emit(
+          AdminAuthAuthenticated(
             adminId: success.adminId,
             email: success.email,
             name: success.name,
             role: success.role,
-          ));
-        } else {
-          emit(const AdminAuthUnauthenticated());
-        }
-      },
-    );
+          ),
+        );
+      } else {
+        emit(const AdminAuthUnauthenticated());
+      }
+    });
   }
 }

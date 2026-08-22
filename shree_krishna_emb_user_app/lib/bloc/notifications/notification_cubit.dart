@@ -12,17 +12,26 @@ class NotificationCubit extends Cubit<NotificationState> {
   StreamSubscription? _sub;
   String? _uid;
 
-  NotificationCubit({required this.repository}) : super(const NotificationState());
+  NotificationCubit({required this.repository})
+    : super(const NotificationState());
 
   void start(String uid) {
     _uid = uid;
     _sub?.cancel();
     emit(state.copyWith(status: NotificationStatus.loading));
-    _sub = repository.watch(uid).listen(
-      (items) => emit(state.copyWith(status: NotificationStatus.loaded, items: items)),
-      onError: (Object e) =>
-          emit(state.copyWith(status: NotificationStatus.error, error: e.toString())),
-    );
+    _sub = repository
+        .watch(uid)
+        .listen(
+          (items) => emit(
+            state.copyWith(status: NotificationStatus.loaded, items: items),
+          ),
+          onError: (Object e) => emit(
+            state.copyWith(
+              status: NotificationStatus.error,
+              error: e.toString(),
+            ),
+          ),
+        );
   }
 
   void stop() {
@@ -37,7 +46,12 @@ class NotificationCubit extends Cubit<NotificationState> {
     if (uid == null) return;
     final result = await repository.markAllRead(uid);
     result.fold(
-      (failure) => emit(state.copyWith(status: NotificationStatus.error, error: failure.message)),
+      (failure) => emit(
+        state.copyWith(
+          status: NotificationStatus.error,
+          error: failure.message,
+        ),
+      ),
       // Success: the watch stream will push the refreshed list; clear any
       // stale error so it doesn't linger in state.
       (_) => emit(state.copyWith(error: null)),
@@ -49,7 +63,12 @@ class NotificationCubit extends Cubit<NotificationState> {
     if (uid == null) return;
     final result = await repository.markRead(uid, id);
     result.fold(
-      (failure) => emit(state.copyWith(status: NotificationStatus.error, error: failure.message)),
+      (failure) => emit(
+        state.copyWith(
+          status: NotificationStatus.error,
+          error: failure.message,
+        ),
+      ),
       // Success: the watch stream will push the refreshed list; clear any
       // stale error so it doesn't linger in state.
       (_) => emit(state.copyWith(error: null)),
@@ -61,7 +80,12 @@ class NotificationCubit extends Cubit<NotificationState> {
     if (uid == null) return;
     final result = await repository.delete(uid, id);
     result.fold(
-      (failure) => emit(state.copyWith(status: NotificationStatus.error, error: failure.message)),
+      (failure) => emit(
+        state.copyWith(
+          status: NotificationStatus.error,
+          error: failure.message,
+        ),
+      ),
       // Success: the watch stream will push the refreshed list; clear any
       // stale error so it doesn't linger in state.
       (_) => emit(state.copyWith(error: null)),

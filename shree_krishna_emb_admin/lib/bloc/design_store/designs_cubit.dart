@@ -49,41 +49,48 @@ class DesignsState extends Equatable {
     int? page,
     int? pageSize,
     String? error,
-  }) =>
-      DesignsState(
-        status: status ?? this.status,
-        designs: designs ?? this.designs,
-        collectionId: collectionId ?? this.collectionId,
-        categoryId: categoryId ?? this.categoryId,
-        statusFilter: statusFilter ?? this.statusFilter,
-        search: search ?? this.search,
-        sort: sort ?? this.sort,
-        page: page ?? this.page,
-        pageSize: pageSize ?? this.pageSize,
-        error: error,
-      );
+  }) => DesignsState(
+    status: status ?? this.status,
+    designs: designs ?? this.designs,
+    collectionId: collectionId ?? this.collectionId,
+    categoryId: categoryId ?? this.categoryId,
+    statusFilter: statusFilter ?? this.statusFilter,
+    search: search ?? this.search,
+    sort: sort ?? this.sort,
+    page: page ?? this.page,
+    pageSize: pageSize ?? this.pageSize,
+    error: error,
+  );
 
   @override
   List<Object?> get props => [
-        status,
-        designs,
-        collectionId,
-        categoryId,
-        statusFilter,
-        search,
-        sort,
-        page,
-        pageSize,
-        error,
-      ];
+    status,
+    designs,
+    collectionId,
+    categoryId,
+    statusFilter,
+    search,
+    sort,
+    page,
+    pageSize,
+    error,
+  ];
 }
 
 class DesignsCubit extends Cubit<DesignsState> {
   final CatalogRepository repository;
   final ImageStorageDataSource imageStorage;
 
-  DesignsCubit({required this.repository, required this.imageStorage})
-      : super(const DesignsState());
+  /// When set (designer sessions — D2), every load is filtered to this
+  /// author's designs. Injected by the service locator so no call site can
+  /// forget the scope.
+  final String? scopedAuthorId;
+
+  DesignsCubit({
+    required this.repository,
+    required this.imageStorage,
+    this.scopedAuthorId,
+  }) : super(const DesignsState());
 
   Future<void> load({bool forceRefresh = false}) async {
     emit(state.copyWith(status: CatalogStatus.loading));
@@ -94,21 +101,28 @@ class DesignsCubit extends Cubit<DesignsState> {
       searchQuery: state.search,
       sort: state.sort,
       forceRefresh: forceRefresh,
+      authorId: scopedAuthorId,
     );
     if (isClosed) return;
     result.fold(
-      (failure) =>
-          emit(state.copyWith(status: CatalogStatus.error, error: failure.message)),
+      (failure) => emit(
+        state.copyWith(status: CatalogStatus.error, error: failure.message),
+      ),
       // A fresh load resets to the first page.
-      (designs) => emit(state.copyWith(
-          status: CatalogStatus.loaded, designs: designs, page: 1, error: null)),
+      (designs) => emit(
+        state.copyWith(
+          status: CatalogStatus.loaded,
+          designs: designs,
+          page: 1,
+          error: null,
+        ),
+      ),
     );
   }
 
   void setPage(int page) => emit(state.copyWith(page: page));
 
-  void setPageSize(int size) =>
-      emit(state.copyWith(pageSize: size, page: 1));
+  void setPageSize(int size) => emit(state.copyWith(pageSize: size, page: 1));
 
   void setSearch(String value) {
     emit(state.copyWith(search: value.isEmpty ? null : value));
@@ -123,41 +137,47 @@ class DesignsCubit extends Cubit<DesignsState> {
   // Filters are set by constructing the state directly so a null value (the
   // "All" option) actually clears the filter (copyWith keeps the old value).
   void setCollectionFilter(String? collectionId) {
-    emit(DesignsState(
-      status: state.status,
-      designs: state.designs,
-      collectionId: collectionId,
-      categoryId: null, // reset category when the collection changes
-      statusFilter: state.statusFilter,
-      search: state.search,
-      sort: state.sort,
-      pageSize: state.pageSize,
-    ));
+    emit(
+      DesignsState(
+        status: state.status,
+        designs: state.designs,
+        collectionId: collectionId,
+        categoryId: null, // reset category when the collection changes
+        statusFilter: state.statusFilter,
+        search: state.search,
+        sort: state.sort,
+        pageSize: state.pageSize,
+      ),
+    );
     load();
   }
 
   void setCategoryFilter(String? categoryId) {
-    emit(DesignsState(
-      status: state.status,
-      designs: state.designs,
-      collectionId: state.collectionId,
-      categoryId: categoryId,
-      statusFilter: state.statusFilter,
-      search: state.search,
-      sort: state.sort,
-      pageSize: state.pageSize,
-    ));
+    emit(
+      DesignsState(
+        status: state.status,
+        designs: state.designs,
+        collectionId: state.collectionId,
+        categoryId: categoryId,
+        statusFilter: state.statusFilter,
+        search: state.search,
+        sort: state.sort,
+        pageSize: state.pageSize,
+      ),
+    );
     load();
   }
 
   /// Clears search + collection + category filters and reloads (sort is kept).
   void clearFilters() {
-    emit(DesignsState(
-      status: state.status,
-      designs: state.designs,
-      sort: state.sort,
-      pageSize: state.pageSize,
-    ));
+    emit(
+      DesignsState(
+        status: state.status,
+        designs: state.designs,
+        sort: state.sort,
+        pageSize: state.pageSize,
+      ),
+    );
     load();
   }
 

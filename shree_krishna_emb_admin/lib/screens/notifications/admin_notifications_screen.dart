@@ -76,17 +76,16 @@ class AdminNotificationsView extends StatelessWidget {
                           background: Container(
                             color: colorScheme.errorContainer,
                             alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: Icon(
                               Icons.delete_outline,
                               color: colorScheme.onErrorContainer,
                             ),
                           ),
                           onDismissed: (_) =>
-                              GetIt.instance<AdminNotificationsCubit>()
-                                  .delete(n.id),
+                              GetIt.instance<AdminNotificationsCubit>().delete(
+                                n.id,
+                              ),
                           child: AdminNotificationTile(
                             notification: n,
                             colorScheme: colorScheme,

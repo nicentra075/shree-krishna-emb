@@ -11,7 +11,7 @@ class FirebaseSellerDataSource implements SellerDataSource {
   final FirebaseFirestore _firestore;
 
   FirebaseSellerDataSource({required FirebaseFirestore firestore})
-      : _firestore = firestore;
+    : _firestore = firestore;
 
   @override
   Future<List<SellerModel>> getAuthorisedSellers({int limit = 20}) async {

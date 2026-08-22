@@ -15,7 +15,7 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
-  static FirebaseOptions get  currentPlatform {
+  static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       throw UnsupportedError(
         'DefaultFirebaseOptions have not been configured for web - '
@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'shree-krishna-emb.firebasestorage.app',
     iosBundleId: 'com.example.shreeKrishnaEmbUserApp',
   );
-
 }

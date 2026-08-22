@@ -76,9 +76,9 @@ class _WatermarkPainter extends CustomPainter {
           // body on top. Together they read on any underlying image colour.
           foreground: outline
               ? (Paint()
-                ..style = PaintingStyle.stroke
-                ..strokeWidth = 1.4
-                ..color = outlineColor)
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 1.4
+                  ..color = outlineColor)
               : (Paint()..color = fillColor),
         ),
       ),

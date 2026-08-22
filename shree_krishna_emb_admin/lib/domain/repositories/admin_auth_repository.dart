@@ -36,4 +36,8 @@ abstract class AdminAuthRepository {
   /// Check current authentication status
   /// Returns null if no user is authenticated
   Future<Either<Failure, AdminAuthSuccess?>> checkAuthStatus();
+
+  /// Send a password reset email. Succeeds even for unknown emails so the
+  /// UI can always show a generic "if this account exists" message.
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email);
 }

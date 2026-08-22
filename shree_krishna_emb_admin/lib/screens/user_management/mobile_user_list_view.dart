@@ -70,9 +70,9 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                       child: TextField(
                         controller: _searchController,
                         onChanged: (query) {
-                          context
-                              .read<UserListBloc>()
-                              .add(SearchUsersEvent(query));
+                          context.read<UserListBloc>().add(
+                            SearchUsersEvent(query),
+                          );
                         },
                         decoration: InputDecoration(
                           hintText: 'Search by name or email',
@@ -112,7 +112,11 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.add, size: 20, color: Colors.white),
+                      icon: const Icon(
+                        Icons.add,
+                        size: 20,
+                        color: Colors.white,
+                      ),
                       tooltip: 'Add User',
                     ),
                   ),
@@ -172,9 +176,9 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: () => context
-                              .read<UserListBloc>()
-                              .add(const LoadUsersEvent()),
+                          onPressed: () => context.read<UserListBloc>().add(
+                            const LoadUsersEvent(),
+                          ),
                           child: const Text('Retry'),
                         ),
                       ],
@@ -210,10 +214,9 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                           ),
                           const SizedBox(height: 12),
                           // Cards
-                          ...state.users.map((user) => _buildUserCard(
-                                context,
-                                user,
-                              )),
+                          ...state.users.map(
+                            (user) => _buildUserCard(context, user),
+                          ),
                           const SizedBox(height: 16),
                           // Pagination
                           _buildMobilePagination(context, state),
@@ -232,10 +235,7 @@ class _MobileUserListViewState extends State<MobileUserListView> {
     );
   }
 
-  Widget _buildUserCard(
-    BuildContext context,
-    UserListItemModel user,
-  ) {
+  Widget _buildUserCard(BuildContext context, UserListItemModel user) {
     final colorScheme = Theme.of(context).colorScheme;
     final activeColor = const Color(0xFF4CAF50);
     final suspendedColor = const Color(0xFFFF6B6B);
@@ -264,8 +264,10 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
@@ -297,15 +299,19 @@ class _MobileUserListViewState extends State<MobileUserListView> {
             Row(
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryLight.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    user.role
-                        .replaceFirst(user.role[0], user.role[0].toUpperCase()),
+                    user.role.replaceFirst(
+                      user.role[0],
+                      user.role[0].toUpperCase(),
+                    ),
                     style: AppTextStyles.labelSmall(
                       color: AppTheme.primaryDark,
                     ),
@@ -333,8 +339,9 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          AppTheme.primaryLight.withValues(alpha: 0.2),
+                      backgroundColor: AppTheme.primaryLight.withValues(
+                        alpha: 0.2,
+                      ),
                       foregroundColor: AppTheme.primaryDark,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
@@ -383,8 +390,8 @@ class _MobileUserListViewState extends State<MobileUserListView> {
                     onSelected: (value) {
                       if (value == 'suspend') {
                         context.read<UserListBloc>().add(
-                              SuspendUserEvent(user.id, user.isActive),
-                            );
+                          SuspendUserEvent(user.id, user.isActive),
+                        );
                       } else if (value == 'delete') {
                         _showDeleteConfirmation(context, user);
                       }
@@ -430,7 +437,7 @@ class _MobileUserListViewState extends State<MobileUserListView> {
         IconButton(
           onPressed: state.currentPage > 1
               ? () =>
-                  context.read<UserListBloc>().add(const PreviousPageEvent())
+                    context.read<UserListBloc>().add(const PreviousPageEvent())
               : null,
           icon: const Icon(Icons.chevron_left),
         ),
@@ -450,10 +457,7 @@ class _MobileUserListViewState extends State<MobileUserListView> {
     );
   }
 
-  void _showDeleteConfirmation(
-    BuildContext context,
-    UserListItemModel user,
-  ) {
+  void _showDeleteConfirmation(BuildContext context, UserListItemModel user) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -469,9 +473,7 @@ class _MobileUserListViewState extends State<MobileUserListView> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              context
-                  .read<UserListBloc>()
-                  .add(DeleteUserEvent(user.id));
+              context.read<UserListBloc>().add(DeleteUserEvent(user.id));
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),

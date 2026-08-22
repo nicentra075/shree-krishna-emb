@@ -58,7 +58,10 @@ class DashboardStats {
 }
 
 abstract class DashboardStatsDataSource {
-  Future<DashboardStats> getStats({int chartDays});
+  /// [authorUid] scopes everything to one designer's data (D2): design counts
+  /// by `authorId`, orders/revenue via the `ownerIds`/`ownerTotals` fields
+  /// stamped by finalizeOrder. Null = platform-wide (admin).
+  Future<DashboardStats> getStats({int chartDays, String? authorUid});
 }
 
 class FirebaseDashboardStatsDataSource implements DashboardStatsDataSource {
@@ -81,52 +84,84 @@ class FirebaseDashboardStatsDataSource implements DashboardStatsDataSource {
     }
   }
 
+  /// Demo/test orders (`demo_*` ids) store integer rupees; live server orders
+  /// store paise. Normalizes to integer rupees for display.
+  static int _toRupees(String orderId, num value) =>
+      orderId.startsWith('demo_') ? value.toInt() : (value / 100).round();
+
   @override
-  Future<DashboardStats> getStats({int chartDays = 7}) async {
+  Future<DashboardStats> getStats({
+    int chartDays = 7,
+    String? authorUid,
+  }) async {
     try {
       final usersRef = _firestore.collection(FirestoreCollections.users);
-      final designsRef = _firestore.collection(FirestoreCollections.designs);
+      final designsBase = _firestore.collection(FirestoreCollections.designs);
       final ordersRef = _firestore.collection(FirestoreCollections.orders);
 
       final now = DateTime.now();
       final todayStart = DateTime(now.year, now.month, now.day);
       final windowStart = todayStart.subtract(Duration(days: chartDays - 1));
 
-      // Counts via aggregate queries (cheap; one read unit each).
+      Query<Map<String, dynamic>> designsQ = designsBase;
+      if (authorUid != null) {
+        designsQ = designsQ.where('authorId', isEqualTo: authorUid);
+      }
+
+      // Counts via aggregate queries (cheap; one read unit each). User counts
+      // are platform-wide — skipped for designer-scoped dashboards.
       final results = await Future.wait<int>([
-        _count(usersRef),
-        _count(usersRef.where('role', isEqualTo: UserRole.designer.value)),
-        _count(designsRef),
-        _count(designsRef.where('status', isEqualTo: 'active')),
-        _count(designsRef.where('status', isEqualTo: 'pending')),
-        _count(ordersRef),
+        authorUid == null ? _count(usersRef) : Future.value(0),
+        authorUid == null
+            ? _count(usersRef.where('role', isEqualTo: UserRole.designer.value))
+            : Future.value(0),
+        _count(designsQ),
+        _count(designsQ.where('status', isEqualTo: 'active')),
+        _count(designsQ.where('status', isEqualTo: 'pending')),
       ]);
 
-      // Paid orders for revenue. Bounded + ordered by createdAt so we sum the
-      // most recent paid orders. We filter status client-side to avoid needing
-      // a composite index (status + createdAt).
-      final paidSnap = await ordersRef
-          .orderBy('createdAt', descending: true)
-          .limit(_maxOrderFetch)
-          .get();
-
-      final paidOrders = paidSnap.docs
-          .map((d) => OrderModel.fromFirebaseJson(d.data(), d.id))
-          .where((o) => o.status == OrderStatus.paid)
-          .toList();
+      // Paid orders for revenue, bounded. Admin reads the most recent orders;
+      // a designer can ONLY query orders containing their designs (rules), so
+      // the query filters on ownerIds and sorts client-side (index-free).
+      final paidSnap = authorUid == null
+          ? await ordersRef
+                .orderBy('createdAt', descending: true)
+                .limit(_maxOrderFetch)
+                .get()
+          : await ordersRef
+                .where('ownerIds', arrayContains: authorUid)
+                .limit(_maxOrderFetch)
+                .get();
 
       var revenueToday = 0;
       var revenue7d = 0;
       var revenueTotal = 0;
       var ordersToday = 0;
+      var totalOrders = 0;
       final perDay = <DateTime, _DayAgg>{};
 
       final sevenDayStart = todayStart.subtract(const Duration(days: 6));
 
-      for (final o in paidOrders) {
-        final amount = o.totalAmount; // integer rupees
+      for (final doc in paidSnap.docs) {
+        final data = doc.data();
+        if (data['status'] != 'paid') continue;
+
+        // Designer sees only their own share of each order (ownerTotals is
+        // stamped server-side by finalizeOrder, always in paise).
+        final int amount;
+        if (authorUid == null) {
+          amount = _toRupees(doc.id, (data['totalAmount'] as num?) ?? 0);
+        } else {
+          final totals = data['ownerTotals'];
+          final share = totals is Map ? totals[authorUid] : null;
+          if (share is! num) continue;
+          amount = (share / 100).round();
+        }
+
+        totalOrders += 1;
         revenueTotal += amount;
-        final created = o.createdAt;
+        final created =
+            DateTime.tryParse(data['createdAt']?.toString() ?? '') ?? now;
         final day = DateTime(created.year, created.month, created.day);
         if (!day.isBefore(todayStart)) {
           revenueToday += amount;
@@ -140,6 +175,12 @@ class FirebaseDashboardStatsDataSource implements DashboardStatsDataSource {
           agg.revenue += amount;
           agg.orders += 1;
         }
+      }
+
+      // Platform-wide order count comes from a cheap aggregate; the scoped
+      // count is what the bounded fetch found.
+      if (authorUid == null) {
+        totalOrders = await _count(ordersRef);
       }
 
       // Build a continuous series for the chart (fill gaps with zero).
@@ -162,7 +203,7 @@ class FirebaseDashboardStatsDataSource implements DashboardStatsDataSource {
         totalDesigns: results[2],
         activeDesigns: results[3],
         pendingDesigns: results[4],
-        totalOrders: results[5],
+        totalOrders: totalOrders,
         ordersToday: ordersToday,
         revenueToday: revenueToday,
         revenue7d: revenue7d,

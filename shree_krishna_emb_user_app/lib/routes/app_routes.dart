@@ -16,6 +16,7 @@ import 'package:shree_krishna_emb/screens/catalog/design_detail_screen.dart';
 import 'package:shree_krishna_emb/screens/catalog/favorites_screen.dart';
 import 'package:shree_krishna_emb/screens/settings/settings_screen.dart';
 import 'package:shree_krishna_emb/screens/notifications/notifications_screen.dart';
+import 'package:shree_krishna_emb/screens/search/search_screen.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/core/utils/app_logger.dart';
 
@@ -100,6 +101,9 @@ class AppRoutes {
 
   /// Notification center screen.
   static const String notifications = '/notifications';
+
+  /// Product search screen.
+  static const String search = '/search';
 
   // Add more routes here as you build the app
   // Convention: use lowercase with forward slash prefix
@@ -257,6 +261,13 @@ class AppRoutes {
           transitionType: _TransitionType.fadeInSlide,
         );
 
+      case search:
+        return _buildRoute(
+          settings: settings,
+          builder: (context) => const SearchScreen(),
+          transitionType: _TransitionType.fadeInSlide,
+        );
+
       // Add more routes here:
       // case home:
       //   return _buildRoute(
@@ -335,22 +346,32 @@ class AppRoutes {
   /// Navigate to a View-All list. [target] e.g. `sellers`, `collections`,
   /// `collection:<id>`, `category:<id>`, `designs?sort=popularity`. [title]
   /// overrides the screen's app-bar title (e.g. the section's own title).
-  static Future<void> navigateToViewAll(BuildContext context, String target,
-      {String? title}) {
-    return Navigator.of(context)
-        .pushNamed(viewAll, arguments: {'target': target, 'title': title});
+  static Future<void> navigateToViewAll(
+    BuildContext context,
+    String target, {
+    String? title,
+  }) {
+    return Navigator.of(
+      context,
+    ).pushNamed(viewAll, arguments: {'target': target, 'title': title});
   }
 
   /// Navigate to a design's detail screen.
   static Future<void> navigateToDesignDetail(
-      BuildContext context, String designId) {
-    return Navigator.of(context)
-        .pushNamed(designDetail, arguments: designId);
+    BuildContext context,
+    String designId,
+  ) {
+    return Navigator.of(context).pushNamed(designDetail, arguments: designId);
   }
 
   /// Navigate to the notification center screen.
   static Future<void> navigateToNotifications(BuildContext context) {
     return Navigator.of(context).pushNamed(notifications);
+  }
+
+  /// Navigate to the product search screen.
+  static Future<void> navigateToSearch(BuildContext context) {
+    return Navigator.of(context).pushNamed(search);
   }
 
   /// Routes a home/section target string to the right screen.

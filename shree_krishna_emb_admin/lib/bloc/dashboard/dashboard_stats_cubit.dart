@@ -40,9 +40,13 @@ class DashboardStatsCubit extends Cubit<DashboardStatsState> {
   DashboardStatsCubit({required this.repository, this.chartDays = 7})
     : super(const DashboardStatsState());
 
-  Future<void> load() async {
+  /// [authorUid] scopes the stats to one designer's data (D2).
+  Future<void> load({String? authorUid}) async {
     emit(state.copyWith(status: DashboardStatsStatus.loading));
-    final result = await repository.getStats(chartDays: chartDays);
+    final result = await repository.getStats(
+      chartDays: chartDays,
+      authorUid: authorUid,
+    );
     if (isClosed) return;
     result.fold(
       (failure) => emit(

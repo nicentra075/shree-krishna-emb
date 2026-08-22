@@ -85,8 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.dark_mode_outlined,
                 label: strings.darkMode,
                 isSelected: themeMode == ThemeMode.dark,
-                onTap: () =>
-                    context.read<ThemeCubit>().setMode(ThemeMode.dark),
+                onTap: () => context.read<ThemeCubit>().setMode(ThemeMode.dark),
               ),
               const Divider(height: 1),
               _buildOptionTile(

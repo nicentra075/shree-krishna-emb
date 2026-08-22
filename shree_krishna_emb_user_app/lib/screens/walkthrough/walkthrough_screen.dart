@@ -8,7 +8,7 @@ import 'package:shree_krishna_emb/screens/walkthrough/pages/discover_page.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/collaborate_page.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/get_started_page.dart';
 import 'package:shree_krishna_emb/screens/walkthrough/pages/embroidery_designs_page.dart';
-import 'package:shree_krishna_emb/screens/walkthrough/pages/designer_community_page.dart';
+
 import 'package:shree_krishna_emb/utils/constants.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';

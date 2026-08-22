@@ -10,6 +10,20 @@ import 'package:shree_krishna_emb/bloc/walkthrough/walkthrough_bloc.dart';
 import 'package:shree_krishna_emb/bloc/splash/splash_bloc.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
 import 'package:shree_krishna_emb/bloc/home_feed/home_feed_cubit.dart';
+import 'package:shree_krishna_emb/bloc/search/search_cubit.dart';
+import 'package:shree_krishna_emb/bloc/reviews/reviews_cubit.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_reviews_datasource.dart';
+import 'package:shree_krishna_emb/data/repositories/reviews_repository_impl.dart';
+import 'package:shree_krishna_emb/domain/repositories/reviews_repository.dart';
+import 'package:shree_krishna_emb/bloc/orders/user_orders_cubit.dart';
+import 'package:shree_krishna_emb/bloc/notification_prefs/notification_prefs_cubit.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_notification_prefs_datasource.dart';
+import 'package:shree_krishna_emb/data/repositories/notification_prefs_repository_impl.dart';
+import 'package:shree_krishna_emb/domain/repositories/notification_prefs_repository.dart';
+import 'package:shree_krishna_emb/data/datasources/firebase_user_orders_datasource.dart';
+import 'package:shree_krishna_emb/data/repositories/user_orders_repository_impl.dart';
+import 'package:shree_krishna_emb/data/services/invoice_pdf_service.dart';
+import 'package:shree_krishna_emb/domain/repositories/user_orders_repository.dart';
 import 'package:shree_krishna_emb/bloc/suggested_designs/suggested_designs_cubit.dart';
 import 'package:shree_krishna_emb/bloc/sellers/authorised_sellers_cubit.dart';
 import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
@@ -140,6 +154,43 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
     CatalogQueryDataSource(firestore: getIt(), sellerDataSource: getIt()),
   );
 
+  // Product search (WS-B1) — per-screen cubit.
+  getIt.registerFactory<SearchCubit>(() => SearchCubit(catalog: getIt()));
+
+  // Reviews (WS-B2) — per-design cubit via factoryParam(designId).
+  getIt.registerSingleton<ReviewsDataSource>(
+    FirebaseReviewsDataSource(firestore: getIt(), auth: getIt()),
+  );
+  getIt.registerSingleton<ReviewsRepository>(
+    ReviewsRepositoryImpl(dataSource: getIt()),
+  );
+  getIt.registerFactoryParam<ReviewsCubit, String, void>(
+    (designId, _) => ReviewsCubit(repository: getIt(), designId: designId),
+  );
+
+  // Order history + invoice (WS-B3)
+  getIt.registerSingleton<UserOrdersDataSource>(
+    FirebaseUserOrdersDataSource(firestore: getIt(), auth: getIt()),
+  );
+  getIt.registerSingleton<UserOrdersRepository>(
+    UserOrdersRepositoryImpl(dataSource: getIt()),
+  );
+  getIt.registerFactory<UserOrdersCubit>(
+    () => UserOrdersCubit(repository: getIt()),
+  );
+  getIt.registerSingleton<InvoicePdfService>(InvoicePdfService());
+
+  // Notification preferences (WS-B4)
+  getIt.registerSingleton<NotificationPrefsDataSource>(
+    FirebaseNotificationPrefsDataSource(firestore: getIt(), auth: getIt()),
+  );
+  getIt.registerSingleton<NotificationPrefsRepository>(
+    NotificationPrefsRepositoryImpl(dataSource: getIt()),
+  );
+  getIt.registerFactory<NotificationPrefsCubit>(
+    () => NotificationPrefsCubit(repository: getIt()),
+  );
+
   // Favorites / wishlist
   getIt.registerSingleton<WishlistDataSource>(
     FirebaseWishlistDataSource(firestore: getIt(), auth: getIt()),
@@ -229,6 +280,9 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
   getIt.registerSingleton<SignInWithGoogleUseCase>(
     SignInWithGoogleUseCase(getIt()),
   );
+  getIt.registerSingleton<SignInWithAppleUseCase>(
+    SignInWithAppleUseCase(getIt()),
+  );
   getIt.registerSingleton<SendPhoneOtpUseCase>(SendPhoneOtpUseCase(getIt()));
   getIt.registerSingleton<VerifyPhoneOtpUseCase>(
     VerifyPhoneOtpUseCase(getIt()),
@@ -257,6 +311,7 @@ Future<void> setupServiceLocator(SharedPreferences prefs) async {
       signUpUseCase: getIt(),
       signInUseCase: getIt(),
       signInWithGoogleUseCase: getIt(),
+      signInWithAppleUseCase: getIt(),
       sendPhoneOtpUseCase: getIt(),
       verifyPhoneOtpUseCase: getIt(),
       completeGoogleProfileUseCase: getIt(),

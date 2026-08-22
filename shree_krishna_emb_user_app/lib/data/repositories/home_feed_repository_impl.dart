@@ -11,8 +11,8 @@ class HomeFeedRepositoryImpl implements HomeFeedRepository {
   HomeFeedRepositoryImpl({
     required HomeFeedDataSource dataSource,
     required LocalHomeFeedCache cache,
-  })  : _dataSource = dataSource,
-        _cache = cache;
+  }) : _dataSource = dataSource,
+       _cache = cache;
 
   @override
   Future<Either<Failure, HomeFeed>> load({bool forceRefresh = false}) async {

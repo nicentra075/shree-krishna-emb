@@ -48,9 +48,9 @@ class HiveLocalUserDataSource implements LocalUserDataSource {
     required Box<String> userBox,
     required Box<String> userListBox,
     required SharedPreferences prefs,
-  })  : _userBox = userBox,
-        _userListBox = userListBox,
-        _prefs = prefs;
+  }) : _userBox = userBox,
+       _userListBox = userListBox,
+       _prefs = prefs;
 
   @override
   Future<void> init() async {
@@ -76,10 +76,7 @@ class HiveLocalUserDataSource implements LocalUserDataSource {
           final json = jsonDecode(jsonString);
           final cached = CachedData.fromJson(
             json,
-            (data) => UserModel.fromFirebaseJson(
-              data,
-              key,
-            ),
+            (data) => UserModel.fromFirebaseJson(data, key),
           );
           if (cached.isExpired) {
             await _userBox.delete(key);
@@ -172,11 +169,7 @@ class HiveLocalUserDataSource implements LocalUserDataSource {
           .map((item) => UserModel.fromFirebaseJson(item, item['id']))
           .toList();
 
-      return CachedData(
-        data: dataList,
-        cachedAt: cachedAt,
-        ttl: ttl,
-      );
+      return CachedData(data: dataList, cachedAt: cachedAt, ttl: ttl);
     } catch (e) {
       // On parsing error, remove corrupted entry
       await _userListBox.delete(cacheKey);
@@ -185,10 +178,7 @@ class HiveLocalUserDataSource implements LocalUserDataSource {
   }
 
   @override
-  Future<void> cacheUserList(
-    String cacheKey,
-    List<UserModel> users,
-  ) async {
+  Future<void> cacheUserList(String cacheKey, List<UserModel> users) async {
     try {
       final json = {
         'data': users.map((u) => u.toFirebaseJson()).toList(),

@@ -53,8 +53,8 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   /// The constructor sets the initial state and registers event handlers.
   /// Each event type has its own handler method (`on<EventName>`).
   SplashBloc({required LocalUserDataSource localDataSource})
-      : _localDataSource = localDataSource,
-        super(const SplashInitial()) {
+    : _localDataSource = localDataSource,
+      super(const SplashInitial()) {
     // Register event handlers
     // This tells the BLoC: "When you receive this event, call this handler"
     on<InitializeSplashEvent>(_onInitialize);
@@ -84,7 +84,9 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     final walkthroughSeen = await _localDataSource.getWalkthroughSeen();
 
     // Emit loading state - tells UI to show splash screen
-    emit(SplashLoading(elapsed: Duration.zero, skipWalkthrough: walkthroughSeen));
+    emit(
+      SplashLoading(elapsed: Duration.zero, skipWalkthrough: walkthroughSeen),
+    );
 
     // Start a timer for the splash duration
     // After 3 seconds, we'll emit SplashComplete

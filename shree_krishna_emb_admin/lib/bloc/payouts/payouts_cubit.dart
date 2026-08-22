@@ -39,11 +39,18 @@ class PayoutsState extends Equatable {
 class PayoutsCubit extends Cubit<PayoutsState> {
   final PayoutsRepository repository;
 
-  PayoutsCubit({required this.repository}) : super(const PayoutsState());
+  /// When set (designer sessions - D2), earnings are scoped to this designer.
+  final String? scopedOwnerUid;
+
+  PayoutsCubit({required this.repository, this.scopedOwnerUid})
+    : super(const PayoutsState());
 
   Future<void> load({bool forceRefresh = false}) async {
     emit(state.copyWith(status: PayoutsStatus.loading));
-    final result = await repository.getEarnings(forceRefresh: forceRefresh);
+    final result = await repository.getEarnings(
+      forceRefresh: forceRefresh,
+      ownerUid: scopedOwnerUid,
+    );
     if (isClosed) return;
     result.fold(
       (failure) => emit(

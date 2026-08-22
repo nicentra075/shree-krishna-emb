@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/categories_cubit.dart';
+import 'package:shree_krishna_emb_admin/core/auth/access_policy.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/collections_cubit.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/data/models/category_model.dart';
@@ -22,26 +23,25 @@ class CategoriesView extends StatelessWidget {
 
     return BlocBuilder<CategoriesCubit, CategoriesState>(
       builder: (context, state) {
-        final collections =
-            context.watch<CollectionsCubit>().state.collections;
+        final collections = context.watch<CollectionsCubit>().state.collections;
         final all = state.visibleCategories;
         final pageSize = state.pageSize;
         final totalPages = all.isEmpty ? 1 : (all.length / pageSize).ceil();
         final page = state.page.clamp(1, totalPages).toInt();
-        final items =
-            all.skip((page - 1) * pageSize).take(pageSize).toList();
+        final items = all.skip((page - 1) * pageSize).take(pageSize).toList();
         return CatalogScaffold(
           addLabel: strings.addCategory,
           onAdd: collections.isEmpty
-              ? () => ResponsiveSnackbar.showError(
-                  strings.noCollections, context)
+              ? () =>
+                    ResponsiveSnackbar.showError(strings.noCollections, context)
               : () => _openDialog(context, collections),
           status: state.status,
           isEmpty: all.isEmpty,
           emptyText: strings.noCategories,
-          onRetry: () => context
-              .read<CategoriesCubit>()
-              .load(collectionId: state.collectionId, forceRefresh: true),
+          onRetry: () => context.read<CategoriesCubit>().load(
+            collectionId: state.collectionId,
+            forceRefresh: true,
+          ),
           itemCount: items.length,
           currentPage: page,
           totalPages: totalPages,
@@ -75,6 +75,9 @@ class CategoriesView extends StatelessWidget {
                 .where((col) => col.id == c.collectionId)
                 .map((col) => col.name)
                 .join();
+            // Designers can add categories but not mutate the shared
+            // taxonomy (D2 — rules enforce this server-side too).
+            final canMutate = currentAccessPolicy().canMutateTaxonomy;
             return CatalogListRow(
               imageUrl: c.imageUrl,
               title: c.name,
@@ -82,8 +85,10 @@ class CategoriesView extends StatelessWidget {
                   ? 'ID: ${c.id}'
                   : '$collectionName · ID: ${c.id}',
               isActive: c.isActive,
-              onEdit: () => _openDialog(context, collections, category: c),
-              onDelete: () => _confirmDelete(context, c),
+              onEdit: canMutate
+                  ? () => _openDialog(context, collections, category: c)
+                  : null,
+              onDelete: canMutate ? () => _confirmDelete(context, c) : null,
             );
           },
         );
@@ -96,8 +101,7 @@ class CategoriesView extends StatelessWidget {
     final cubit = context.read<CategoriesCubit>();
     final designs = await cubit.designCount(c.id);
     if (!context.mounted) return;
-    final summary =
-        designs > 0 ? '$designs ${strings.designs}' : null;
+    final summary = designs > 0 ? '$designs ${strings.designs}' : null;
 
     final result = await showCascadeDeleteDialog(
       context: context,
@@ -118,13 +122,19 @@ class CategoriesView extends StatelessWidget {
         : ResponsiveSnackbar.showError(err, context);
   }
 
-  void _openDialog(BuildContext context, List<CollectionModel> collections,
-      {CategoryModel? category}) {
+  void _openDialog(
+    BuildContext context,
+    List<CollectionModel> collections, {
+    CategoryModel? category,
+  }) {
     showDialog(
       context: context,
       builder: (_) => BlocProvider.value(
         value: context.read<CategoriesCubit>(),
-        child: _CategoryEditDialog(category: category, collections: collections),
+        child: _CategoryEditDialog(
+          category: category,
+          collections: collections,
+        ),
       ),
     );
   }
@@ -141,10 +151,10 @@ class _StatusFilterDropdown extends StatelessWidget {
     final strings = AppLocalization.strings;
     final colorScheme = Theme.of(context).colorScheme;
     String label(CatalogStatusFilter f) => switch (f) {
-          CatalogStatusFilter.all => strings.allLabel,
-          CatalogStatusFilter.active => strings.active,
-          CatalogStatusFilter.inactive => strings.inactive,
-        };
+      CatalogStatusFilter.all => strings.allLabel,
+      CatalogStatusFilter.active => strings.active,
+      CatalogStatusFilter.inactive => strings.inactive,
+    };
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -161,15 +171,20 @@ class _StatusFilterDropdown extends StatelessWidget {
           isDense: true,
           isExpanded: true,
           dropdownColor: colorScheme.surface,
-          icon: Icon(Icons.filter_list,
-              size: 18, color: colorScheme.onSurfaceVariant),
+          icon: Icon(
+            Icons.filter_list,
+            size: 18,
+            color: colorScheme.onSurfaceVariant,
+          ),
           items: CatalogStatusFilter.values
               .map(
                 (f) => DropdownMenuItem(
                   value: f,
                   child: Text(
                     '${strings.statusLabel}: ${label(f)}',
-                    style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+                    style: AppTextStyles.bodyMedium(
+                      color: colorScheme.onSurface,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -208,7 +223,8 @@ class _CategoryEditDialogState extends State<_CategoryEditDialog> {
     _name = TextEditingController(text: c?.name ?? '');
     _imageUrl = c?.imageUrl ?? '';
     _position = TextEditingController(text: (c?.position ?? 0).toString());
-    _collectionId = c?.collectionId ??
+    _collectionId =
+        c?.collectionId ??
         (widget.collections.isNotEmpty ? widget.collections.first.id : null);
     _isActive = c?.isActive ?? true;
   }
@@ -237,7 +253,9 @@ class _CategoryEditDialogState extends State<_CategoryEditDialog> {
               Text(
                 isCreate ? strings.addCategory : strings.editCategory,
                 style: AppTextStyles.headlineMedium(
-                    color: AppTheme.primaryDark, fontWeight: FontWeight.w700),
+                  color: AppTheme.primaryDark,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 20),
               CollectionPicker(
@@ -248,9 +266,10 @@ class _CategoryEditDialogState extends State<_CategoryEditDialog> {
               ),
               const SizedBox(height: 12),
               AppTextField(
-                  label: strings.categoryName,
-                  hint: strings.categoryName,
-                  controller: _name),
+                label: strings.categoryName,
+                hint: strings.categoryName,
+                controller: _name,
+              ),
               const SizedBox(height: 12),
               AppImagePickerField(
                 label: strings.imageUrl,
@@ -260,15 +279,18 @@ class _CategoryEditDialogState extends State<_CategoryEditDialog> {
               ),
               const SizedBox(height: 12),
               AppTextField(
-                  label: strings.positionLabel,
-                  hint: '0',
-                  controller: _position,
-                  keyboardType: TextInputType.number),
+                label: strings.positionLabel,
+                hint: '0',
+                controller: _position,
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 8),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(strings.isActiveLabel,
-                    style: AppTextStyles.labelMedium()),
+                title: Text(
+                  strings.isActiveLabel,
+                  style: AppTextStyles.labelMedium(),
+                ),
                 value: _isActive,
                 activeThumbColor: AppTheme.primaryDark,
                 onChanged: (v) => setState(() => _isActive = v),
@@ -324,8 +346,9 @@ class _CategoryEditDialogState extends State<_CategoryEditDialog> {
       position: int.tryParse(_position.text.trim()) ?? 0,
       createdAt: existing?.createdAt ?? DateTime.now(),
     );
-    final err =
-        isCreate ? await cubit.create(model) : await cubit.update(model);
+    final err = isCreate
+        ? await cubit.create(model)
+        : await cubit.update(model);
     if (!context.mounted) return;
     Navigator.pop(context);
     err == null

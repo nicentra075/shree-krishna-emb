@@ -47,19 +47,13 @@ class BroadcastCubit extends Cubit<BroadcastState> {
 
     if (trimmedTitle.isEmpty || trimmedTitle.length > titleMaxLength) {
       emit(
-        state.copyWith(
-          status: BroadcastStatus.error,
-          error: 'invalid_title',
-        ),
+        state.copyWith(status: BroadcastStatus.error, error: 'invalid_title'),
       );
       return;
     }
     if (trimmedBody.isEmpty) {
       emit(
-        state.copyWith(
-          status: BroadcastStatus.error,
-          error: 'invalid_body',
-        ),
+        state.copyWith(status: BroadcastStatus.error, error: 'invalid_body'),
       );
       return;
     }
@@ -67,9 +61,7 @@ class BroadcastCubit extends Cubit<BroadcastState> {
     emit(state.copyWith(status: BroadcastStatus.sending));
     try {
       final count = await service.send(trimmedTitle, trimmedBody);
-      emit(
-        state.copyWith(status: BroadcastStatus.sent, recipientCount: count),
-      );
+      emit(state.copyWith(status: BroadcastStatus.sent, recipientCount: count));
     } catch (e) {
       emit(state.copyWith(status: BroadcastStatus.error, error: e.toString()));
     }

@@ -30,9 +30,7 @@ class _WorkScreenState extends State<WorkScreen> {
         }
 
         if (state is WorkError) {
-          return Center(
-            child: Text(state.message),
-          );
+          return Center(child: Text(state.message));
         }
 
         if (state is WorkLoaded) {
@@ -54,12 +52,10 @@ class _WorkScreenState extends State<WorkScreen> {
         child: Column(
           children: [
             // Vendor Section (show if user is vendor)
-            if (state.userRole == 'vendor')
-              _buildVendorSection(context, state),
+            if (state.userRole == 'vendor') _buildVendorSection(context, state),
 
             // Buyer Section (show if user is buyer)
-            if (state.userRole == 'buyer')
-              _buildBuyerSection(context, state),
+            if (state.userRole == 'buyer') _buildBuyerSection(context, state),
           ],
         ),
       ),
@@ -90,8 +86,8 @@ class _WorkScreenState extends State<WorkScreen> {
                   isSelected: state.vendorFilter == 'all',
                   onTap: () {
                     context.read<WorkBloc>().add(
-                          const FilterVendorWorkEvent('all'),
-                        );
+                      const FilterVendorWorkEvent('all'),
+                    );
                   },
                 ),
                 const SizedBox(width: 8),
@@ -100,8 +96,8 @@ class _WorkScreenState extends State<WorkScreen> {
                   isSelected: state.vendorFilter == 'open',
                   onTap: () {
                     context.read<WorkBloc>().add(
-                          const FilterVendorWorkEvent('open'),
-                        );
+                      const FilterVendorWorkEvent('open'),
+                    );
                   },
                 ),
                 const SizedBox(width: 8),
@@ -110,8 +106,8 @@ class _WorkScreenState extends State<WorkScreen> {
                   isSelected: state.vendorFilter == 'inProgress',
                   onTap: () {
                     context.read<WorkBloc>().add(
-                          const FilterVendorWorkEvent('inProgress'),
-                        );
+                      const FilterVendorWorkEvent('inProgress'),
+                    );
                   },
                 ),
                 const SizedBox(width: 8),
@@ -120,8 +116,8 @@ class _WorkScreenState extends State<WorkScreen> {
                   isSelected: state.vendorFilter == 'completed',
                   onTap: () {
                     context.read<WorkBloc>().add(
-                          const FilterVendorWorkEvent('completed'),
-                        );
+                      const FilterVendorWorkEvent('completed'),
+                    );
                   },
                 ),
               ],
@@ -135,9 +131,7 @@ class _WorkScreenState extends State<WorkScreen> {
         if (state.vendorProjects.isEmpty)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Center(
-              child: Text(AppLocalization.strings.noProjectsFound),
-            ),
+            child: Center(child: Text(AppLocalization.strings.noProjectsFound)),
           )
         else
           ListView.builder(
@@ -177,8 +171,8 @@ class _WorkScreenState extends State<WorkScreen> {
                   isSelected: state.buyerFilter == 'all',
                   onTap: () {
                     context.read<WorkBloc>().add(
-                          const FilterBuyerOrdersEvent('all'),
-                        );
+                      const FilterBuyerOrdersEvent('all'),
+                    );
                   },
                 ),
                 const SizedBox(width: 8),
@@ -187,8 +181,8 @@ class _WorkScreenState extends State<WorkScreen> {
                   isSelected: state.buyerFilter == 'pending',
                   onTap: () {
                     context.read<WorkBloc>().add(
-                          const FilterBuyerOrdersEvent('pending'),
-                        );
+                      const FilterBuyerOrdersEvent('pending'),
+                    );
                   },
                 ),
                 const SizedBox(width: 8),
@@ -197,8 +191,8 @@ class _WorkScreenState extends State<WorkScreen> {
                   isSelected: state.buyerFilter == 'delivered',
                   onTap: () {
                     context.read<WorkBloc>().add(
-                          const FilterBuyerOrdersEvent('delivered'),
-                        );
+                      const FilterBuyerOrdersEvent('delivered'),
+                    );
                   },
                 ),
               ],
@@ -212,9 +206,7 @@ class _WorkScreenState extends State<WorkScreen> {
         if (state.buyerOrders.isEmpty)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Center(
-              child: Text(AppLocalization.strings.noOrdersFound),
-            ),
+            child: Center(child: Text(AppLocalization.strings.noOrdersFound)),
           )
         else
           ListView.builder(

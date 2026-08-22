@@ -100,8 +100,10 @@ class CatalogScaffold extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(AppLocalization.strings.error,
-                style: AppTextStyles.bodyMedium(color: colorScheme.onSurface)),
+            Text(
+              AppLocalization.strings.error,
+              style: AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+            ),
             const SizedBox(height: 12),
             AppButton(
               label: AppLocalization.strings.retry,
@@ -117,14 +119,20 @@ class CatalogScaffold extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inventory_2_outlined,
-                size: 40, color: colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.inventory_2_outlined,
+              size: 40,
+              color: colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 12),
-            Text(emptyText,
-                style: AppTextStyles.bodyMedium(
-                    color: colorScheme.onSurfaceVariant),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
+            Text(
+              emptyText,
+              style: AppTextStyles.bodyMedium(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       );
@@ -144,8 +152,11 @@ class CatalogListRow extends StatelessWidget {
   final String title;
   final String? subtitle;
   final bool isActive;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+
+  /// Null hides the corresponding action (e.g. designers cannot edit/delete
+  /// the shared taxonomy — D2).
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
   final Widget? trailingInfo;
 
   const CatalogListRow({
@@ -186,19 +197,25 @@ class CatalogListRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: AppTextStyles.labelMedium(
-                        color: colorScheme.onSurface,
-                        fontWeight: FontWeight.w600),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
+                Text(
+                  title,
+                  style: AppTextStyles.labelMedium(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 if (subtitle != null && subtitle!.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(subtitle!,
-                      style: AppTextStyles.bodySmall(
-                          color: colorScheme.onSurfaceVariant),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    subtitle!,
+                    style: AppTextStyles.bodySmall(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
                 if (trailingInfo != null) ...[
                   const SizedBox(height: 4),
@@ -219,23 +236,33 @@ class CatalogListRow extends StatelessWidget {
                   ? AppLocalization.strings.active
                   : AppLocalization.strings.inactive,
               style: AppTextStyles.labelSmall(
-                  color: statusColor, fontWeight: FontWeight.w600),
+                color: statusColor,
+                fontWeight: FontWeight.w600,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          IconButton(
-            tooltip: AppLocalization.strings.edit,
-            icon: Icon(Icons.edit_outlined,
-                size: 20, color: AppTheme.primaryDark),
-            onPressed: onEdit,
-          ),
-          IconButton(
-            tooltip: AppLocalization.strings.delete,
-            icon: const Icon(Icons.delete_outline,
-                size: 20, color: Color(0xFFFF6B6B)),
-            onPressed: onDelete,
-          ),
+          if (onEdit != null)
+            IconButton(
+              tooltip: AppLocalization.strings.edit,
+              icon: Icon(
+                Icons.edit_outlined,
+                size: 20,
+                color: AppTheme.primaryDark,
+              ),
+              onPressed: onEdit,
+            ),
+          if (onDelete != null)
+            IconButton(
+              tooltip: AppLocalization.strings.delete,
+              icon: const Icon(
+                Icons.delete_outline,
+                size: 20,
+                color: Color(0xFFFF6B6B),
+              ),
+              onPressed: onDelete,
+            ),
         ],
       ),
     );
@@ -297,8 +324,9 @@ class _PageSizeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final value =
-        kCatalogPageSizeOptions.contains(pageSize) ? pageSize : kDefaultCatalogPageSize;
+    final value = kCatalogPageSizeOptions.contains(pageSize)
+        ? pageSize
+        : kDefaultCatalogPageSize;
     return Container(
       height: 36,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -312,7 +340,9 @@ class _PageSizeSelector extends StatelessWidget {
         children: [
           Text(
             '${AppLocalization.strings.perPage}: ',
-            style: AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
+            style: AppTextStyles.labelSmall(
+              color: colorScheme.onSurfaceVariant,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -323,12 +353,17 @@ class _PageSizeSelector extends StatelessWidget {
             dropdownColor: colorScheme.surface,
             style: AppTextStyles.labelMedium(color: colorScheme.onSurface),
             items: kCatalogPageSizeOptions
-                .map((n) => DropdownMenuItem(
-                      value: n,
-                      child: Text('$n',
-                          style: AppTextStyles.labelMedium(
-                              color: colorScheme.onSurface)),
-                    ))
+                .map(
+                  (n) => DropdownMenuItem(
+                    value: n,
+                    child: Text(
+                      '$n',
+                      style: AppTextStyles.labelMedium(
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                )
                 .toList(),
             onChanged: (n) {
               if (n != null) onChanged(n);
@@ -360,45 +395,44 @@ class _PaginationBar extends StatelessWidget {
     final pages = [for (var p = start; p <= end; p++) p];
 
     return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-            tooltip: 'Previous',
-            icon: const Icon(Icons.chevron_left),
-            onPressed:
-                currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
-          ),
-          ...pages.map((p) {
-            final selected = p == currentPage;
-            return GestureDetector(
-              onTap: () => onPageChanged(p),
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: selected ? AppTheme.primaryDark : Colors.transparent,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  '$p',
-                  style: AppTextStyles.labelSmall(
-                    color:
-                        selected ? Colors.white : colorScheme.onSurfaceVariant,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  ),
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          tooltip: 'Previous',
+          icon: const Icon(Icons.chevron_left),
+          onPressed: currentPage > 1
+              ? () => onPageChanged(currentPage - 1)
+              : null,
+        ),
+        ...pages.map((p) {
+          final selected = p == currentPage;
+          return GestureDetector(
+            onTap: () => onPageChanged(p),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: selected ? AppTheme.primaryDark : Colors.transparent,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                '$p',
+                style: AppTextStyles.labelSmall(
+                  color: selected ? Colors.white : colorScheme.onSurfaceVariant,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
-            );
-          }),
-          IconButton(
-            tooltip: 'Next',
-            icon: const Icon(Icons.chevron_right),
-            onPressed: currentPage < totalPages
-                ? () => onPageChanged(currentPage + 1)
-                : null,
-          ),
-        ],
-      );
+            ),
+          );
+        }),
+        IconButton(
+          tooltip: 'Next',
+          icon: const Icon(Icons.chevron_right),
+          onPressed: currentPage < totalPages
+              ? () => onPageChanged(currentPage + 1)
+              : null,
+        ),
+      ],
+    );
   }
 }

@@ -9,6 +9,7 @@ import 'package:shree_krishna_emb/domain/entities/home_feed.dart';
 import 'package:shree_krishna_emb/screens/catalog/design_detail_screen.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 import 'package:shree_krishna_emb/routes/app_routes.dart';
+import 'package:shree_krishna_emb/screens/purchases/orders_tab.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 
 /// Standalone purchases screen (pushed from the profile). Wraps the shared
@@ -58,6 +59,33 @@ class _MyPurchasesContentState extends State<MyPurchasesContent> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalization.strings;
+    final colorScheme = Theme.of(context).colorScheme;
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          TabBar(
+            labelColor: colorScheme.primary,
+            unselectedLabelColor: colorScheme.onSurfaceVariant,
+            indicatorColor: colorScheme.primary,
+            labelStyle: AppTextStyles.labelMedium(fontWeight: FontWeight.w600),
+            tabs: [
+              Tab(text: strings.designsTab),
+              Tab(text: strings.orders),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [_designsTab(context), const OrdersTab()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _designsTab(BuildContext context) {
     return BlocProvider<SuggestedDesignsCubit>(
       create: (_) => getIt<SuggestedDesignsCubit>()..load(),
       child: BlocBuilder<PurchasesCubit, PurchasesState>(

@@ -9,8 +9,8 @@ class ApiUserDataSource {
   ApiUserDataSource({
     required Dio dio,
     String baseUrl = 'https://api.yourapp.com',
-  })  : _dio = dio,
-        _baseUrl = baseUrl;
+  }) : _dio = dio,
+       _baseUrl = baseUrl;
 
   Future<UserModel> getUserById(String userId) async {
     try {
@@ -43,10 +43,7 @@ class ApiUserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to fetch user',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to fetch user', originalError: e);
     }
   }
 
@@ -56,8 +53,8 @@ class ApiUserDataSource {
   }) async {
     try {
       final queryParams = <String, dynamic>{
-        if (limit != null) 'limit': limit,
-        if (lastDocumentId != null) 'lastId': lastDocumentId,
+        'limit': ?limit,
+        'lastId': ?lastDocumentId,
       };
 
       final response = await _dio.get(
@@ -88,10 +85,7 @@ class ApiUserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to fetch users',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to fetch users', originalError: e);
     }
   }
 
@@ -122,10 +116,7 @@ class ApiUserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to create user',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to create user', originalError: e);
     }
   }
 
@@ -156,10 +147,7 @@ class ApiUserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to update user',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to update user', originalError: e);
     }
   }
 
@@ -187,10 +175,7 @@ class ApiUserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to delete user',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to delete user', originalError: e);
     }
   }
 

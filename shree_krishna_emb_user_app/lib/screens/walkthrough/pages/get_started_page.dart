@@ -153,7 +153,7 @@ class _GetStartedPageState extends State<GetStartedPage>
                                 child: const Center(
                                   child: Icon(
                                     Icons.phone_iphone,
-                                    color: Color(0xFF444),
+                                    color: Color(0x000ff444),
                                     size: 45,
                                   ),
                                 ),

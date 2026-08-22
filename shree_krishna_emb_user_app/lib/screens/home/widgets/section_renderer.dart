@@ -29,20 +29,34 @@ class SectionRenderer extends StatelessWidget {
   Widget build(BuildContext context) {
     if (section.items.isEmpty) return const SizedBox.shrink();
     final body = switch (section.type) {
-      HomeSectionType.banner =>
-        _BannerCarousel(items: section.items.whereType<BannerItem>().toList(), onNavigate: onNavigate),
-      HomeSectionType.authorisedSellersHorizontal =>
-        _SellersRow(items: section.items.whereType<SellerItem>().toList(), onNavigate: onNavigate),
-      HomeSectionType.designsHorizontal =>
-        _DesignsRow(items: section.items.whereType<DesignItem>().toList(), onNavigate: onNavigate),
-      HomeSectionType.designsVertical =>
-        _DesignsVertical(items: section.items.whereType<DesignItem>().toList(), onNavigate: onNavigate),
-      HomeSectionType.collectionsGrid =>
-        _CollectionsGrid(items: section.items.whereType<CollectionItem>().toList(), onNavigate: onNavigate),
-      HomeSectionType.categoriesHorizontal =>
-        _CategoriesRow(items: section.items.whereType<CategoryItem>().toList(), onNavigate: onNavigate),
-      HomeSectionType.recentlyViewed =>
-        _DesignsRow(items: section.items.whereType<DesignItem>().toList(), onNavigate: onNavigate),
+      HomeSectionType.banner => _BannerCarousel(
+        items: section.items.whereType<BannerItem>().toList(),
+        onNavigate: onNavigate,
+      ),
+      HomeSectionType.authorisedSellersHorizontal => _SellersRow(
+        items: section.items.whereType<SellerItem>().toList(),
+        onNavigate: onNavigate,
+      ),
+      HomeSectionType.designsHorizontal => _DesignsRow(
+        items: section.items.whereType<DesignItem>().toList(),
+        onNavigate: onNavigate,
+      ),
+      HomeSectionType.designsVertical => _DesignsVertical(
+        items: section.items.whereType<DesignItem>().toList(),
+        onNavigate: onNavigate,
+      ),
+      HomeSectionType.collectionsGrid => _CollectionsGrid(
+        items: section.items.whereType<CollectionItem>().toList(),
+        onNavigate: onNavigate,
+      ),
+      HomeSectionType.categoriesHorizontal => _CategoriesRow(
+        items: section.items.whereType<CategoryItem>().toList(),
+        onNavigate: onNavigate,
+      ),
+      HomeSectionType.recentlyViewed => _DesignsRow(
+        items: section.items.whereType<DesignItem>().toList(),
+        onNavigate: onNavigate,
+      ),
     };
 
     final showHeader = section.type != HomeSectionType.banner;
@@ -189,19 +203,25 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             if (b.label != null)
-                              Text(b.label!,
-                                  style: AppTextStyles.labelSmall(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis),
+                              Text(
+                                b.label!,
+                                style: AppTextStyles.labelSmall(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             if (b.title != null)
-                              Text(b.title!,
-                                  style: AppTextStyles.headlineMedium(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis),
+                              Text(
+                                b.title!,
+                                style: AppTextStyles.headlineMedium(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                           ],
                         ),
                       ),
@@ -260,22 +280,27 @@ class _SellersRow extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 36,
-                    backgroundColor: AppTheme.primaryLight.withValues(alpha: 0.1),
+                    backgroundColor: AppTheme.primaryLight.withValues(
+                      alpha: 0.1,
+                    ),
                     backgroundImage:
                         (s.storeImageUrl != null && s.storeImageUrl!.isNotEmpty)
-                            ? NetworkImage(s.storeImageUrl!)
-                            : null,
+                        ? NetworkImage(s.storeImageUrl!)
+                        : null,
                     child: (s.storeImageUrl == null || s.storeImageUrl!.isEmpty)
                         ? Icon(Icons.store, color: AppTheme.primaryLight)
                         : null,
                   ),
                   const SizedBox(height: 6),
-                  Text(s.displayName,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          AppTextStyles.labelSmall(fontWeight: FontWeight.w600)),
+                  Text(
+                    s.displayName,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.labelSmall(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -329,49 +354,62 @@ class _DesignsVertical extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: items
-            .map((d) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: GestureDetector(
-                    onTap: () => onNavigate('design:${d.id}'),
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(children: [
+            .map(
+              (d) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: GestureDetector(
+                  onTap: () => onNavigate('design:${d.id}'),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
                         AppNetworkImage(
-                            imageUrl: d.firstImageUrl,
-                            width: 72,
-                            height: 72,
-                            borderRadius: BorderRadius.circular(8)),
+                          imageUrl: d.firstImageUrl,
+                          width: 72,
+                          height: 72,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(d.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyles.labelMedium(
-                                      fontWeight: FontWeight.w600)),
+                              Text(
+                                d.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.labelMedium(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               if (d.description != null &&
                                   d.description!.trim().isNotEmpty) ...[
                                 const SizedBox(height: 2),
-                                Text(d.description!.trim(),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyles.labelSmall(
-                                        color:
-                                            colorScheme.onSurfaceVariant)),
-                              ],
-                              const SizedBox(height: 4),
-                              Text(d.isFree ? AppLocalization.strings.free : '₹${d.finalPrice}',
-                                  maxLines: 1,
+                                Text(
+                                  d.description!.trim(),
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.labelSmall(
-                                      color: AppTheme.primaryLight,
-                                      fontWeight: FontWeight.bold)),
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 4),
+                              Text(
+                                d.isFree
+                                    ? AppLocalization.strings.free
+                                    : '₹${d.finalPrice}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.labelSmall(
+                                  color: AppTheme.primaryLight,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -383,10 +421,12 @@ class _DesignsVertical extends StatelessWidget {
                           price: d.isFree ? 0 : d.finalPrice,
                           withBackground: false,
                         ),
-                      ]),
+                      ],
                     ),
                   ),
-                ))
+                ),
+              ),
+            )
             .toList(),
       ),
     );
@@ -415,9 +455,10 @@ class _DesignCard extends StatelessWidget {
             Stack(
               children: [
                 AppNetworkImage(
-                    imageUrl: item.firstImageUrl,
-                    height: 120,
-                    width: double.infinity),
+                  imageUrl: item.firstImageUrl,
+                  height: 120,
+                  width: double.infinity,
+                ),
                 Positioned(
                   top: 8,
                   right: 8,
@@ -435,18 +476,26 @@ class _DesignCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          AppTextStyles.labelSmall(fontWeight: FontWeight.w600)),
+                  Text(
+                    item.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.labelSmall(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(item.isFree ? AppLocalization.strings.free : '₹${item.finalPrice}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.labelSmall(
-                          color: AppTheme.primaryLight,
-                          fontWeight: FontWeight.bold)),
+                  Text(
+                    item.isFree
+                        ? AppLocalization.strings.free
+                        : '₹${item.finalPrice}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.labelSmall(
+                      color: AppTheme.primaryLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -496,12 +545,16 @@ class _CollectionsGrid extends StatelessWidget {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.all(8),
-                      child: Text(c.name,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.labelMedium(
-                              color: Colors.white, fontWeight: FontWeight.w700)),
+                      child: Text(
+                        c.name,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.labelMedium(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -538,17 +591,21 @@ class _CategoriesRow extends StatelessWidget {
               child: Column(
                 children: [
                   AppNetworkImage(
-                      imageUrl: c.imageUrl,
-                      width: 64,
-                      height: 64,
-                      borderRadius: BorderRadius.circular(32)),
+                    imageUrl: c.imageUrl,
+                    width: 64,
+                    height: 64,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
                   const SizedBox(height: 6),
-                  Text(c.name,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          AppTextStyles.labelSmall(fontWeight: FontWeight.w600)),
+                  Text(
+                    c.name,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.labelSmall(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),

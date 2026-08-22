@@ -92,8 +92,20 @@ class _DesignEditDialogState extends State<DesignEditDialog> {
       _authorId = auth.adminId;
       _author.text = auth.name;
     }
-    _loadAuthors();
+    // Designers can only ever author as themselves (D2) — the rules reject
+    // anything else, so the picker is locked and the author list isn't
+    // loaded (the users collection is admin-read-only anyway).
+    if (auth is AdminAuthAuthenticated && auth.role == 'designer') {
+      _lockedAuthor = true;
+      _authorId = auth.adminId;
+      if (_author.text.isEmpty) _author.text = auth.name;
+    } else {
+      _loadAuthors();
+    }
   }
+
+  /// True for designer sessions: author is fixed to the signed-in designer.
+  bool _lockedAuthor = false;
 
   /// Loads designers + admins to choose the author from.
   Future<void> _loadAuthors() async {
@@ -123,6 +135,13 @@ class _DesignEditDialogState extends State<DesignEditDialog> {
   void _refresh() => setState(() {});
 
   Widget _authorPicker(dynamic strings) {
+    if (_lockedAuthor) {
+      return AppTextField(
+        label: strings.authorName,
+        controller: _author,
+        enabled: false,
+      );
+    }
     final options = _authors
         .map(
           (a) => SelectOption(

@@ -16,8 +16,8 @@ class FirebaseWishlistDataSource implements WishlistDataSource {
   FirebaseWishlistDataSource({
     required FirebaseFirestore firestore,
     required FirebaseAuth auth,
-  })  : _firestore = firestore,
-        _auth = auth;
+  }) : _firestore = firestore,
+       _auth = auth;
 
   DocumentReference<Map<String, dynamic>> _doc() {
     final uid = _auth.currentUser?.uid;

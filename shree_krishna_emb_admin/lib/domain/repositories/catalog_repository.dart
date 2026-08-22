@@ -32,6 +32,7 @@ abstract class CatalogRepository {
     String? searchQuery,
     DesignSort sort,
     bool forceRefresh,
+    String? authorId,
   });
   Future<Either<Failure, DesignModel>> createDesign(DesignModel design);
   Future<Either<Failure, void>> updateDesign(DesignModel design);

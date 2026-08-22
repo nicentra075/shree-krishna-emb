@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/bloc/wishlist/wishlist_cubit.dart';
+import 'package:shree_krishna_emb/localisations/app_localization.dart';
 
 /// A tappable heart that reflects + toggles the design's favorite state from the
 /// app-wide [WishlistCubit]. Drop it on any design card or the detail screen.
@@ -45,12 +47,22 @@ class FavoriteHeart extends StatelessWidget {
           color: isFav ? const Color(0xFFE53935) : inactiveColor,
         );
         return GestureDetector(
-          onTap: () => context.read<WishlistCubit>().toggle(
-                designId: designId,
-                title: title,
-                thumbUrl: thumbUrl,
-                price: price,
-              ),
+          onTap: () async {
+            final cubit = context.read<WishlistCubit>();
+            final ok = await cubit.toggle(
+              designId: designId,
+              title: title,
+              thumbUrl: thumbUrl,
+              price: price,
+            );
+            // The heart flipping is the success feedback; failures (offline,
+            // limit reached) must not stay silent (D6).
+            if (!ok) {
+              AppSnackbar.showError(
+                cubit.state.error ?? AppLocalization.strings.somethingWentWrong,
+              );
+            }
+          },
           child: withBackground
               ? Container(
                   padding: const EdgeInsets.all(6),

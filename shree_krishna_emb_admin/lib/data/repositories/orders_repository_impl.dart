@@ -58,9 +58,13 @@ class OrdersRepositoryImpl implements OrdersRepository {
     DateTime? end,
     String? search,
     bool forceRefresh = false,
+    String? ownerUid,
   }) async {
     try {
-      final all = await _dataSource.getAllOrders(forceRefresh: forceRefresh);
+      final all = await _dataSource.getAllOrders(
+        forceRefresh: forceRefresh,
+        ownerUid: ownerUid,
+      );
       final filtered = _applyFilters(
         all,
         statusFilter: statusFilter,
@@ -89,9 +93,15 @@ class OrdersRepositoryImpl implements OrdersRepository {
   @override
   Future<Either<Failure, List<OrderModel>>> getAllOrders({
     bool forceRefresh = false,
+    String? ownerUid,
   }) async {
     try {
-      return Right(await _dataSource.getAllOrders(forceRefresh: forceRefresh));
+      return Right(
+        await _dataSource.getAllOrders(
+          forceRefresh: forceRefresh,
+          ownerUid: ownerUid,
+        ),
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

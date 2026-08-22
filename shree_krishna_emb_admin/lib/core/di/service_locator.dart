@@ -7,6 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
+import 'package:shree_krishna_emb_admin/bloc/admin_auth/password_reset_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/dashboard/dashboard_stats_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/notifications/admin_notifications_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/notifications/broadcast_cubit.dart';
@@ -65,11 +66,26 @@ import 'package:shree_krishna_emb_admin/domain/repositories/user_list_repository
 
 final getIt = GetIt.instance;
 
+/// Uid of the signed-in staff member when they are a DESIGNER, else null.
+/// Used to owner-scope factory cubits (designs, orders, payouts, reports —
+/// Phase 1 decision D2).
+String? _designerScopeUid() {
+  final authState = getIt<AdminAuthBloc>().state;
+  if (authState is AdminAuthAuthenticated && authState.role == 'designer') {
+    return authState.adminId;
+  }
+  return null;
+}
+
 Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
   // Firebase instances
   getIt.registerSingleton<FirebaseAuth>(FirebaseAuth.instance);
   getIt.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
   getIt.registerSingleton<FirebaseStorage>(FirebaseStorage.instance);
+  // Cloud Functions (region-pinned) — refreshRoleClaim, initiateRefund, etc.
+  getIt.registerSingleton<FirebaseFunctions>(
+    FirebaseFunctions.instanceFor(region: CloudFunctionNames.region),
+  );
 
   // Initialize Hive local storage
   await Hive.initFlutter();
@@ -92,6 +108,7 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
     FirebaseAdminAuthDataSource(
       firebaseAuth: getIt<FirebaseAuth>(),
       firestore: getIt<FirebaseFirestore>(),
+      functions: getIt<FirebaseFunctions>(),
       prefs: getIt<SharedPreferences>(),
     ),
   );
@@ -104,6 +121,10 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
   // Presentation Layer (BLoC)
   getIt.registerSingleton<AdminAuthBloc>(
     AdminAuthBloc(repository: getIt<AdminAuthRepository>()),
+  );
+  // Forgot-password flow — per-screen cubit, separate from the session bloc.
+  getIt.registerFactory<PasswordResetCubit>(
+    () => PasswordResetCubit(repository: getIt<AdminAuthRepository>()),
   );
 
   // USER LIST MANAGEMENT - Clean Architecture Pattern
@@ -148,6 +169,9 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
     () => DesignsCubit(
       repository: getIt<CatalogRepository>(),
       imageStorage: getIt<ImageStorageDataSource>(),
+      // Designers only ever see/load their own designs (D2). Resolved at
+      // cubit creation (screens mount post-auth) so no call site can forget.
+      scopedAuthorId: _designerScopeUid(),
     ),
   );
 
@@ -190,11 +214,6 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
     () => HomeLayoutCubit(repository: getIt<HomeConfigRepository>()),
   );
 
-  // Cloud Functions (region-pinned) — used to call `initiateRefund`.
-  getIt.registerSingleton<FirebaseFunctions>(
-    FirebaseFunctions.instanceFor(region: CloudFunctionNames.region),
-  );
-
   // PLATFORM CONFIG (`config/platform`) - fee/gst, payment mode, Razorpay keys
   getIt.registerSingleton<PlatformConfigDataSource>(
     FirebasePlatformConfigDataSource(
@@ -220,7 +239,10 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
     ),
   );
   getIt.registerFactory<OrdersCubit>(
-    () => OrdersCubit(repository: getIt<OrdersRepository>()),
+    () => OrdersCubit(
+      repository: getIt<OrdersRepository>(),
+      scopedOwnerUid: _designerScopeUid(),
+    ),
   );
 
   // DASHBOARD live stats (aggregate counts + revenue summary/chart).
@@ -245,7 +267,10 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
     ReportsRepositoryImpl(dataSource: getIt<ReportsDataSource>()),
   );
   getIt.registerFactory<ReportsCubit>(
-    () => ReportsCubit(repository: getIt<ReportsRepository>()),
+    () => ReportsCubit(
+      repository: getIt<ReportsRepository>(),
+      scopedOwnerUid: _designerScopeUid(),
+    ),
   );
 
   // PAYOUTS (interim read-only earnings owed per designer).
@@ -259,13 +284,18 @@ Future<void> setupAdminServiceLocator(SharedPreferences prefs) async {
     PayoutsRepositoryImpl(dataSource: getIt<PayoutsDataSource>()),
   );
   getIt.registerFactory<PayoutsCubit>(
-    () => PayoutsCubit(repository: getIt<PayoutsRepository>()),
+    () => PayoutsCubit(
+      repository: getIt<PayoutsRepository>(),
+      scopedOwnerUid: _designerScopeUid(),
+    ),
   );
 
   // NOTIFICATION SETTINGS (`config/notifications`) - master toggle,
   // purchase/new-design alert toggles, daily send-time slots.
   getIt.registerSingleton<NotificationSettingsDataSource>(
-    FirebaseNotificationSettingsDataSource(firestore: getIt<FirebaseFirestore>()),
+    FirebaseNotificationSettingsDataSource(
+      firestore: getIt<FirebaseFirestore>(),
+    ),
   );
   getIt.registerSingleton<NotificationSettingsRepository>(
     NotificationSettingsRepositoryImpl(

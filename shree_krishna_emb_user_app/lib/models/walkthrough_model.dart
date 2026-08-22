@@ -18,6 +18,12 @@ class WalkthroughPage extends Equatable {
   });
 
   @override
-  List<Object?> get props =>
-      [id, title, description, imagePath, backgroundColor, buttonText];
+  List<Object?> get props => [
+    id,
+    title,
+    description,
+    imagePath,
+    backgroundColor,
+    buttonText,
+  ];
 }

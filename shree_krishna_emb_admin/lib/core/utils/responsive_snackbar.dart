@@ -10,7 +10,7 @@ class ResponsiveSnackbar {
   static const _mobileThreshold = 600.0;
 
   /// Show success message with responsive positioning
-  /// Pass context for reliable snackbar positioning. 
+  /// Pass context for reliable snackbar positioning.
   static void showSuccess(String message, [BuildContext? context]) {
     _showSnackbar(message, type: _SnackbarType.success, context: context);
   }
@@ -66,12 +66,12 @@ class ResponsiveSnackbar {
   ) {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     final color = _getColorForType(type);
     final textColor = _getTextColorForType(type);
 
     // Calculate left margin dynamically to push snackbar to right side
-    // Content width (380) + right margin (24) + padding (24) = 428.   
+    // Content width (380) + right margin (24) + padding (24) = 428.
 
     final leftMargin = screenWidth - 428;
 

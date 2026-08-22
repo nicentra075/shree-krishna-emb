@@ -301,4 +301,64 @@ abstract class LocaleStrings {
   String timeAgoMinutes(int minutes);
   String timeAgoHours(int hours);
   String timeAgoDays(int days);
+
+  // ========== Search & Filters (WS-B1) ==========
+  String get filters;
+  String get priceRange;
+  String get minPrice;
+  String get maxPrice;
+  String get freeOnly;
+  String get applyFilters;
+  String get clearFilters;
+  String get sortBy;
+  String get sortNewest;
+  String get sortPopular;
+  String get sortPriceLowHigh;
+  String get sortPriceHighLow;
+  String get allCategories;
+  String get searchStartTyping;
+
+  // ========== Reviews (WS-B2) ==========
+  String get writeReview;
+  String get editReview;
+  String get deleteReview;
+  String get deleteReviewConfirm;
+  String get yourRating;
+  String get reviewHint;
+  String get submitReview;
+  String get reviewSubmitted;
+  String get reviewDeleted;
+  String get noReviewsYet;
+  String get purchaseToReview;
+  String get showLess;
+  String reviewsCount(int count);
+
+  // ========== Orders & Invoice (WS-B3) ==========
+  String get designsTab;
+  String get invoice;
+  String get downloadInvoice;
+  String get invoiceFailed;
+  String get invoiceNumber;
+  String get paymentId;
+  String get orderItems;
+  String get orderStatusPaid;
+  String get orderStatusPending;
+  String get orderStatusFailed;
+  String get orderStatusRefunded;
+  String get orderStatusRefundInitiated;
+
+  // ========== Notification Preferences (WS-B4) ==========
+  String get notificationPreferences;
+  String get pushNotifications;
+  String get pushNotificationsDesc;
+  String get purchaseAlerts;
+  String get purchaseAlertsDesc;
+  String get newDesignAlerts;
+  String get newDesignAlertsDesc;
+  String get promotionalNotifications;
+  String get promotionalNotificationsDesc;
+  String get preferencesSaved;
+
+  // ========== Generic feedback (D6) ==========
+  String get somethingWentWrong;
 }

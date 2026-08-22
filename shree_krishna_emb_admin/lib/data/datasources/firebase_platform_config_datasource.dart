@@ -211,7 +211,8 @@ class FirebasePlatformConfigDataSource implements PlatformConfigDataSource {
     } catch (e, s) {
       AppLogger.logError('setRazorpaySecret', error: e, stackTrace: s);
       throw ServerException(
-        message: 'Could not save the secret key due to an unexpected error. '
+        message:
+            'Could not save the secret key due to an unexpected error. '
             'Please try again.',
       );
     }

@@ -78,10 +78,13 @@ class ReportSummary {
 }
 
 abstract class ReportsDataSource {
+  /// [ownerUid] (designer sessions - D2) scopes the report to that designer's
+  /// items only (their line items, no platform-wide user counts).
   Future<ReportSummary> getReport({
     required DateTime start,
     required DateTime end,
     bool forceRefresh,
+    String? ownerUid,
   });
 }
 
@@ -100,10 +103,12 @@ class FirebaseReportsDataSource implements ReportsDataSource {
     required DateTime start,
     required DateTime end,
     bool forceRefresh = false,
+    String? ownerUid,
   }) async {
     try {
       final allOrders = await _ordersDataSource.getAllOrders(
         forceRefresh: forceRefresh,
+        ownerUid: ownerUid,
       );
 
       // Paid orders within [start, end].
@@ -169,7 +174,8 @@ class FirebaseReportsDataSource implements ReportsDataSource {
       final topCategories = _rank(categoryAgg);
 
       final aov = paid.isEmpty ? 0 : (totalSales / paid.length).round();
-      final newUsers = await _countNewUsers(start, end);
+      // Platform-wide signup counts are admin-only (rules + relevance).
+      final newUsers = ownerUid == null ? await _countNewUsers(start, end) : 0;
 
       return ReportSummary(
         totalSales: totalSales,

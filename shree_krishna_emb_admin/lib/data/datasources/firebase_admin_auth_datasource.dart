@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shree_krishna_core/shree_krishna_core.dart'
+    show CloudFunctionNames;
 import 'package:shree_krishna_emb_admin/core/constants/app_constants.dart';
 import 'package:shree_krishna_emb_admin/core/errors/exceptions.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/admin_auth_repository.dart';
@@ -18,6 +21,8 @@ abstract class AdminAuthDataSource {
   Future<void> signOut();
 
   Future<AdminAuthSuccess?> checkAuthStatus();
+
+  Future<void> sendPasswordResetEmail(String email);
 }
 
 /// Firebase implementation of AdminAuthDataSource
@@ -25,15 +30,38 @@ abstract class AdminAuthDataSource {
 class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions? _functions;
   final SharedPreferences _prefs;
 
   FirebaseAdminAuthDataSource({
     FirebaseAuth? firebaseAuth,
     FirebaseFirestore? firestore,
+    FirebaseFunctions? functions,
     required SharedPreferences prefs,
   }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
        _firestore = firestore ?? FirebaseFirestore.instance,
+       _functions = functions,
        _prefs = prefs;
+
+  /// Syncs the `role` custom claim with users/{uid}.role and force-refreshes
+  /// the ID token so Storage rules (which can only see claims, not Firestore)
+  /// accept this session's uploads immediately.
+  ///
+  /// Best-effort by design: if the callable isn't deployed yet or the network
+  /// hiccups, sign-in must still succeed — uploads would then rely on a
+  /// previously synced claim (or fail with permission-denied until retry).
+  Future<void> _refreshRoleClaim(User user) async {
+    final functions = _functions;
+    if (functions == null) return;
+    try {
+      await functions
+          .httpsCallable(CloudFunctionNames.refreshRoleClaim)
+          .call<Map<String, dynamic>>();
+      await user.getIdToken(true);
+    } catch (_) {
+      // Non-fatal: claim sync is retried on next sign-in/session restore.
+    }
+  }
 
   Future<void> _saveSession({
     required String adminId,
@@ -91,13 +119,18 @@ class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
 
       final userData = userDoc.data();
       final userRole = userData?['role'] as String?;
-      if (userRole != 'admin') {
+      // D2: both platform admins and designers use this panel; everyone else
+      // is rejected. The UI scopes what each role can see (AccessPolicy).
+      if (userRole != 'admin' && userRole != 'designer') {
         await _firebaseAuth.signOut();
-        throw ServerException(message: 'Access denied: Admin role required');
+        throw ServerException(message: 'Access denied: Staff role required');
       }
 
       // Cache the session so the app can restore it on reload/restart
       await _saveSession(adminId: user.uid, email: user.email ?? '');
+
+      // Storage rules gate uploads on the `role` custom claim — sync it now.
+      await _refreshRoleClaim(user);
 
       return AdminAuthSuccess(
         adminId: user.uid,
@@ -150,7 +183,7 @@ class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
 
       final userData = userDoc.data();
       final userRole = userData?['role'] as String?;
-      if (userRole != 'admin') {
+      if (userRole != 'admin' && userRole != 'designer') {
         await _firebaseAuth.signOut();
         await _clearSession();
         return null;
@@ -162,6 +195,9 @@ class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
         email: currentUser.email ?? '',
       );
 
+      // Storage rules gate uploads on the `role` custom claim — sync it now.
+      await _refreshRoleClaim(currentUser);
+
       return AdminAuthSuccess(
         adminId: currentUser.uid,
         email: currentUser.email ?? '',
@@ -171,6 +207,24 @@ class FirebaseAdminAuthDataSource implements AdminAuthDataSource {
     } catch (e) {
       throw ServerException(
         message: 'Unexpected error checking auth status: $e',
+      );
+    }
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      // Don't leak which emails exist — treat user-not-found as success so the
+      // screen can always show the generic "if this account exists" message.
+      if (e.code == 'user-not-found') return;
+      throw ServerException(
+        message: e.message ?? 'Failed to send password reset email',
+      );
+    } catch (e) {
+      throw ServerException(
+        message: 'Unexpected error sending password reset email: $e',
       );
     }
   }

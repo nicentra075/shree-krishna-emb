@@ -10,7 +10,7 @@ class AdminAuthRepositoryImpl implements AdminAuthRepository {
   final AdminAuthDataSource _dataSource;
 
   AdminAuthRepositoryImpl({required AdminAuthDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   @override
   Future<Either<Failure, AdminAuthSuccess>> signIn({
@@ -44,6 +44,18 @@ class AdminAuthRepositoryImpl implements AdminAuthRepository {
     try {
       final result = await _dataSource.checkAuthStatus();
       return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email) async {
+    try {
+      await _dataSource.sendPasswordResetEmail(email);
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

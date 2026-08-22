@@ -22,8 +22,7 @@ class FavoritesScreen extends StatelessWidget {
       ),
       body: BlocBuilder<WishlistCubit, WishlistState>(
         builder: (context, state) {
-          if (state.status == WishlistStatus.loading &&
-              state.items.isEmpty) {
+          if (state.status == WishlistStatus.loading && state.items.isEmpty) {
             return const Center(child: AppLoader());
           }
           if (state.items.isEmpty) {
@@ -87,22 +86,24 @@ class FavoritesScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(it.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.labelSmall(
-                        color: colorScheme.onSurface,
-                        fontWeight: FontWeight.w600)),
-                const SizedBox(height: 4),
                 Text(
-                  it.price == 0
-                      ? AppLocalization.strings.free
-                      : '₹${it.price}',
+                  it.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelSmall(
-                      color: AppTheme.primaryLight,
-                      fontWeight: FontWeight.bold),
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  it.price == 0 ? AppLocalization.strings.free : '₹${it.price}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelSmall(
+                    color: AppTheme.primaryLight,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -120,21 +121,31 @@ class FavoritesScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.favorite_border,
-                size: 56, color: colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.favorite_border,
+              size: 56,
+              color: colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
-            Text(strings.noFavoritesYet,
-                style: AppTextStyles.headlineMedium(
-                    color: colorScheme.onSurface, fontWeight: FontWeight.w600),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
+            Text(
+              strings.noFavoritesYet,
+              style: AppTextStyles.headlineMedium(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             const SizedBox(height: 8),
-            Text(strings.noFavoritesHint,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodyMedium(
-                    color: colorScheme.onSurfaceVariant),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis),
+            Text(
+              strings.noFavoritesHint,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),

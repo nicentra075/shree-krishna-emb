@@ -16,17 +16,17 @@ class CollectionModel extends CollectionEntity {
   });
 
   factory CollectionModel.fromEntity(CollectionEntity e) => CollectionModel(
-        id: e.id,
-        name: e.name,
-        createdAt: e.createdAt,
-        description: e.description,
-        imageUrl: e.imageUrl,
-        ownerId: e.ownerId,
-        ownerType: e.ownerType,
-        isActive: e.isActive,
-        position: e.position,
-        designCount: e.designCount,
-      );
+    id: e.id,
+    name: e.name,
+    createdAt: e.createdAt,
+    description: e.description,
+    imageUrl: e.imageUrl,
+    ownerId: e.ownerId,
+    ownerType: e.ownerType,
+    isActive: e.isActive,
+    position: e.position,
+    designCount: e.designCount,
+  );
 
   factory CollectionModel.fromFirebaseJson(Map<String, dynamic> json) {
     return CollectionModel(
@@ -44,17 +44,17 @@ class CollectionModel extends CollectionEntity {
   }
 
   Map<String, dynamic> toFirebaseJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'imageUrl': imageUrl,
-        'ownerId': ownerId,
-        'ownerType': ownerType,
-        'isActive': isActive,
-        'position': position,
-        'designCount': designCount,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'name': name,
+    'description': description,
+    'imageUrl': imageUrl,
+    'ownerId': ownerId,
+    'ownerType': ownerType,
+    'isActive': isActive,
+    'position': position,
+    'designCount': designCount,
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   factory CollectionModel.fromApiJson(Map<String, dynamic> json) =>
       CollectionModel.fromFirebaseJson(json);

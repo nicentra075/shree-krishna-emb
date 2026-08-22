@@ -41,6 +41,10 @@ class DesignDetail {
   final String? categoryId;
   final String? collectionId;
 
+  /// Review aggregates maintained by the onReviewWritten Cloud Function.
+  final double avgRating;
+  final int reviewCount;
+
   const DesignDetail({
     required this.id,
     required this.name,
@@ -61,6 +65,8 @@ class DesignDetail {
     this.width = 0,
     this.categoryId,
     this.collectionId,
+    this.avgRating = 0,
+    this.reviewCount = 0,
   });
 
   String? get firstImageUrl => images.isNotEmpty ? images.first : null;
@@ -79,12 +85,56 @@ class DesignDetail {
   }
 }
 
+/// Filters applied by the search screen. All fields optional — null/empty
+/// means "no constraint". Prices are the rupee ints used by the live schema.
+class SearchFilters {
+  final String? categoryId;
+  final int? minPrice;
+  final int? maxPrice;
+  final bool freeOnly;
+  final String sort;
+
+  const SearchFilters({
+    this.categoryId,
+    this.minPrice,
+    this.maxPrice,
+    this.freeOnly = false,
+    this.sort = 'newest',
+  });
+
+  bool get hasActiveFilters =>
+      categoryId != null || minPrice != null || maxPrice != null || freeOnly;
+
+  SearchFilters copyWith({
+    String? categoryId,
+    int? minPrice,
+    int? maxPrice,
+    bool? freeOnly,
+    String? sort,
+    bool clearCategory = false,
+    bool clearMinPrice = false,
+    bool clearMaxPrice = false,
+  }) {
+    return SearchFilters(
+      categoryId: clearCategory ? null : (categoryId ?? this.categoryId),
+      minPrice: clearMinPrice ? null : (minPrice ?? this.minPrice),
+      maxPrice: clearMaxPrice ? null : (maxPrice ?? this.maxPrice),
+      freeOnly: freeOnly ?? this.freeOnly,
+      sort: sort ?? this.sort,
+    );
+  }
+}
+
 /// Queries for the View-All screens and design detail. Filtering/sorting is
 /// client-side over a capped fetch (index-free; fine for launch catalog sizes).
 class CatalogQueryDataSource {
   final FirebaseFirestore _firestore;
   final SellerDataSource _sellerDataSource;
   static const _cap = 150;
+
+  /// Search sweeps a larger slice than the browse cap so results don't miss
+  /// items that happen to fall outside the first page of a category.
+  static const _searchCap = 400;
 
   CatalogQueryDataSource({
     required FirebaseFirestore firestore,
@@ -131,24 +181,100 @@ class CatalogQueryDataSource {
             );
         }
       });
-      return docs.map((d) {
-        final data = d.data();
-        final images = (data['images'] as List?)
-            ?.map((e) => e.toString())
-            .toList();
-        return DesignItem(
-          id: d.id,
-          name: data['name']?.toString() ?? 'Design',
-          finalPrice: (data['finalPrice'] as num?)?.toInt() ?? 0,
-          isFree: data['isFree'] == true,
-          firstImageUrl: (images != null && images.isNotEmpty)
-              ? images.first
-              : null,
-          description: data['description']?.toString(),
-        );
-      }).toList();
+      return docs.map((d) => _mapDesignItem(d.id, d.data())).toList();
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to load designs');
+    } catch (e) {
+      throw ServerException(message: 'Unexpected error: $e');
+    }
+  }
+
+  DesignItem _mapDesignItem(String id, Map<String, dynamic> data) {
+    final images = (data['images'] as List?)?.map((e) => e.toString()).toList();
+    return DesignItem(
+      id: id,
+      name: data['name']?.toString() ?? 'Design',
+      finalPrice: (data['finalPrice'] as num?)?.toInt() ?? 0,
+      isFree: data['isFree'] == true,
+      firstImageUrl: (images != null && images.isNotEmpty)
+          ? images.first
+          : null,
+      description: data['description']?.toString(),
+      avgRating: (data['avgRating'] as num?)?.toDouble() ?? 0,
+      reviewCount: (data['reviewCount'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  /// Case-insensitive substring match of every query token against the
+  /// design's name / code / description. Client-side over a capped fetch —
+  /// same index-free approach as the rest of the catalog (fine at launch
+  /// scale; move to a keyword index when the catalog outgrows [_searchCap]).
+  Future<List<DesignItem>> searchDesigns({
+    required String query,
+    SearchFilters filters = const SearchFilters(),
+  }) async {
+    try {
+      Query<Map<String, dynamic>> q = _firestore
+          .collection('designs')
+          .where('status', isEqualTo: 'active');
+      if (filters.categoryId != null) {
+        q = q.where('categoryId', isEqualTo: filters.categoryId);
+      }
+      final snap = await q.limit(_searchCap).get();
+
+      final tokens = query
+          .toLowerCase()
+          .split(RegExp(r'\s+'))
+          .where((t) => t.isNotEmpty)
+          .toList();
+
+      bool matches(Map<String, dynamic> data) {
+        if (tokens.isNotEmpty) {
+          final haystack = [
+            data['name']?.toString() ?? '',
+            data['code']?.toString() ?? '',
+            data['description']?.toString() ?? '',
+          ].join(' ').toLowerCase();
+          if (!tokens.every(haystack.contains)) return false;
+        }
+        final price = (data['finalPrice'] as num?)?.toInt() ?? 0;
+        final isFree = data['isFree'] == true;
+        if (filters.freeOnly && !isFree) return false;
+        if (filters.minPrice != null && price < filters.minPrice!) {
+          return false;
+        }
+        if (filters.maxPrice != null && price > filters.maxPrice!) {
+          return false;
+        }
+        return true;
+      }
+
+      final docs = snap.docs.where((d) => matches(d.data())).toList();
+      docs.sort((a, b) {
+        final da = a.data();
+        final db = b.data();
+        switch (filters.sort) {
+          case 'popularity':
+            return ((db['popularity'] as num?) ?? 0).compareTo(
+              (da['popularity'] as num?) ?? 0,
+            );
+          case 'priceAsc':
+            return ((da['finalPrice'] as num?) ?? 0).compareTo(
+              (db['finalPrice'] as num?) ?? 0,
+            );
+          case 'priceDesc':
+            return ((db['finalPrice'] as num?) ?? 0).compareTo(
+              (da['finalPrice'] as num?) ?? 0,
+            );
+          default:
+            return (db['createdAt']?.toString() ?? '').compareTo(
+              da['createdAt']?.toString() ?? '',
+            );
+        }
+      });
+      return docs.map((d) => _mapDesignItem(d.id, d.data())).toList();
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? 'Failed to search designs');
     } catch (e) {
       throw ServerException(message: 'Unexpected error: $e');
     }
@@ -268,6 +394,8 @@ class CatalogQueryDataSource {
         width: (d['width'] as num?)?.toInt() ?? 0,
         categoryId: d['categoryId']?.toString(),
         collectionId: d['collectionId']?.toString(),
+        avgRating: (d['avgRating'] as num?)?.toDouble() ?? 0,
+        reviewCount: (d['reviewCount'] as num?)?.toInt() ?? 0,
       );
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to load design');

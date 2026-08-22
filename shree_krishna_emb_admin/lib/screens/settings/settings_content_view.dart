@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
 import 'package:shree_krishna_emb_admin/bloc/settings/notification_settings_cubit.dart';
+import 'package:shree_krishna_emb_admin/core/auth/access_policy.dart';
 import 'package:shree_krishna_emb_admin/core/dev/dummy_data_seeder.dart';
 import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
@@ -44,11 +47,26 @@ class _SettingsContentViewState extends State<SettingsContentView>
   /// unsaved-changes confirm dialog flow.
   bool _guardingTabSwitch = false;
 
+  /// Designers only get the General tab (theme/language); platform tabs
+  /// (Payments, Notifications, Seed) are admin-only (D2).
+  AccessPolicy get _policy {
+    final authState = GetIt.instance<AdminAuthBloc>().state;
+    return AccessPolicy(
+      authState is AdminAuthAuthenticated ? authState.role : 'admin',
+    );
+  }
+
+  int get _tabCount {
+    if (!_policy.canConfigurePlatform) return 1;
+    // Demo-data seeder tab is a dev-only tool — hidden in release builds.
+    return kDebugMode ? 4 : 3;
+  }
+
   @override
   void initState() {
     super.initState();
     _notificationCubit = GetIt.instance<NotificationSettingsCubit>()..load();
-    _tabController = TabController(length: 4, vsync: this)
+    _tabController = TabController(length: _tabCount, vsync: this)
       ..addListener(_handleTabControllerChange);
   }
 
@@ -181,9 +199,11 @@ class _SettingsContentViewState extends State<SettingsContentView>
         unselectedLabelStyle: AppTextStyles.labelMedium(),
         tabs: [
           Tab(text: strings.settingsTabGeneral),
-          Tab(text: strings.settingsTabPayments),
-          Tab(text: strings.settingsTabNotifications),
-          Tab(text: strings.settingsTabSeed),
+          if (_policy.canConfigurePlatform) ...[
+            Tab(text: strings.settingsTabPayments),
+            Tab(text: strings.settingsTabNotifications),
+            if (kDebugMode) Tab(text: strings.settingsTabSeed),
+          ],
         ],
       ),
     );

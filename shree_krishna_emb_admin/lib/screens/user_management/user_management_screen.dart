@@ -15,10 +15,11 @@ class UserManagementScreen extends StatelessWidget {
     final isMobile = screenSize.width < 768;
 
     return BlocProvider(
-      create: (context) => UserListBloc(
-        repository: GetIt.instance<UserListRepository>(),
-      ),
-      child: isMobile ? const MobileUserListView() : const DesktopUserListView(),
+      create: (context) =>
+          UserListBloc(repository: GetIt.instance<UserListRepository>()),
+      child: isMobile
+          ? const MobileUserListView()
+          : const DesktopUserListView(),
     );
   }
 }

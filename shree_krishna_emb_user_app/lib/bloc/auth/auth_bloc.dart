@@ -8,6 +8,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignUpUseCase signUpUseCase;
   final SignInUseCase signInUseCase;
   final SignInWithGoogleUseCase signInWithGoogleUseCase;
+  final SignInWithAppleUseCase signInWithAppleUseCase;
   final SendPhoneOtpUseCase sendPhoneOtpUseCase;
   final VerifyPhoneOtpUseCase verifyPhoneOtpUseCase;
   final CompleteGoogleProfileUseCase completeGoogleProfileUseCase;
@@ -20,6 +21,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.signUpUseCase,
     required this.signInUseCase,
     required this.signInWithGoogleUseCase,
+    required this.signInWithAppleUseCase,
     required this.sendPhoneOtpUseCase,
     required this.verifyPhoneOtpUseCase,
     required this.completeGoogleProfileUseCase,
@@ -32,6 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignUpEvent>(_onSignUp);
     on<SignInEvent>(_onSignIn);
     on<SignInWithGoogleEvent>(_onSignInWithGoogle);
+    on<SignInWithAppleEvent>(_onSignInWithApple);
     on<SendPhoneOtpEvent>(_onSendPhoneOtp);
     on<VerifyPhoneOtpEvent>(_onVerifyPhoneOtp);
     on<CompleteGoogleProfileEvent>(_onCompleteGoogleProfile);
@@ -130,34 +133,43 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
+  Future<void> _onSignInWithApple(
+    SignInWithAppleEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await signInWithAppleUseCase();
+
+    // New Apple users take the same complete-profile route as Google users —
+    // both are social sign-ins that still need a phone number.
+    result.fold((failure) => _emitAuthFailure(failure, emit), (authResult) {
+      if (authResult.isNewUser) {
+        emit(AuthNewGoogleUser(user: authResult.user));
+      } else {
+        emit(AuthAuthenticated(user: authResult.user));
+      }
+    });
+  }
+
   Future<void> _onSendPhoneOtp(
     SendPhoneOtpEvent event,
     Emitter<AuthState> emit,
   ) async {
-    print(
-      '🔵 [AuthBloc] _onSendPhoneOtp event received - Phone: ${event.phoneNumber}',
-    );
     emit(const AuthLoading());
-    print('🔵 [AuthBloc] Emitted AuthLoading state');
+
     final result = await sendPhoneOtpUseCase(event.phoneNumber);
-    print('🔵 [AuthBloc] sendPhoneOtpUseCase result: ${result.toString()}');
 
     result.fold(
       (failure) {
-        print('🔴 [AuthBloc] SendPhoneOtp failed - Error: ${failure.message}');
         emit(AuthError(message: failure.message));
       },
       (verificationId) {
-        print(
-          '🟢 [AuthBloc] SendPhoneOtp succeeded - VerificationId: $verificationId',
-        );
         emit(
           AuthPhoneOtpSent(
             verificationId: verificationId,
             phoneNumber: event.phoneNumber,
           ),
         );
-        print('🟢 [AuthBloc] Emitted AuthPhoneOtpSent state');
       },
     );
   }

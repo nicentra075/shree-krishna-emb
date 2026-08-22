@@ -111,7 +111,7 @@ class SplashScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 32,
                                 ),
-                                child: Text( 
+                                child: Text(
                                   strings.splashTagline,
                                   textAlign: TextAlign.center,
                                   style: AppTextStyles.bodyLarge(

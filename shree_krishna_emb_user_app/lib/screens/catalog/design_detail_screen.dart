@@ -15,6 +15,7 @@ import 'package:shree_krishna_emb/domain/entities/order_draft.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 import 'package:shree_krishna_emb/screens/catalog/image_viewer_screen.dart';
 import 'package:shree_krishna_emb/screens/catalog/widgets/related_designs_section.dart';
+import 'package:shree_krishna_emb/screens/catalog/widgets/reviews_section.dart';
 import 'package:shree_krishna_emb/screens/purchases/my_purchases_screen.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/widgets/add_to_cart_button.dart';
@@ -148,6 +149,23 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
+                        if (d.reviewCount > 0) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              AppRatingStars(rating: d.avgRating, size: 16),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${d.avgRating.toStringAsFixed(1)} · ${strings.reviewsCount(d.reviewCount)}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.bodySmall(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: 8),
                         _priceRow(d, colorScheme),
                         if ((d.description ?? '').trim().isNotEmpty) ...[
@@ -189,6 +207,7 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
                               );
                             },
                           ),
+                        ReviewsSection(designId: d.id),
                       ],
                     ),
                   ),
@@ -278,9 +297,15 @@ class _DesignDetailScreenState extends State<DesignDetailScreen> {
   }
 
   void _openViewer(List<String> images, int index) {
+    // D1: pinch-zoom unlocks only after purchase.
+    final owned = context.read<PurchasesCubit>().isOwned(widget.designId);
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ImageViewerScreen(images: images, initialIndex: index),
+        builder: (_) => ImageViewerScreen(
+          images: images,
+          initialIndex: index,
+          allowZoom: owned,
+        ),
       ),
     );
   }

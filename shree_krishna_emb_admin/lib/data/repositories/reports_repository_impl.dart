@@ -15,6 +15,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
     required DateTime start,
     required DateTime end,
     bool forceRefresh = false,
+    String? ownerUid,
   }) async {
     try {
       return Right(
@@ -22,6 +23,7 @@ class ReportsRepositoryImpl implements ReportsRepository {
           start: start,
           end: end,
           forceRefresh: forceRefresh,
+          ownerUid: ownerUid,
         ),
       );
     } on ServerException catch (e) {

@@ -13,14 +13,14 @@ class CategoryModel extends CategoryEntity {
   });
 
   factory CategoryModel.fromEntity(CategoryEntity e) => CategoryModel(
-        id: e.id,
-        collectionId: e.collectionId,
-        name: e.name,
-        createdAt: e.createdAt,
-        imageUrl: e.imageUrl,
-        isActive: e.isActive,
-        position: e.position,
-      );
+    id: e.id,
+    collectionId: e.collectionId,
+    name: e.name,
+    createdAt: e.createdAt,
+    imageUrl: e.imageUrl,
+    isActive: e.isActive,
+    position: e.position,
+  );
 
   factory CategoryModel.fromFirebaseJson(Map<String, dynamic> json) {
     return CategoryModel(
@@ -35,14 +35,14 @@ class CategoryModel extends CategoryEntity {
   }
 
   Map<String, dynamic> toFirebaseJson() => {
-        'id': id,
-        'collectionId': collectionId,
-        'name': name,
-        'imageUrl': imageUrl,
-        'isActive': isActive,
-        'position': position,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'collectionId': collectionId,
+    'name': name,
+    'imageUrl': imageUrl,
+    'isActive': isActive,
+    'position': position,
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   factory CategoryModel.fromApiJson(Map<String, dynamic> json) =>
       CategoryModel.fromFirebaseJson(json);

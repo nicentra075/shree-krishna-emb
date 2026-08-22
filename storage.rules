@@ -18,6 +18,17 @@ service firebase.storage {
       return isAuthed() && request.auth.token.role == 'admin';
     }
 
+    // Designers get scoped catalog write access (Phase 1 decision D2).
+    // The `role` claim is synced from users/{uid}.role by the
+    // onUserRoleWritten / refreshRoleClaim Cloud Functions.
+    function isDesigner() {
+      return isAuthed() && request.auth.token.role == 'designer';
+    }
+
+    function isStaff() {
+      return isAdmin() || isDesigner();
+    }
+
     // EMB/DST source files — admin upload only, no client read ever.
     match /designs/{designId}/source/{fileName} {
       allow read: if false;
@@ -46,24 +57,21 @@ service firebase.storage {
         request.resource.contentType.matches('image/.*');
     }
 
-    // ===== PHASE 1 catalog images (Spark-friendly) =====
-    // Direct admin uploads for collections / categories / designs and the
-    // Media Library. Public read so the user app can render them.
-    //
-    // NOTE: Storage rules CANNOT read Firestore, so they can't use the same
-    // users/{uid}.role == 'admin' fallback that firestore.rules uses; only the
-    // custom claim is visible here. Until the admin role claim is set (Phase 3
-    // / Blaze functions), writes are gated on `isAuthed()` (only the admin app
-    // writes here). PHASE 1 — TIGHTEN TO isAdmin() IN PHASE 3.
+    // ===== Catalog images (admin panel uploads) =====
+    // Direct uploads for collections / categories / designs and the Media
+    // Library. Public read so the user app can render them. Writes are gated
+    // on the `role` custom claim ('admin' or 'designer' — synced from
+    // users/{uid}.role by the syncRoleClaim Cloud Functions). Plain `user`
+    // accounts have NO write access here.
     match /collections/{fileName} {
       allow read: if true;
-      allow write: if isAuthed() &&
+      allow write: if isStaff() &&
         request.resource.size < 10 * 1024 * 1024 &&
         request.resource.contentType.matches('image/.*');
     }
     match /categories/{fileName} {
       allow read: if true;
-      allow write: if isAuthed() &&
+      allow write: if isStaff() &&
         request.resource.size < 10 * 1024 * 1024 &&
         request.resource.contentType.matches('image/.*');
     }
@@ -71,22 +79,22 @@ service firebase.storage {
     // future function pipeline under designs/{designId}/{source|original|public}).
     match /designs/{fileName} {
       allow read: if true;
-      allow write: if isAuthed() &&
+      allow write: if isStaff() &&
         request.resource.size < 10 * 1024 * 1024 &&
         request.resource.contentType.matches('image/.*');
     }
     match /media/{fileName} {
       allow read: if true;
-      allow write: if isAuthed() &&
+      allow write: if isStaff() &&
         request.resource.size < 10 * 1024 * 1024 &&
         request.resource.contentType.matches('image/.*');
     }
     // Design source files (.dst/.emb/.dhe) for the Design File Library —
     // downloadable by the user app, so public read. NOT image content, so no
-    // image contentType gate. PHASE 1 — TIGHTEN TO isAdmin() IN PHASE 3.
+    // image contentType gate.
     match /design_files/{fileName} {
       allow read: if true;
-      allow write: if isAuthed() &&
+      allow write: if isStaff() &&
         request.resource.size < 25 * 1024 * 1024;
     }
 

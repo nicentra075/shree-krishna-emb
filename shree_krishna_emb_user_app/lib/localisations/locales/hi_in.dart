@@ -535,4 +535,116 @@ class HiINStrings implements LocaleStrings {
   String timeAgoHours(int hours) => '$hours घं';
   @override
   String timeAgoDays(int days) => '$days दि';
+
+  // ========== Search & Filters (WS-B1) ==========
+  @override
+  String get filters => 'फ़िल्टर';
+  @override
+  String get priceRange => 'मूल्य सीमा';
+  @override
+  String get minPrice => 'न्यूनतम मूल्य';
+  @override
+  String get maxPrice => 'अधिकतम मूल्य';
+  @override
+  String get freeOnly => 'केवल मुफ़्त डिज़ाइन';
+  @override
+  String get applyFilters => 'फ़िल्टर लागू करें';
+  @override
+  String get clearFilters => 'सभी हटाएँ';
+  @override
+  String get sortBy => 'क्रमबद्ध करें';
+  @override
+  String get sortNewest => 'नवीनतम';
+  @override
+  String get sortPopular => 'लोकप्रिय';
+  @override
+  String get sortPriceLowHigh => 'मूल्य: कम से अधिक';
+  @override
+  String get sortPriceHighLow => 'मूल्य: अधिक से कम';
+  @override
+  String get allCategories => 'सभी श्रेणियाँ';
+  @override
+  String get searchStartTyping => 'नाम या कोड से डिज़ाइन खोजें';
+
+  // ========== Reviews (WS-B2) ==========
+  @override
+  String get writeReview => 'समीक्षा लिखें';
+  @override
+  String get editReview => 'समीक्षा संपादित करें';
+  @override
+  String get deleteReview => 'समीक्षा हटाएँ';
+  @override
+  String get deleteReviewConfirm =>
+      'क्या आप वाकई अपनी समीक्षा हटाना चाहते हैं?';
+  @override
+  String get yourRating => 'आपकी रेटिंग';
+  @override
+  String get reviewHint => 'इस डिज़ाइन के साथ अपना अनुभव साझा करें...';
+  @override
+  String get submitReview => 'समीक्षा सबमिट करें';
+  @override
+  String get reviewSubmitted => 'समीक्षा सबमिट हो गई। धन्यवाद!';
+  @override
+  String get reviewDeleted => 'समीक्षा हटा दी गई';
+  @override
+  String get noReviewsYet => 'अभी तक कोई समीक्षा नहीं';
+  @override
+  String get purchaseToReview => 'समीक्षा लिखने के लिए इस डिज़ाइन को खरीदें';
+  @override
+  String get showLess => 'कम दिखाएँ';
+  @override
+  String reviewsCount(int count) =>
+      count == 1 ? '1 समीक्षा' : '$count समीक्षाएँ';
+
+  // ========== Orders & Invoice (WS-B3) ==========
+  @override
+  String get designsTab => 'डिज़ाइन';
+  @override
+  String get invoice => 'चालान';
+  @override
+  String get downloadInvoice => 'चालान डाउनलोड करें';
+  @override
+  String get invoiceFailed => 'चालान जनरेट नहीं हो सका। पुनः प्रयास करें।';
+  @override
+  String get invoiceNumber => 'चालान संख्या';
+  @override
+  String get paymentId => 'भुगतान आईडी';
+  @override
+  String get orderItems => 'आइटम';
+  @override
+  String get orderStatusPaid => 'भुगतान हो गया';
+  @override
+  String get orderStatusPending => 'लंबित';
+  @override
+  String get orderStatusFailed => 'विफल';
+  @override
+  String get orderStatusRefunded => 'धनवापसी हो गई';
+  @override
+  String get orderStatusRefundInitiated => 'धनवापसी शुरू';
+
+  // ========== Notification Preferences (WS-B4) ==========
+  @override
+  String get notificationPreferences => 'सूचना प्राथमिकताएँ';
+  @override
+  String get pushNotifications => 'पुश सूचनाएँ';
+  @override
+  String get pushNotificationsDesc => 'सभी ऐप सूचनाओं के लिए मुख्य स्विच';
+  @override
+  String get purchaseAlerts => 'ऑर्डर और खरीद अपडेट';
+  @override
+  String get purchaseAlertsDesc => 'भुगतान पुष्टि और डाउनलोड-तैयार अलर्ट';
+  @override
+  String get newDesignAlerts => 'नई डिज़ाइन अलर्ट';
+  @override
+  String get newDesignAlertsDesc => 'नई डिज़ाइन जुड़ने पर सूचना पाएँ';
+  @override
+  String get promotionalNotifications => 'प्रोमोशन और घोषणाएँ';
+  @override
+  String get promotionalNotificationsDesc => 'ऑफ़र, त्योहार और स्टोर घोषणाएँ';
+  @override
+  String get preferencesSaved => 'प्राथमिकताएँ सहेज ली गईं';
+
+  // ========== Generic feedback (D6) ==========
+  @override
+  String get somethingWentWrong => 'कुछ गलत हो गया। कृपया पुनः प्रयास करें।';
 }

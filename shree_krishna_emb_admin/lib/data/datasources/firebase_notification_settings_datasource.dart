@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // Core exports its own ServerException which clashes with the admin app's;
 // hide it so the admin's local version is used (mirrors
 // firebase_platform_config_datasource.dart).
-import 'package:shree_krishna_core/shree_krishna_core.dart' hide ServerException;
+import 'package:shree_krishna_core/shree_krishna_core.dart'
+    hide ServerException;
 import 'package:shree_krishna_emb_admin/core/errors/exceptions.dart';
 import 'package:shree_krishna_emb_admin/core/utils/app_logger.dart';
 
@@ -21,7 +22,7 @@ class FirebaseNotificationSettingsDataSource
   final FirebaseFirestore _firestore;
 
   FirebaseNotificationSettingsDataSource({required FirebaseFirestore firestore})
-      : _firestore = firestore;
+    : _firestore = firestore;
 
   DocumentReference<Map<String, dynamic>> get _doc => _firestore
       .collection(FirestoreCollections.config)

@@ -34,32 +34,42 @@ void main() {
   };
 
   // Run everything in a guarded zone so any other uncaught error is logged too.
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+      } catch (e, s) {
+        // Firebase not configured for this platform (e.g., web)
+        // This is expected for web - will be configured via FlutterFire CLI later
+        AppLogger.logError(
+          'Firebase.initializeApp failed',
+          error: e,
+          stackTrace: s,
+        );
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      await AppLocalization.initialize(prefs);
+
+      await setupAdminServiceLocator(prefs);
+
+      // Initialize snackbar with global navigator
+      AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
+
+      runApp(const AdminApp());
+    },
+    (error, stack) {
+      AppLogger.logError(
+        'Uncaught zone error',
+        error: error,
+        stackTrace: stack,
       );
-    } catch (e, s) {
-      // Firebase not configured for this platform (e.g., web)
-      // This is expected for web - will be configured via FlutterFire CLI later
-      AppLogger.logError('Firebase.initializeApp failed',
-          error: e, stackTrace: s);
-    }
-
-    final prefs = await SharedPreferences.getInstance();
-    await AppLocalization.initialize(prefs);
-
-    await setupAdminServiceLocator(prefs);
-
-    // Initialize snackbar with global navigator
-    AppSnackbar.setNavigatorKey(GlobalNavigator.navigatorKey);
-
-    runApp(const AdminApp());
-  }, (error, stack) {
-    AppLogger.logError('Uncaught zone error', error: error, stackTrace: stack);
-  });
+    },
+  );
 }
 
 class AdminApp extends StatelessWidget {
@@ -69,7 +79,9 @@ class AdminApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AdminAuthBloc>(create: (context) => getIt<AdminAuthBloc>()),
+        BlocProvider<AdminAuthBloc>(
+          create: (context) => getIt<AdminAuthBloc>(),
+        ),
         // Persistent theme mode (light/dark/system), shared via core package
         BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
       ],

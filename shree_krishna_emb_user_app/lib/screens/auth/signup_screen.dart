@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +14,7 @@ import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
 import 'package:shree_krishna_emb/core/utils/validators.dart';
+import 'package:shree_krishna_emb/screens/auth/complete_profile_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -64,9 +68,17 @@ class _SignupScreenState extends State<SignupScreen> {
             AppSnackbar.showSuccess('Account created successfully!');
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
+                // ignore: use_build_context_synchronously
                 AppRoutes.navigateToHome(context);
               }
             });
+          } else if (state is AuthNewGoogleUser) {
+            // Social sign-ins (Google/Apple) that created a new account still
+            // need a phone number — same complete-profile route as login.
+            AppRoutes.navigateToCompleteProfile(
+              context,
+              CompleteProfileArgs(type: 'google', user: state.user),
+            );
           } else if (state is AuthError) {
             AppSnackbar.showError(state.message);
           }
@@ -415,7 +427,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   context: context,
                   icon: Icons.email_outlined,
                   label: 'Google',
-                  onTap: () {},
+                  onTap: () => context.read<AuthBloc>().add(
+                    const SignInWithGoogleEvent(),
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -424,11 +438,24 @@ class _SignupScreenState extends State<SignupScreen> {
                   context: context,
                   icon: Icons.phone_outlined,
                   label: 'Phone',
-                  onTap: () {},
+                  // Phone signup = the OTP flow on the login screen.
+                  onTap: () => AppRoutes.navigateToLogin(context),
                 ),
               ),
             ],
           ),
+          // App Store guideline 4.8: Sign in with Apple must be offered
+          // wherever Google login is — iOS only by product decision.
+          if (!kIsWeb && Platform.isIOS) ...[
+            const SizedBox(height: 16),
+            _buildSocialButton(
+              context: context,
+              icon: Icons.apple,
+              label: 'Apple',
+              onTap: () =>
+                  context.read<AuthBloc>().add(const SignInWithAppleEvent()),
+            ),
+          ],
         ],
       ),
     );

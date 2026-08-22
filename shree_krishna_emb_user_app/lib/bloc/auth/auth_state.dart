@@ -51,10 +51,7 @@ class AuthNewPhoneUser extends AuthState {
   final UserModel user;
   final String phoneNumber;
 
-  const AuthNewPhoneUser({
-    required this.user,
-    required this.phoneNumber,
-  });
+  const AuthNewPhoneUser({required this.user, required this.phoneNumber});
 
   @override
   List<Object?> get props => [user, phoneNumber];

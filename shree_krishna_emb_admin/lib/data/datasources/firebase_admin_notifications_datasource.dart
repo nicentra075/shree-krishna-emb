@@ -17,7 +17,7 @@ class FirebaseAdminNotificationsDataSource
   final FirebaseFirestore _firestore;
 
   FirebaseAdminNotificationsDataSource({required FirebaseFirestore firestore})
-      : _firestore = firestore;
+    : _firestore = firestore;
 
   CollectionReference<Map<String, dynamic>> get _col =>
       _firestore.collection(FirestoreCollections.adminNotifications);
@@ -31,17 +31,17 @@ class FirebaseAdminNotificationsDataSource
         (snap) => snap.docs.map((d) {
           final data = d.data();
           final readBy = (data['readBy'] as List?)?.cast<String>() ?? const [];
-          return AppNotificationModel.fromFirebaseJson(
-            {...data, 'read': readBy.contains(adminUid)},
-            d.id,
-          );
+          return AppNotificationModel.fromFirebaseJson({
+            ...data,
+            'read': readBy.contains(adminUid),
+          }, d.id);
         }).toList(),
       );
 
   @override
   Future<void> markRead(String id, String adminUid) => _col.doc(id).update({
-        'readBy': FieldValue.arrayUnion([adminUid]),
-      });
+    'readBy': FieldValue.arrayUnion([adminUid]),
+  });
 
   @override
   Future<void> delete(String id) => _col.doc(id).delete();

@@ -47,7 +47,7 @@ class FirebaseUserListDataSource implements UserListDataSource {
   final FirebaseFirestore _firestore;
 
   FirebaseUserListDataSource({required FirebaseFirestore firestore})
-      : _firestore = firestore;
+    : _firestore = firestore;
 
   // ---- In-memory cache --------------------------------------------------
   // Search, role filtering and pagination are all done client-side over the
@@ -69,7 +69,8 @@ class FirebaseUserListDataSource implements UserListDataSource {
   Future<List<UserListItemModel>> _allUsers({bool forceRefresh = false}) async {
     final cache = _cachedUsers;
     final cachedAt = _cachedAt;
-    final isFresh = cache != null &&
+    final isFresh =
+        cache != null &&
         cachedAt != null &&
         DateTime.now().difference(cachedAt) < _cacheTtl;
     if (!forceRefresh && isFresh) {
@@ -82,10 +83,10 @@ class FirebaseUserListDataSource implements UserListDataSource {
         .get();
 
     final users = snapshot.docs
-        .map((doc) => UserListItemModel.fromFirebaseJson({
-              ...doc.data(),
-              'id': doc.id,
-            }))
+        .map(
+          (doc) =>
+              UserListItemModel.fromFirebaseJson({...doc.data(), 'id': doc.id}),
+        )
         .toList();
 
     _cachedUsers = users;
@@ -106,9 +107,11 @@ class FirebaseUserListDataSource implements UserListDataSource {
     if (searchQuery != null && searchQuery.isNotEmpty) {
       final q = searchQuery.toLowerCase();
       result = result
-          .where((user) =>
-              user.name.toLowerCase().contains(q) ||
-              user.email.toLowerCase().contains(q))
+          .where(
+            (user) =>
+                user.name.toLowerCase().contains(q) ||
+                user.email.toLowerCase().contains(q),
+          )
           .toList();
     }
     return result;
@@ -143,9 +146,7 @@ class FirebaseUserListDataSource implements UserListDataSource {
         endIndex > users.length ? users.length : endIndex,
       );
     } on FirebaseException catch (e) {
-      throw ServerException(
-        message: e.message ?? 'Failed to fetch users',
-      );
+      throw ServerException(message: e.message ?? 'Failed to fetch users');
     } catch (e) {
       throw ServerException(message: 'Unexpected error: $e');
     }
@@ -160,9 +161,7 @@ class FirebaseUserListDataSource implements UserListDataSource {
           .update(user.toFirebaseJson());
       _invalidateCache();
     } on FirebaseException catch (e) {
-      throw ServerException(
-        message: e.message ?? 'Failed to update user',
-      );
+      throw ServerException(message: e.message ?? 'Failed to update user');
     } catch (e) {
       throw ServerException(message: 'Unexpected error: $e');
     }
@@ -171,10 +170,9 @@ class FirebaseUserListDataSource implements UserListDataSource {
   @override
   Future<void> toggleUserStatus(String userId, bool isActive) async {
     try {
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .update({'isActive': isActive});
+      await _firestore.collection('users').doc(userId).update({
+        'isActive': isActive,
+      });
       _invalidateCache();
     } on FirebaseException catch (e) {
       throw ServerException(
@@ -191,9 +189,7 @@ class FirebaseUserListDataSource implements UserListDataSource {
       await _firestore.collection('users').doc(userId).delete();
       _invalidateCache();
     } on FirebaseException catch (e) {
-      throw ServerException(
-        message: e.message ?? 'Failed to delete user',
-      );
+      throw ServerException(message: e.message ?? 'Failed to delete user');
     } catch (e) {
       throw ServerException(message: 'Unexpected error: $e');
     }
@@ -213,9 +209,7 @@ class FirebaseUserListDataSource implements UserListDataSource {
         roleFilter: roleFilter,
       ).length;
     } on FirebaseException catch (e) {
-      throw ServerException(
-        message: e.message ?? 'Failed to get user count',
-      );
+      throw ServerException(message: e.message ?? 'Failed to get user count');
     } catch (e) {
       throw ServerException(message: 'Unexpected error: $e');
     }
@@ -246,8 +240,7 @@ class FirebaseUserListDataSource implements UserListDataSource {
       secondaryApp = await _secondaryApp();
       final secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp);
 
-      final userCredential =
-          await secondaryAuth.createUserWithEmailAndPassword(
+      final userCredential = await secondaryAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -284,8 +277,11 @@ class FirebaseUserListDataSource implements UserListDataSource {
 
       await secondaryAuth.signOut();
     } on FirebaseAuthException catch (e, s) {
-      AppLogger.logError('createUser: FirebaseAuthException (${e.code})',
-          error: e, stackTrace: s);
+      AppLogger.logError(
+        'createUser: FirebaseAuthException (${e.code})',
+        error: e,
+        stackTrace: s,
+      );
       String message = 'Failed to create user';
       if (e.code == 'weak-password') {
         message = 'Password is too weak';
@@ -298,22 +294,28 @@ class FirebaseUserListDataSource implements UserListDataSource {
       }
       throw ServerException(message: message);
     } on FirebaseException catch (e, s) {
-      AppLogger.logError('createUser: FirebaseException (${e.code})',
-          error: e, stackTrace: s);
+      AppLogger.logError(
+        'createUser: FirebaseException (${e.code})',
+        error: e,
+        stackTrace: s,
+      );
       if (e.code == 'permission-denied') {
         // The signed-in account isn't recognised as admin by the rules — its
         // own users/{uid} doc must have role == 'admin' (or the latest rules
         // aren't deployed yet).
         throw ServerException(
-          message: 'Permission denied. The signed-in account is not an admin, '
+          message:
+              'Permission denied. The signed-in account is not an admin, '
               'or the latest Firestore rules are not deployed.',
         );
       }
-      throw ServerException(
-        message: e.message ?? 'Failed to create user',
-      );
+      throw ServerException(message: e.message ?? 'Failed to create user');
     } catch (e, s) {
-      AppLogger.logError('createUser: unexpected error', error: e, stackTrace: s);
+      AppLogger.logError(
+        'createUser: unexpected error',
+        error: e,
+        stackTrace: s,
+      );
       throw ServerException(message: 'Unexpected error: $e');
     } finally {
       // Always tear down the secondary app so a retry can recreate it.

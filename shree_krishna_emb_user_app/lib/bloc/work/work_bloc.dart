@@ -40,13 +40,15 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
           ? await _fetchBuyerOrders(userId)
           : <dynamic>[];
 
-      emit(WorkLoaded(
-        userRole: userRole,
-        vendorProjects: vendorProjects,
-        buyerOrders: buyerOrders,
-        vendorFilter: 'all',
-        buyerFilter: 'all',
-      ));
+      emit(
+        WorkLoaded(
+          userRole: userRole,
+          vendorProjects: vendorProjects,
+          buyerOrders: buyerOrders,
+          vendorFilter: 'all',
+          buyerFilter: 'all',
+        ),
+      );
     } catch (e) {
       emit(WorkError('Failed to load work data: ${e.toString()}'));
     }
@@ -59,13 +61,15 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
     if (state is! WorkLoaded) return;
     final currentState = state as WorkLoaded;
 
-    emit(WorkLoaded(
-      userRole: currentState.userRole,
-      vendorProjects: currentState.vendorProjects,
-      buyerOrders: currentState.buyerOrders,
-      vendorFilter: event.filter,
-      buyerFilter: currentState.buyerFilter,
-    ));
+    emit(
+      WorkLoaded(
+        userRole: currentState.userRole,
+        vendorProjects: currentState.vendorProjects,
+        buyerOrders: currentState.buyerOrders,
+        vendorFilter: event.filter,
+        buyerFilter: currentState.buyerFilter,
+      ),
+    );
   }
 
   Future<void> _onFilterBuyerOrders(
@@ -75,13 +79,15 @@ class WorkBloc extends Bloc<WorkEvent, WorkState> {
     if (state is! WorkLoaded) return;
     final currentState = state as WorkLoaded;
 
-    emit(WorkLoaded(
-      userRole: currentState.userRole,
-      vendorProjects: currentState.vendorProjects,
-      buyerOrders: currentState.buyerOrders,
-      vendorFilter: currentState.vendorFilter,
-      buyerFilter: event.filter,
-    ));
+    emit(
+      WorkLoaded(
+        userRole: currentState.userRole,
+        vendorProjects: currentState.vendorProjects,
+        buyerOrders: currentState.buyerOrders,
+        vendorFilter: currentState.vendorFilter,
+        buyerFilter: event.filter,
+      ),
+    );
   }
 
   Future<void> _onRefreshData(

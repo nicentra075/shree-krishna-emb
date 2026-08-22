@@ -13,7 +13,9 @@ class HomeShimmer extends StatelessWidget {
     // Theme-aware shimmer tones so it reads correctly in dark mode too.
     final base = colorScheme.onSurface.withValues(alpha: 0.08);
     final highlight = colorScheme.onSurface.withValues(alpha: 0.16);
-    final bannerHeight = MediaQuery.of(context).size.width < 600 ? 180.0 : 220.0;
+    final bannerHeight = MediaQuery.of(context).size.width < 600
+        ? 180.0
+        : 220.0;
 
     return AppShimmer(
       baseColor: base,
@@ -54,17 +56,21 @@ class HomeShimmer extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                Row(children: [
-                  Expanded(child: _box(double.infinity, 110, 12)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _box(double.infinity, 110, 12)),
-                ]),
+                Row(
+                  children: [
+                    Expanded(child: _box(double.infinity, 110, 12)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _box(double.infinity, 110, 12)),
+                  ],
+                ),
                 const SizedBox(height: 12),
-                Row(children: [
-                  Expanded(child: _box(double.infinity, 110, 12)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _box(double.infinity, 110, 12)),
-                ]),
+                Row(
+                  children: [
+                    Expanded(child: _box(double.infinity, 110, 12)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _box(double.infinity, 110, 12)),
+                  ],
+                ),
               ],
             ),
           ),
@@ -79,10 +85,7 @@ class HomeShimmer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _box(160, 22, 6),
-          _box(56, 16, 6),
-        ],
+        children: [_box(160, 22, 6), _box(56, 16, 6)],
       ),
     );
   }

@@ -36,7 +36,12 @@ class DesignerEarnings {
 }
 
 abstract class PayoutsDataSource {
-  Future<List<DesignerEarnings>> getEarnings({bool forceRefresh});
+  /// [ownerUid] (designer sessions — D2) computes ONLY that designer's row,
+  /// from queries the rules allow a designer to run.
+  Future<List<DesignerEarnings>> getEarnings({
+    bool forceRefresh,
+    String? ownerUid,
+  });
 }
 
 class FirebasePayoutsDataSource implements PayoutsDataSource {
@@ -54,17 +59,26 @@ class FirebasePayoutsDataSource implements PayoutsDataSource {
   @override
   Future<List<DesignerEarnings>> getEarnings({
     bool forceRefresh = false,
+    String? ownerUid,
   }) async {
     try {
       final orders = await _ordersDataSource.getAllOrders(
         forceRefresh: forceRefresh,
+        ownerUid: ownerUid,
       );
 
-      // designId -> authorId (skip platform-owned designs).
-      final designSnap = await _firestore
+      // designId -> authorId (skip platform-owned designs). Designer scope
+      // queries only their own designs (rules deny anything broader).
+      var designsQ = _firestore
           .collection(FirestoreCollections.designs)
-          .limit(_maxDesignFetch)
-          .get();
+          .limit(_maxDesignFetch);
+      if (ownerUid != null) {
+        designsQ = _firestore
+            .collection(FirestoreCollections.designs)
+            .where('authorId', isEqualTo: ownerUid)
+            .limit(_maxDesignFetch);
+      }
+      final designSnap = await designsQ.get();
 
       final authorByDesign = <String, String>{};
       for (final doc in designSnap.docs) {
@@ -129,6 +143,9 @@ class FirebasePayoutsDataSource implements PayoutsDataSource {
               .toList()
             ..sort((a, b) => b.amountOwed.compareTo(a.amountOwed));
 
+      if (ownerUid != null) {
+        return rows.where((r) => r.designerId == ownerUid).toList();
+      }
       return rows;
     } on FirebaseException catch (e, s) {
       AppLogger.logError('getEarnings', error: e, stackTrace: s);

@@ -32,8 +32,13 @@ class UserListLoaded extends UserListState {
   });
 
   @override
-  List<Object?> get props =>
-      [users, currentPage, totalPages, totalUsers, searchQuery];
+  List<Object?> get props => [
+    users,
+    currentPage,
+    totalPages,
+    totalUsers,
+    searchQuery,
+  ];
 }
 
 class UserListError extends UserListState {

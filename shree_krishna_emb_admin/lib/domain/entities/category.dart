@@ -22,12 +22,12 @@ class CategoryEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        collectionId,
-        name,
-        imageUrl,
-        isActive,
-        position,
-        createdAt,
-      ];
+    id,
+    collectionId,
+    name,
+    imageUrl,
+    isActive,
+    position,
+    createdAt,
+  ];
 }

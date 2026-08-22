@@ -103,17 +103,17 @@ class CreateUserEvent extends UserListEvent {
 
   @override
   List<Object?> get props => [
-        name,
-        email,
-        password,
-        phoneNumber,
-        role,
-        photoUrl,
-        storeName,
-        storeImageUrl,
-        storeDescription,
-        isAuthorisedSeller,
-      ];
+    name,
+    email,
+    password,
+    phoneNumber,
+    role,
+    photoUrl,
+    storeName,
+    storeImageUrl,
+    storeDescription,
+    isAuthorisedSeller,
+  ];
 }
 
 class SendPasswordResetEvent extends UserListEvent {

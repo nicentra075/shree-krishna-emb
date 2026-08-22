@@ -77,16 +77,19 @@ class HomeFeedConfigParse {
       if (type == null) continue; // unknown type → forward-compatible skip
       if (!_bool(s['enabled'], true)) continue; // hidden
       final viewAllRaw = (s['viewAll'] as Map?) ?? const {};
-      final sourceRaw =
-          Map<String, dynamic>.from((s['source'] as Map?) ?? const {});
+      final sourceRaw = Map<String, dynamic>.from(
+        (s['source'] as Map?) ?? const {},
+      );
       final banners = ((sourceRaw['items'] as List?) ?? const [])
           .whereType<Map>()
-          .map((i) => BannerItem(
-                imageUrl: _str(i['imageUrl']) ?? '',
-                label: _str(i['label']),
-                title: _str(i['title']),
-                ctaTarget: _str(i['ctaTarget']),
-              ))
+          .map(
+            (i) => BannerItem(
+              imageUrl: _str(i['imageUrl']) ?? '',
+              label: _str(i['label']),
+              title: _str(i['title']),
+              ctaTarget: _str(i['ctaTarget']),
+            ),
+          )
           .where((b) => b.imageUrl.isNotEmpty)
           .toList();
       final manualIds = ((sourceRaw['manualIds'] as List?) ?? const [])
@@ -94,27 +97,29 @@ class HomeFeedConfigParse {
           .whereType<String>()
           .where((e) => e.isNotEmpty)
           .toList();
-      specs.add(HomeSectionSpec(
-        id: _str(s['id']) ?? 'section',
-        type: type,
-        title: _str(s['title']),
-        subtitle: _str(s['subtitle']),
-        enabled: true,
-        position: _int(s['position']),
-        viewAll: HomeViewAll(
-          enabled: _bool(viewAllRaw['enabled']),
-          target: _str(viewAllRaw['target']),
+      specs.add(
+        HomeSectionSpec(
+          id: _str(s['id']) ?? 'section',
+          type: type,
+          title: _str(s['title']),
+          subtitle: _str(s['subtitle']),
+          enabled: true,
+          position: _int(s['position']),
+          viewAll: HomeViewAll(
+            enabled: _bool(viewAllRaw['enabled']),
+            target: _str(viewAllRaw['target']),
+          ),
+          sourceKind: _str(sourceRaw['kind']) ?? 'query',
+          bannerItems: banners,
+          collectionId: _str(sourceRaw['collectionId']),
+          categoryId: _str(sourceRaw['categoryId']),
+          sort: _str(sourceRaw['sort']) ?? 'newest',
+          onlyActive: _bool(sourceRaw['onlyActive'], true),
+          limit: _int(sourceRaw['limit'], 10),
+          manual: _bool(sourceRaw['manual'], false),
+          manualIds: manualIds,
         ),
-        sourceKind: _str(sourceRaw['kind']) ?? 'query',
-        bannerItems: banners,
-        collectionId: _str(sourceRaw['collectionId']),
-        categoryId: _str(sourceRaw['categoryId']),
-        sort: _str(sourceRaw['sort']) ?? 'newest',
-        onlyActive: _bool(sourceRaw['onlyActive'], true),
-        limit: _int(sourceRaw['limit'], 10),
-        manual: _bool(sourceRaw['manual'], false),
-        manualIds: manualIds,
-      ));
+      );
     }
     specs.sort((a, b) => a.position.compareTo(b.position));
     return HomeFeedConfigParse(version: _int(json['version']), specs: specs);

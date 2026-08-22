@@ -29,6 +29,7 @@ abstract class CatalogDataSource {
     String? searchQuery,
     DesignSort sort,
     bool forceRefresh,
+    String? authorId,
   });
   Future<DesignModel> createDesign(DesignModel design);
   Future<void> updateDesign(DesignModel design);
@@ -42,7 +43,7 @@ class FirebaseCatalogDataSource implements CatalogDataSource {
   final FirebaseFirestore _firestore;
 
   FirebaseCatalogDataSource({required FirebaseFirestore firestore})
-      : _firestore = firestore;
+    : _firestore = firestore;
 
   static const Duration _ttl = Duration(minutes: 2);
 
@@ -65,14 +66,18 @@ class FirebaseCatalogDataSource implements CatalogDataSource {
 
   // ---------------- Collections ----------------
   @override
-  Future<List<CollectionModel>> getCollections({bool forceRefresh = false}) async {
+  Future<List<CollectionModel>> getCollections({
+    bool forceRefresh = false,
+  }) async {
     if (!forceRefresh && _collections != null && _fresh(_collectionsAt)) {
       return _collections!;
     }
     try {
       final snap = await _collectionsRef.orderBy('position').get();
       _collections = snap.docs
-          .map((d) => CollectionModel.fromFirebaseJson({...d.data(), 'id': d.id}))
+          .map(
+            (d) => CollectionModel.fromFirebaseJson({...d.data(), 'id': d.id}),
+          )
           .toList();
       _collectionsAt = DateTime.now();
       return _collections!;
@@ -98,7 +103,9 @@ class FirebaseCatalogDataSource implements CatalogDataSource {
       return withId;
     } on FirebaseException catch (e, s) {
       AppLogger.logError('createCollection', error: e, stackTrace: s);
-      throw ServerException(message: e.message ?? 'Failed to create collection');
+      throw ServerException(
+        message: e.message ?? 'Failed to create collection',
+      );
     } catch (e, s) {
       AppLogger.logError('createCollection', error: e, stackTrace: s);
       throw ServerException(message: 'Unexpected error: $e');
@@ -108,11 +115,15 @@ class FirebaseCatalogDataSource implements CatalogDataSource {
   @override
   Future<void> updateCollection(CollectionModel collection) async {
     try {
-      await _collectionsRef.doc(collection.id).update(collection.toFirebaseJson());
+      await _collectionsRef
+          .doc(collection.id)
+          .update(collection.toFirebaseJson());
       _collections = null;
     } on FirebaseException catch (e, s) {
       AppLogger.logError('updateCollection', error: e, stackTrace: s);
-      throw ServerException(message: e.message ?? 'Failed to update collection');
+      throw ServerException(
+        message: e.message ?? 'Failed to update collection',
+      );
     } catch (e, s) {
       AppLogger.logError('updateCollection', error: e, stackTrace: s);
       throw ServerException(message: 'Unexpected error: $e');
@@ -126,7 +137,9 @@ class FirebaseCatalogDataSource implements CatalogDataSource {
       _collections = null;
     } on FirebaseException catch (e, s) {
       AppLogger.logError('deleteCollection', error: e, stackTrace: s);
-      throw ServerException(message: e.message ?? 'Failed to delete collection');
+      throw ServerException(
+        message: e.message ?? 'Failed to delete collection',
+      );
     } catch (e, s) {
       AppLogger.logError('deleteCollection', error: e, stackTrace: s);
       throw ServerException(message: 'Unexpected error: $e');
@@ -143,7 +156,9 @@ class FirebaseCatalogDataSource implements CatalogDataSource {
       if (forceRefresh || _categories == null || !_fresh(_categoriesAt)) {
         final snap = await _categoriesRef.orderBy('position').get();
         _categories = snap.docs
-            .map((d) => CategoryModel.fromFirebaseJson({...d.data(), 'id': d.id}))
+            .map(
+              (d) => CategoryModel.fromFirebaseJson({...d.data(), 'id': d.id}),
+            )
             .toList();
         _categoriesAt = DateTime.now();
       }
@@ -215,16 +230,33 @@ class FirebaseCatalogDataSource implements CatalogDataSource {
     String? searchQuery,
     DesignSort sort = DesignSort.newest,
     bool forceRefresh = false,
+    String? authorId,
   }) async {
     try {
-      if (forceRefresh || _designs == null || !_fresh(_designsAt)) {
-        final snap = await _designsRef.get();
-        _designs = snap.docs
+      List<DesignModel> result;
+      if (authorId != null) {
+        // Designer scope (D2): firestore.rules only lets a designer LIST
+        // designs where authorId == their uid, so the filter must be in the
+        // query itself (an unfiltered collection get() would be denied).
+        // Bypasses the shared cache — designer catalogs are small.
+        final snap = await _designsRef
+            .where('authorId', isEqualTo: authorId)
+            .get();
+        result = snap.docs
             .map((d) => DesignModel.fromFirebaseJson({...d.data(), 'id': d.id}))
             .toList();
-        _designsAt = DateTime.now();
+      } else {
+        if (forceRefresh || _designs == null || !_fresh(_designsAt)) {
+          final snap = await _designsRef.get();
+          _designs = snap.docs
+              .map(
+                (d) => DesignModel.fromFirebaseJson({...d.data(), 'id': d.id}),
+              )
+              .toList();
+          _designsAt = DateTime.now();
+        }
+        result = _designs!.toList();
       }
-      var result = _designs!.toList();
       if (collectionId != null && collectionId.isNotEmpty) {
         result = result.where((d) => d.collectionId == collectionId).toList();
       }
@@ -237,9 +269,11 @@ class FirebaseCatalogDataSource implements CatalogDataSource {
       if (searchQuery != null && searchQuery.isNotEmpty) {
         final q = searchQuery.toLowerCase();
         result = result
-            .where((d) =>
-                d.name.toLowerCase().contains(q) ||
-                (d.code ?? '').toLowerCase().contains(q))
+            .where(
+              (d) =>
+                  d.name.toLowerCase().contains(q) ||
+                  (d.code ?? '').toLowerCase().contains(q),
+            )
             .toList();
       }
       switch (sort) {

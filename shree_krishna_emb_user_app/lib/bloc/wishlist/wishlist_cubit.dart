@@ -23,12 +23,11 @@ class WishlistState extends Equatable {
     WishlistStatus? status,
     WishlistModel? wishlist,
     String? error,
-  }) =>
-      WishlistState(
-        status: status ?? this.status,
-        wishlist: wishlist ?? this.wishlist,
-        error: error,
-      );
+  }) => WishlistState(
+    status: status ?? this.status,
+    wishlist: wishlist ?? this.wishlist,
+    error: error,
+  );
 
   @override
   List<Object?> get props => [status, wishlist, error];
@@ -46,10 +45,12 @@ class WishlistCubit extends Cubit<WishlistState> {
     final result = await repository.load();
     if (isClosed) return;
     result.fold(
-      (failure) =>
-          emit(state.copyWith(status: WishlistStatus.error, error: failure.message)),
-      (wishlist) =>
-          emit(state.copyWith(status: WishlistStatus.loaded, wishlist: wishlist)),
+      (failure) => emit(
+        state.copyWith(status: WishlistStatus.error, error: failure.message),
+      ),
+      (wishlist) => emit(
+        state.copyWith(status: WishlistStatus.loaded, wishlist: wishlist),
+      ),
     );
   }
 
@@ -94,14 +95,11 @@ class WishlistCubit extends Cubit<WishlistState> {
 
     final result = await repository.save(optimistic);
     if (isClosed) return !already;
-    return result.fold(
-      (failure) {
-        // Revert on failure.
-        emit(state.copyWith(wishlist: current, error: failure.message));
-        return already;
-      },
-      (_) => !already,
-    );
+    return result.fold((failure) {
+      // Revert on failure.
+      emit(state.copyWith(wishlist: current, error: failure.message));
+      return already;
+    }, (_) => !already);
   }
 
   Future<void> remove(String designId) async {
@@ -113,7 +111,8 @@ class WishlistCubit extends Cubit<WishlistState> {
     final result = await repository.save(optimistic);
     if (isClosed) return;
     result.fold(
-      (failure) => emit(state.copyWith(wishlist: current, error: failure.message)),
+      (failure) =>
+          emit(state.copyWith(wishlist: current, error: failure.message)),
       (_) {},
     );
   }

@@ -6,5 +6,6 @@ import 'package:shree_krishna_emb_admin/data/datasources/firebase_payouts_dataso
 abstract class PayoutsRepository {
   Future<Either<Failure, List<DesignerEarnings>>> getEarnings({
     bool forceRefresh,
+    String? ownerUid,
   });
 }

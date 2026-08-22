@@ -16,6 +16,8 @@ abstract class OrdersRepository {
   /// Returns a filtered, paginated page of orders. [statusFilter] is the
   /// `OrderStatus.value` string (null = all). [start]/[end] bound `createdAt`.
   /// [search] matches buyer name/email or order id (case-insensitive).
+  /// [ownerUid] (designer sessions — D2) restricts to orders containing that
+  /// author's designs.
   Future<Either<Failure, OrdersPage>> getOrders({
     required int page,
     required int pageSize,
@@ -24,10 +26,14 @@ abstract class OrdersRepository {
     DateTime? end,
     String? search,
     bool forceRefresh,
+    String? ownerUid,
   });
 
   /// The full filtered (unpaginated) set — used for exports/aggregation.
-  Future<Either<Failure, List<OrderModel>>> getAllOrders({bool forceRefresh});
+  Future<Either<Failure, List<OrderModel>>> getAllOrders({
+    bool forceRefresh,
+    String? ownerUid,
+  });
 
   /// Calls the `initiateRefund` Cloud Function for a paid order.
   /// Returns true when `{success: true}` comes back.

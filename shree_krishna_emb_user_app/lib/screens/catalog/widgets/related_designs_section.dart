@@ -85,7 +85,10 @@ class _RelatedDesignsSectionState extends State<RelatedDesignsSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (_designs.isNotEmpty) ...[
-          _header(strings.moreInThisCategory, strings.moreInThisCategorySubtitle),
+          _header(
+            strings.moreInThisCategory,
+            strings.moreInThisCategorySubtitle,
+          ),
           const SizedBox(height: 12),
           _designsList(),
           const SizedBox(height: 24),

@@ -22,15 +22,14 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
     required FirebaseFirestore firestore,
     required SellerDataSource sellerDataSource,
     required RecentlyViewedStore recentStore,
-  })  : _firestore = firestore,
-        _sellerDataSource = sellerDataSource,
-        _recentStore = recentStore;
+  }) : _firestore = firestore,
+       _sellerDataSource = sellerDataSource,
+       _recentStore = recentStore;
 
   @override
   Future<HomeFeed> getHomeFeed() async {
     try {
-      final doc =
-          await _firestore.collection('config').doc('homeFeed').get();
+      final doc = await _firestore.collection('config').doc('homeFeed').get();
       if (!doc.exists || doc.data() == null) {
         return const HomeFeed();
       }
@@ -65,13 +64,17 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
       case HomeSectionType.banner:
         return spec.bannerItems;
       case HomeSectionType.authorisedSellersHorizontal:
-        final sellers =
-            await _sellerDataSource.getAuthorisedSellers(limit: spec.limit);
+        final sellers = await _sellerDataSource.getAuthorisedSellers(
+          limit: spec.limit,
+        );
         return sellers
-            .map((s) => SellerItem(
+            .map(
+              (s) => SellerItem(
                 uid: s.uid,
                 displayName: s.displayName,
-                storeImageUrl: s.storeImageUrl))
+                storeImageUrl: s.storeImageUrl,
+              ),
+            )
             .toList();
       case HomeSectionType.designsHorizontal:
       case HomeSectionType.designsVertical:
@@ -92,14 +95,18 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
       name: d['name']?.toString() ?? 'Design',
       finalPrice: (d['finalPrice'] as num?)?.toInt() ?? 0,
       isFree: d['isFree'] == true,
-      firstImageUrl: (images != null && images.isNotEmpty) ? images.first : null,
+      firstImageUrl: (images != null && images.isNotEmpty)
+          ? images.first
+          : null,
       description: d['description']?.toString(),
     );
   }
 
   /// Fetches documents by id (in chunks of 30 for whereIn) → id→data map.
   Future<Map<String, Map<String, dynamic>>> _fetchByIds(
-      String collection, List<String> ids) async {
+    String collection,
+    List<String> ids,
+  ) async {
     final result = <String, Map<String, dynamic>>{};
     for (var i = 0; i < ids.length; i += 30) {
       final chunk = ids.sublist(i, (i + 30) > ids.length ? ids.length : i + 30);
@@ -134,24 +141,30 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
     }
     final snap = await q.limit(80).get();
     final docs = snap.docs.toList();
-    int cmp(QueryDocumentSnapshot<Map<String, dynamic>> a,
-        QueryDocumentSnapshot<Map<String, dynamic>> b) {
+    int cmp(
+      QueryDocumentSnapshot<Map<String, dynamic>> a,
+      QueryDocumentSnapshot<Map<String, dynamic>> b,
+    ) {
       final da = a.data();
       final db = b.data();
       switch (spec.sort) {
         case 'popularity':
-          return ((db['popularity'] as num?) ?? 0)
-              .compareTo((da['popularity'] as num?) ?? 0);
+          return ((db['popularity'] as num?) ?? 0).compareTo(
+            (da['popularity'] as num?) ?? 0,
+          );
         case 'priceAsc':
-          return ((da['finalPrice'] as num?) ?? 0)
-              .compareTo((db['finalPrice'] as num?) ?? 0);
+          return ((da['finalPrice'] as num?) ?? 0).compareTo(
+            (db['finalPrice'] as num?) ?? 0,
+          );
         case 'priceDesc':
-          return ((db['finalPrice'] as num?) ?? 0)
-              .compareTo((da['finalPrice'] as num?) ?? 0);
+          return ((db['finalPrice'] as num?) ?? 0).compareTo(
+            (da['finalPrice'] as num?) ?? 0,
+          );
         case 'newest':
         default:
-          return (db['createdAt']?.toString() ?? '')
-              .compareTo(da['createdAt']?.toString() ?? '');
+          return (db['createdAt']?.toString() ?? '').compareTo(
+            da['createdAt']?.toString() ?? '',
+          );
       }
     }
 
@@ -168,11 +181,13 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
       final byId = await _fetchByIds('collections', spec.manualIds);
       return spec.manualIds
           .where((id) => byId[id]?['isActive'] == true)
-          .map((id) => CollectionItem(
-                id: id,
-                name: byId[id]!['name']?.toString() ?? 'Collection',
-                imageUrl: byId[id]!['imageUrl']?.toString(),
-              ))
+          .map(
+            (id) => CollectionItem(
+              id: id,
+              name: byId[id]!['name']?.toString() ?? 'Collection',
+              imageUrl: byId[id]!['imageUrl']?.toString(),
+            ),
+          )
           .toList();
     }
     final snap = await _firestore
@@ -181,15 +196,20 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
         .limit(spec.limit * 2)
         .get();
     final docs = snap.docs.toList()
-      ..sort((a, b) => ((a.data()['position'] as num?) ?? 0)
-          .compareTo((b.data()['position'] as num?) ?? 0));
+      ..sort(
+        (a, b) => ((a.data()['position'] as num?) ?? 0).compareTo(
+          (b.data()['position'] as num?) ?? 0,
+        ),
+      );
     return docs
         .take(spec.limit)
-        .map((d) => CollectionItem(
-              id: d.id,
-              name: d.data()['name']?.toString() ?? 'Collection',
-              imageUrl: d.data()['imageUrl']?.toString(),
-            ))
+        .map(
+          (d) => CollectionItem(
+            id: d.id,
+            name: d.data()['name']?.toString() ?? 'Collection',
+            imageUrl: d.data()['imageUrl']?.toString(),
+          ),
+        )
         .toList();
   }
 
@@ -199,11 +219,13 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
       final byId = await _fetchByIds('categories', spec.manualIds);
       return spec.manualIds
           .where((id) => byId[id]?['isActive'] == true)
-          .map((id) => CategoryItem(
-                id: id,
-                name: byId[id]!['name']?.toString() ?? 'Category',
-                imageUrl: byId[id]!['imageUrl']?.toString(),
-              ))
+          .map(
+            (id) => CategoryItem(
+              id: id,
+              name: byId[id]!['name']?.toString() ?? 'Category',
+              imageUrl: byId[id]!['imageUrl']?.toString(),
+            ),
+          )
           .toList();
     }
     Query<Map<String, dynamic>> q = _firestore
@@ -214,15 +236,20 @@ class FirebaseHomeFeedDataSource implements HomeFeedDataSource {
     }
     final snap = await q.limit(spec.limit * 2).get();
     final docs = snap.docs.toList()
-      ..sort((a, b) => ((a.data()['position'] as num?) ?? 0)
-          .compareTo((b.data()['position'] as num?) ?? 0));
+      ..sort(
+        (a, b) => ((a.data()['position'] as num?) ?? 0).compareTo(
+          (b.data()['position'] as num?) ?? 0,
+        ),
+      );
     return docs
         .take(spec.limit)
-        .map((d) => CategoryItem(
-              id: d.id,
-              name: d.data()['name']?.toString() ?? 'Category',
-              imageUrl: d.data()['imageUrl']?.toString(),
-            ))
+        .map(
+          (d) => CategoryItem(
+            id: d.id,
+            name: d.data()['name']?.toString() ?? 'Category',
+            imageUrl: d.data()['imageUrl']?.toString(),
+          ),
+        )
         .toList();
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
@@ -8,6 +9,7 @@ import 'package:shree_krishna_emb/routes/app_routes.dart';
 import 'package:shree_krishna_emb/core/di/service_locator.dart';
 import 'package:shree_krishna_emb/screens/cart/cart_screen.dart';
 import 'package:shree_krishna_emb/screens/purchases/my_purchases_screen.dart';
+import 'package:shree_krishna_emb/screens/settings/notification_preferences_screen.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_bloc.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_event.dart';
 import 'package:shree_krishna_emb/bloc/auth/auth_state.dart';
@@ -302,11 +304,14 @@ class ProfileScreen extends StatelessWidget {
         ),
         _buildSettingsTile(
           context,
-          AppLocalization.strings.notifications,
+          AppLocalization.strings.notificationPreferences,
           Icons.notifications_outlined,
-          () {
-            // TODO: Navigate to notifications settings
-          },
+          () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const NotificationPreferencesScreen(),
+            ),
+          ),
         ),
         BlocBuilder<ThemeCubit, ThemeMode>(
           builder: (context, themeMode) {
@@ -340,47 +345,94 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        _buildSettingsTile(
-          context,
-          AppLocalization.strings.whatsappSupport,
-          Icons.chat_outlined,
-          () {
-            // TODO: Open WhatsApp
-          },
-        ),
-        _buildSettingsTile(
-          context,
-          AppLocalization.strings.contactUs,
-          Icons.mail_outlined,
-          () {
-            // TODO: Open contact form
-          },
-        ),
+        // Brand-dependent rows come from BrandConfig (D5): each renders only
+        // when its endpoint is configured — no dead taps (D6).
+        if (BrandConfig.current.supportWhatsApp.isNotEmpty)
+          _buildSettingsTile(
+            context,
+            AppLocalization.strings.whatsappSupport,
+            Icons.chat_outlined,
+            () =>
+                _launch('https://wa.me/${BrandConfig.current.supportWhatsApp}'),
+          ),
+        if (BrandConfig.current.supportEmail.isNotEmpty)
+          _buildSettingsTile(
+            context,
+            AppLocalization.strings.contactUs,
+            Icons.mail_outlined,
+            () => _launch('mailto:${BrandConfig.current.supportEmail}'),
+          ),
         _buildSettingsTile(
           context,
           AppLocalization.strings.aboutUs,
           Icons.info_outlined,
-          () {
-            // TODO: Navigate to about
-          },
+          () => _showAboutDialog(context),
         ),
-        _buildSettingsTile(
-          context,
-          AppLocalization.strings.privacyPolicy,
-          Icons.privacy_tip_outlined,
-          () {
-            // TODO: Open privacy policy
-          },
-        ),
-        _buildSettingsTile(
-          context,
-          AppLocalization.strings.termsConditions,
-          Icons.description_outlined,
-          () {
-            // TODO: Open terms
-          },
-        ),
+        if (BrandConfig.current.privacyPolicyUrl.isNotEmpty)
+          _buildSettingsTile(
+            context,
+            AppLocalization.strings.privacyPolicy,
+            Icons.privacy_tip_outlined,
+            () => _launch(BrandConfig.current.privacyPolicyUrl),
+          ),
+        if (BrandConfig.current.termsUrl.isNotEmpty)
+          _buildSettingsTile(
+            context,
+            AppLocalization.strings.termsConditions,
+            Icons.description_outlined,
+            () => _launch(BrandConfig.current.termsUrl),
+          ),
       ],
+    );
+  }
+
+  /// Opens an external link; a failure surfaces as an error toast (D6).
+  static Future<void> _launch(String url) async {
+    try {
+      final ok = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!ok) {
+        AppSnackbar.showError(AppLocalization.strings.somethingWentWrong);
+      }
+    } catch (_) {
+      AppSnackbar.showError(AppLocalization.strings.somethingWentWrong);
+    }
+  }
+
+  static void _showAboutDialog(BuildContext context) {
+    final strings = AppLocalization.strings;
+    final colorScheme = Theme.of(context).colorScheme;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          strings.appName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${strings.appVersion}: v1.0.0',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodyMedium(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(strings.ok),
+          ),
+        ],
+      ),
     );
   }
 

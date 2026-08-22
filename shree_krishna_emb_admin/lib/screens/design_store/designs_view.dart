@@ -40,8 +40,7 @@ class _DesignsViewState extends State<DesignsView> {
         final pageSize = state.pageSize;
         final totalPages = all.isEmpty ? 1 : (all.length / pageSize).ceil();
         final page = state.page.clamp(1, totalPages).toInt();
-        final items =
-            all.skip((page - 1) * pageSize).take(pageSize).toList();
+        final items = all.skip((page - 1) * pageSize).take(pageSize).toList();
         return CatalogScaffold(
           addLabel: strings.addDesign,
           onAdd: () => _openDialog(context),
@@ -54,8 +53,7 @@ class _DesignsViewState extends State<DesignsView> {
           totalPages: totalPages,
           onPageChanged: (p) => context.read<DesignsCubit>().setPage(p),
           pageSize: pageSize,
-          onPageSizeChanged: (n) =>
-              context.read<DesignsCubit>().setPageSize(n),
+          onPageSizeChanged: (n) => context.read<DesignsCubit>().setPageSize(n),
           headerLeading: [
             SizedBox(
               width: 220,
@@ -93,8 +91,10 @@ class _DesignsViewState extends State<DesignsView> {
             SizedBox(
               width: 200,
               child: CollectionPicker(
-                collections:
-                    context.watch<CollectionsCubit>().state.collections,
+                collections: context
+                    .watch<CollectionsCubit>()
+                    .state
+                    .collections,
                 value: state.collectionId,
                 includeAll: true,
                 onChanged: (id) =>
@@ -108,9 +108,11 @@ class _DesignsViewState extends State<DesignsView> {
                     .watch<CategoriesCubit>()
                     .state
                     .categories
-                    .where((c) =>
-                        state.collectionId == null ||
-                        c.collectionId == state.collectionId)
+                    .where(
+                      (c) =>
+                          state.collectionId == null ||
+                          c.collectionId == state.collectionId,
+                    )
                     .toList(),
                 value: state.categoryId,
                 includeAll: true,
@@ -129,9 +131,12 @@ class _DesignsViewState extends State<DesignsView> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.primaryDark,
                   side: BorderSide(
-                      color: AppTheme.primaryDark.withValues(alpha: 0.4)),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    color: AppTheme.primaryDark.withValues(alpha: 0.4),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                 ),
               ),
           ],

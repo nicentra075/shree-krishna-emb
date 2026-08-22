@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
+import 'package:shree_krishna_emb_admin/bloc/admin_auth/password_reset_cubit.dart';
+import 'package:shree_krishna_emb_admin/core/di/service_locator.dart';
 import 'package:shree_krishna_emb_admin/theme/app_theme.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
@@ -21,6 +23,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   bool _obscurePassword = true;
   bool _rememberMe = false;
   bool _showResetPassword = false;
+  bool _isSendingReset = false;
+  late final PasswordResetCubit _passwordResetCubit;
 
   @override
   void initState() {
@@ -28,6 +32,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _resetEmailController = TextEditingController();
+    _passwordResetCubit = getIt<PasswordResetCubit>();
   }
 
   @override
@@ -35,7 +40,36 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _resetEmailController.dispose();
+    _passwordResetCubit.close();
     super.dispose();
+  }
+
+  Future<void> _sendResetLink() async {
+    final strings = AppLocalization.strings;
+    if (_resetEmailController.text.isEmpty) {
+      ResponsiveSnackbar.showError(strings.fieldRequired, context);
+      return;
+    }
+    if (!_resetEmailController.text.contains('@')) {
+      ResponsiveSnackbar.showError(strings.invalidEmail, context);
+      return;
+    }
+
+    setState(() => _isSendingReset = true);
+    await _passwordResetCubit.sendResetEmail(_resetEmailController.text);
+    if (!mounted) return;
+    setState(() => _isSendingReset = false);
+
+    final state = _passwordResetCubit.state;
+    if (state is PasswordResetError) {
+      ResponsiveSnackbar.showError(state.message, context);
+      return;
+    }
+    ResponsiveSnackbar.showSuccess(strings.resetLinkSentMessage, context);
+    setState(() {
+      _showResetPassword = false;
+      _resetEmailController.clear();
+    });
   }
 
   @override
@@ -530,32 +564,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ElevatedButton(
-                onPressed: () {
-                  if (_resetEmailController.text.isEmpty) {
-                    ResponsiveSnackbar.showError(
-                      strings.fieldRequired,
-                      context,
-                    );
-                    return;
-                  }
-                  if (!_resetEmailController.text.contains('@')) {
-                    ResponsiveSnackbar.showError(strings.invalidEmail, context);
-                    return;
-                  }
-                  // TODO: Call reset password API
-                  ResponsiveSnackbar.showSuccess(
-                    strings.resetLinkSentMessage,
-                    context,
-                  );
-                  Future.delayed(const Duration(milliseconds: 500), () {
-                    if (mounted) {
-                      setState(() {
-                        _showResetPassword = false;
-                        _resetEmailController.clear();
-                      });
-                    }
-                  });
-                },
+                onPressed: _isSendingReset ? null : _sendResetLink,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
@@ -564,12 +573,21 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
-                  strings.sendResetLink,
-                  style: AppTextStyles.button(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: _isSendingReset
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        strings.sendResetLink,
+                        style: AppTextStyles.button(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
               ),
             ),
           ),

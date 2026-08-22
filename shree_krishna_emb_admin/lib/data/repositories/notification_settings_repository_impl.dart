@@ -1,4 +1,5 @@
-import 'package:shree_krishna_core/shree_krishna_core.dart' hide ServerException;
+import 'package:shree_krishna_core/shree_krishna_core.dart'
+    hide ServerException;
 import 'package:shree_krishna_emb_admin/core/errors/exceptions.dart';
 import 'package:shree_krishna_emb_admin/data/datasources/firebase_notification_settings_datasource.dart';
 import 'package:shree_krishna_emb_admin/domain/repositories/notification_settings_repository.dart';

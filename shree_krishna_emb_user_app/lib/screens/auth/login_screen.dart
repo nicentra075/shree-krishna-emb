@@ -1,3 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -409,6 +414,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
+          // App Store guideline 4.8: Sign in with Apple must be offered
+          // wherever Google login is — iOS only by product decision.
+          if (!kIsWeb && Platform.isIOS) ...[
+            const SizedBox(height: 16),
+            _buildSocialButton(
+              context: context,
+              icon: Icons.apple,
+              label: 'Apple',
+              onTap: () => _handleAppleSignIn(context),
+            ),
+          ],
         ],
       ),
     );
@@ -514,6 +530,10 @@ class _LoginScreenState extends State<LoginScreen> {
     context.read<AuthBloc>().add(const SignInWithGoogleEvent());
   }
 
+  void _handleAppleSignIn(BuildContext context) {
+    context.read<AuthBloc>().add(const SignInWithAppleEvent());
+  }
+
   void _showPhoneInputDialog(BuildContext context) {
     final phoneController = TextEditingController();
     final authBloc = context.read<AuthBloc>();
@@ -552,13 +572,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 return;
               }
               final fullPhoneNumber = '+91$phone';
-              print('🔵 [LoginScreen] Phone Dialog - User entered: $phone');
-              print(
+              log('🔵 [LoginScreen] Phone Dialog - User entered: $phone');
+              log(
                 '🔵 [LoginScreen] Phone Dialog - Sending to Firebase: $fullPhoneNumber',
               );
               Navigator.pop(dialogContext);
               authBloc.add(SendPhoneOtpEvent(phoneNumber: fullPhoneNumber));
-              print(
+              log(
                 '🔵 [LoginScreen] Phone Dialog - SendPhoneOtpEvent dispatched',
               );
             },

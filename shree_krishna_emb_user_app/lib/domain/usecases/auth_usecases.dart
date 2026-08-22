@@ -1,3 +1,4 @@
+import 'package:flutter_ui_toolbox/flutter_ui_toolbox.dart';
 import 'package:shree_krishna_core/errors/failures.dart';
 import 'package:shree_krishna_core/models/user_model.dart';
 import 'package:shree_krishna_core/utils/either.dart';
@@ -34,10 +35,7 @@ class SignInUseCase {
     required String email,
     required String password,
   }) {
-    return repository.signInWithEmail(
-      email: email,
-      password: password,
-    );
+    return repository.signInWithEmail(email: email, password: password);
   }
 }
 
@@ -52,6 +50,17 @@ class SignInWithGoogleUseCase {
   }
 }
 
+// Sign in with Apple (iOS only — App Store guideline 4.8)
+class SignInWithAppleUseCase {
+  final AuthRepository repository;
+
+  SignInWithAppleUseCase(this.repository);
+
+  Future<Either<Failure, AuthResult>> call() {
+    return repository.signInWithApple();
+  }
+}
+
 // Send phone OTP
 class SendPhoneOtpUseCase {
   final AuthRepository repository;
@@ -59,12 +68,15 @@ class SendPhoneOtpUseCase {
   SendPhoneOtpUseCase(this.repository);
 
   Future<Either<Failure, String>> call(String phoneNumber) {
-    print('🟣 [SendPhoneOtpUseCase] call() invoked with phoneNumber: $phoneNumber');
     final result = repository.sendPhoneOtp(phoneNumber);
     result.then((either) {
       either.fold(
-        (failure) => print('🔴 [SendPhoneOtpUseCase] Repository returned failure: ${failure.message}'),
-        (verificationId) => print('🟢 [SendPhoneOtpUseCase] Repository returned verificationId: $verificationId'),
+        (failure) => log(
+          '🔴 [SendPhoneOtpUseCase] Repository returned failure: ${failure.message}',
+        ),
+        (verificationId) => log(
+          '🟢 [SendPhoneOtpUseCase] Repository returned verificationId: $verificationId',
+        ),
       );
     });
     return result;
@@ -100,10 +112,7 @@ class CompleteGoogleProfileUseCase {
     required String uid,
     required String phoneNumber,
   }) {
-    return repository.completeGoogleProfile(
-      uid: uid,
-      phoneNumber: phoneNumber,
-    );
+    return repository.completeGoogleProfile(uid: uid, phoneNumber: phoneNumber);
   }
 }
 
@@ -118,11 +127,7 @@ class CompletePhoneProfileUseCase {
     required String name,
     required String email,
   }) {
-    return repository.completePhoneProfile(
-      uid: uid,
-      name: name,
-      email: email,
-    );
+    return repository.completePhoneProfile(uid: uid, name: name, email: email);
   }
 }
 

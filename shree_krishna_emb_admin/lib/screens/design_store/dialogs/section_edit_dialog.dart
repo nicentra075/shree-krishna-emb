@@ -91,15 +91,21 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
       const SelectOption('designs?sort=popularity', 'All designs · Popularity'),
       const SelectOption('designs?sort=newest', 'All designs · Newest'),
       const SelectOption(
-          'designs?sort=priceAsc', 'All designs · Price: Low to High'),
+        'designs?sort=priceAsc',
+        'All designs · Price: Low to High',
+      ),
       const SelectOption(
-          'designs?sort=priceDesc', 'All designs · Price: High to Low'),
+        'designs?sort=priceDesc',
+        'All designs · Price: High to Low',
+      ),
       const SelectOption('collections', 'All collections'),
       const SelectOption('sellers', 'All sellers'),
-      ...collections
-          .map((c) => SelectOption('collection:${c.id}', 'Collection · ${c.name}')),
-      ...allCategories
-          .map((c) => SelectOption('category:${c.id}', 'Category · ${c.name}')),
+      ...collections.map(
+        (c) => SelectOption('collection:${c.id}', 'Collection · ${c.name}'),
+      ),
+      ...allCategories.map(
+        (c) => SelectOption('category:${c.id}', 'Category · ${c.name}'),
+      ),
     ];
 
     return Dialog(
@@ -112,12 +118,19 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Edit Section',
-                  style: AppTextStyles.headlineMedium(
-                      color: AppTheme.primaryDark, fontWeight: FontWeight.w700)),
+              Text(
+                'Edit Section',
+                style: AppTextStyles.headlineMedium(
+                  color: AppTheme.primaryDark,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 20),
               AppTextField(
-                  label: 'Title', hint: 'Section title', controller: _title),
+                label: 'Title',
+                hint: 'Section title',
+                controller: _title,
+              ),
               const SizedBox(height: 12),
 
               // How this section renders in the user app.
@@ -181,18 +194,21 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
                 ],
                 if (_hasLimit) ...[
                   AppTextField(
-                      label: 'Limit',
-                      hint: '10',
-                      controller: _limit,
-                      keyboardType: TextInputType.number),
+                    label: 'Limit',
+                    hint: '10',
+                    controller: _limit,
+                    keyboardType: TextInputType.number,
+                  ),
                   const SizedBox(height: 8),
                 ],
               ],
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text('Show "View All"',
-                    style: AppTextStyles.labelMedium()),
+                title: Text(
+                  'Show "View All"',
+                  style: AppTextStyles.labelMedium(),
+                ),
                 value: _viewAllEnabled,
                 activeThumbColor: AppTheme.primaryDark,
                 onChanged: (v) => setState(() => _viewAllEnabled = v),
@@ -206,18 +222,20 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
                   onSelected: (v) => setState(() => _viewAllTarget = v ?? ''),
                 ),
               const SizedBox(height: 20),
-              Row(children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(strings.cancel),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(strings.cancel),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: AppButton(label: strings.save, onPressed: _save),
-                ),
-              ]),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AppButton(label: strings.save, onPressed: _save),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -228,27 +246,27 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
   /// Plain-language description of how this section type appears in the user
   /// app, so the admin understands the effect of these settings.
   String get _helpText => switch (_type) {
-        HomeSectionType.banner =>
-          'Shows full-width swipeable banners at the top of Home. Each banner '
-              'can link to a collection or category when tapped.',
-        HomeSectionType.authorisedSellersHorizontal =>
-          'Shows a horizontal scrolling row of authorised sellers.',
-        HomeSectionType.designsHorizontal =>
-          'Shows a horizontal scrolling row of design cards. Tapping a design '
-              'opens its detail page. "View All" opens the full design list.',
-        HomeSectionType.designsVertical =>
-          'Shows designs stacked in a vertical grid. Tapping a design opens its '
-              'detail page. "View All" opens the full design list.',
-        HomeSectionType.collectionsGrid =>
-          'Shows a grid of collections. Tapping a collection opens its '
-              'categories, then a category opens its designs. "View All" opens '
-              'all collections.',
-        HomeSectionType.categoriesHorizontal =>
-          'Shows a horizontal row of categories. Tapping a category opens its '
-              'designs. "View All" opens this collection\'s categories.',
-        HomeSectionType.recentlyViewed =>
-          'Shows designs the user recently opened (saved on their device).',
-      };
+    HomeSectionType.banner =>
+      'Shows full-width swipeable banners at the top of Home. Each banner '
+          'can link to a collection or category when tapped.',
+    HomeSectionType.authorisedSellersHorizontal =>
+      'Shows a horizontal scrolling row of authorised sellers.',
+    HomeSectionType.designsHorizontal =>
+      'Shows a horizontal scrolling row of design cards. Tapping a design '
+          'opens its detail page. "View All" opens the full design list.',
+    HomeSectionType.designsVertical =>
+      'Shows designs stacked in a vertical grid. Tapping a design opens its '
+          'detail page. "View All" opens the full design list.',
+    HomeSectionType.collectionsGrid =>
+      'Shows a grid of collections. Tapping a collection opens its '
+          'categories, then a category opens its designs. "View All" opens '
+          'all collections.',
+    HomeSectionType.categoriesHorizontal =>
+      'Shows a horizontal row of categories. Tapping a category opens its '
+          'designs. "View All" opens this collection\'s categories.',
+    HomeSectionType.recentlyViewed =>
+      'Shows designs the user recently opened (saved on their device).',
+  };
 
   Widget _helpBanner(ColorScheme colorScheme) {
     return Container(
@@ -256,8 +274,7 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
       decoration: BoxDecoration(
         color: AppTheme.primaryDark.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
-        border:
-            Border.all(color: AppTheme.primaryDark.withValues(alpha: 0.25)),
+        border: Border.all(color: AppTheme.primaryDark.withValues(alpha: 0.25)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,8 +302,7 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
     };
     return SwitchListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text('Hand-pick $what',
-          style: AppTextStyles.labelMedium()),
+      title: Text('Hand-pick $what', style: AppTextStyles.labelMedium()),
       subtitle: Text(
         _manual
             ? 'Showing only the $what you select below, in this order.'
@@ -324,9 +340,11 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
             .toList();
       default: // designs
         candidates = designs
-            .where((d) =>
-                d.status == 'active' &&
-                (_collectionId == null || d.collectionId == _collectionId))
+            .where(
+              (d) =>
+                  d.status == 'active' &&
+                  (_collectionId == null || d.collectionId == _collectionId),
+            )
             .map((d) => (id: d.id, name: d.name, imageUrl: d.firstImageUrl))
             .toList();
     }
@@ -335,29 +353,32 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
       return Container(
         padding: const EdgeInsets.all(16),
         alignment: Alignment.center,
-        child: Text('Nothing available to pick yet.',
-            style:
-                AppTextStyles.bodySmall(color: colorScheme.onSurfaceVariant),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis),
+        child: Text(
+          'Nothing available to pick yet.',
+          style: AppTextStyles.bodySmall(color: colorScheme.onSurfaceVariant),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${_manualIds.length} selected',
-            style:
-                AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis),
+        Text(
+          '${_manualIds.length} selected',
+          style: AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         const SizedBox(height: 6),
         Container(
           constraints: const BoxConstraints(maxHeight: 240),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border:
-                Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.3),
+            ),
           ),
           child: ListView.builder(
             shrinkWrap: true,
@@ -422,8 +443,9 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
-            border:
-                Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: colorScheme.outline.withValues(alpha: 0.3),
+            ),
           ),
           alignment: Alignment.center,
           child: DropdownButton<String>(
@@ -432,12 +454,17 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
             value: options.containsKey(_sort) ? _sort : 'newest',
             dropdownColor: colorScheme.surface,
             items: options.entries
-                .map((e) => DropdownMenuItem(
-                      value: e.key,
-                      child: Text(e.value,
-                          style: AppTextStyles.bodyMedium(
-                              color: colorScheme.onSurface)),
-                    ))
+                .map(
+                  (e) => DropdownMenuItem(
+                    value: e.key,
+                    child: Text(
+                      e.value,
+                      style: AppTextStyles.bodyMedium(
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                )
                 .toList(),
             onChanged: (v) => setState(() => _sort = v ?? 'newest'),
           ),
@@ -450,9 +477,10 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Banners',
-            style:
-                AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant)),
+        Text(
+          'Banners',
+          style: AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
+        ),
         const SizedBox(height: 6),
         ..._banners.asMap().entries.map((entry) {
           final i = entry.key;
@@ -464,43 +492,58 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(children: [
-              AppNetworkImage(
+            child: Row(
+              children: [
+                AppNetworkImage(
                   imageUrl: b.imageUrl,
                   width: 40,
                   height: 40,
-                  borderRadius: BorderRadius.circular(6)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(b.title ?? b.label ?? 'Banner',
-                        style: AppTextStyles.labelSmall(
-                            color: colorScheme.onSurface,
-                            fontWeight: FontWeight.w600),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                    Text(b.imageUrl,
-                        style: AppTextStyles.bodySmall(
-                            color: colorScheme.onSurfaceVariant),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                  ],
+                  borderRadius: BorderRadius.circular(6),
                 ),
-              ),
-              IconButton(
-                tooltip: AppLocalization.strings.edit,
-                icon: const Icon(Icons.edit_outlined,
-                    size: 18, color: AppTheme.primaryDark),
-                onPressed: () => _bannerForm(existing: b, index: i),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline,
-                    size: 18, color: Color(0xFFFF6B6B)),
-                onPressed: () => setState(() => _banners.removeAt(i)),
-              ),
-            ]),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        b.title ?? b.label ?? 'Banner',
+                        style: AppTextStyles.labelSmall(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        b.imageUrl,
+                        style: AppTextStyles.bodySmall(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: AppLocalization.strings.edit,
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    size: 18,
+                    color: AppTheme.primaryDark,
+                  ),
+                  onPressed: () => _bannerForm(existing: b, index: i),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: Color(0xFFFF6B6B),
+                  ),
+                  onPressed: () => setState(() => _banners.removeAt(i)),
+                ),
+              ],
+            ),
           );
         }),
         Align(
@@ -531,10 +574,18 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
     final categories = context.read<CategoriesCubit>().state.categories;
     final options = <SelectOption>[
       const SelectOption('', 'None (no link)'),
-      ...collections.map((c) =>
-          SelectOption('collection:${c.id}', 'Collection · ${c.name}  ·  ${c.id}')),
-      ...categories.map((c) =>
-          SelectOption('category:${c.id}', 'Category · ${c.name}  ·  ${c.id}')),
+      ...collections.map(
+        (c) => SelectOption(
+          'collection:${c.id}',
+          'Collection · ${c.name}  ·  ${c.id}',
+        ),
+      ),
+      ...categories.map(
+        (c) => SelectOption(
+          'category:${c.id}',
+          'Category · ${c.name}  ·  ${c.id}',
+        ),
+      ),
     ];
 
     showDialog(
@@ -545,38 +596,46 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
           content: SizedBox(
             width: 480,
             child: SingleChildScrollView(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                // Same 3-way image picker (upload / URL / media library) used
-                // for designs — shows a thumbnail instead of a long raw URL.
-                AppImagePickerField(
-                  label: 'Banner Image',
-                  value: imageUrl.isEmpty ? null : imageUrl,
-                  folder: 'banners',
-                  onChanged: (v) => setLocal(() => imageUrl = v ?? ''),
-                ),
-                const SizedBox(height: 12),
-                AppTextField(
-                    label: 'Label', hint: 'Limited Edition', controller: label),
-                const SizedBox(height: 8),
-                AppTextField(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Same 3-way image picker (upload / URL / media library) used
+                  // for designs — shows a thumbnail instead of a long raw URL.
+                  AppImagePickerField(
+                    label: 'Banner Image',
+                    value: imageUrl.isEmpty ? null : imageUrl,
+                    folder: 'banners',
+                    onChanged: (v) => setLocal(() => imageUrl = v ?? ''),
+                  ),
+                  const SizedBox(height: 12),
+                  AppTextField(
+                    label: 'Label',
+                    hint: 'Limited Edition',
+                    controller: label,
+                  ),
+                  const SizedBox(height: 8),
+                  AppTextField(
                     label: 'Title',
                     hint: 'Exclusive Collections',
-                    controller: title),
-                const SizedBox(height: 12),
-                SearchableSelect(
-                  label: 'Links to',
-                  hint: 'Search a collection or category…',
-                  value: ctaValue,
-                  options: options,
-                  onSelected: (v) => setLocal(() => ctaValue = v ?? ''),
-                ),
-              ]),
+                    controller: title,
+                  ),
+                  const SizedBox(height: 12),
+                  SearchableSelect(
+                    label: 'Links to',
+                    hint: 'Search a collection or category…',
+                    value: ctaValue,
+                    options: options,
+                    onSelected: (v) => setLocal(() => ctaValue = v ?? ''),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(dialogCtx),
-                child: Text(AppLocalization.strings.cancel)),
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: Text(AppLocalization.strings.cancel),
+            ),
             TextButton(
               onPressed: () {
                 final url = imageUrl.trim();
@@ -599,9 +658,11 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
                 });
                 Navigator.pop(dialogCtx);
               },
-              child: Text(isEdit
-                  ? AppLocalization.strings.save
-                  : AppLocalization.strings.add),
+              child: Text(
+                isEdit
+                    ? AppLocalization.strings.save
+                    : AppLocalization.strings.add,
+              ),
             ),
           ],
         ),
@@ -625,8 +686,7 @@ class _SectionEditDialogState extends State<SectionEditDialog> {
         categoryId: _categoryId,
         sort: _sort,
         onlyActive: widget.section.source.onlyActive,
-        limit:
-            int.tryParse(_limit.text.trim()) ?? widget.section.source.limit,
+        limit: int.tryParse(_limit.text.trim()) ?? widget.section.source.limit,
         // Hand-pick only applies to supported section types.
         manual: _supportsManual && _manual,
         manualIds: _supportsManual && _manual ? _manualIds : const [],

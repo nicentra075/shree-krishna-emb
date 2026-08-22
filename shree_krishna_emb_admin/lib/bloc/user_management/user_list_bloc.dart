@@ -49,23 +49,22 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       searchQuery: _searchQuery,
       roleFilter: _roleFilter,
     );
-    final count = countResult.fold(
-      (failure) {
-        emit(UserListError(failure.message));
-        return 0;
-      },
-      (count) => count,
-    );
+    final count = countResult.fold((failure) {
+      emit(UserListError(failure.message));
+      return 0;
+    }, (count) => count);
 
     if (count == 0) {
       _totalUsers = 0;
-      emit(UserListLoaded(
-        users: const [],
-        currentPage: 1,
-        totalPages: 1,
-        totalUsers: 0,
-        searchQuery: _searchQuery,
-      ));
+      emit(
+        UserListLoaded(
+          users: const [],
+          currentPage: 1,
+          totalPages: 1,
+          totalUsers: 0,
+          searchQuery: _searchQuery,
+        ),
+      );
       return;
     }
 
@@ -77,19 +76,18 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       searchQuery: _searchQuery,
       roleFilter: _roleFilter,
     );
-    result.fold(
-      (failure) => emit(UserListError(failure.message)),
-      (users) {
-        final totalPages = (_totalUsers / pageSize).ceil();
-        emit(UserListLoaded(
+    result.fold((failure) => emit(UserListError(failure.message)), (users) {
+      final totalPages = (_totalUsers / pageSize).ceil();
+      emit(
+        UserListLoaded(
           users: users,
           currentPage: _currentPage,
           totalPages: totalPages,
           totalUsers: _totalUsers,
           searchQuery: _searchQuery,
-        ));
-      },
-    );
+        ),
+      );
+    });
   }
 
   Future<void> _onChangePageSize(
@@ -115,23 +113,22 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       forceRefresh: event.forceRefresh,
     );
 
-    final count = countResult.fold(
-      (failure) {
-        emit(UserListError(failure.message));
-        return 0;
-      },
-      (count) => count,
-    );
+    final count = countResult.fold((failure) {
+      emit(UserListError(failure.message));
+      return 0;
+    }, (count) => count);
 
     if (count == 0) {
       _totalUsers = 0;
-      emit(UserListLoaded(
-        users: const [],
-        currentPage: 1,
-        totalPages: 1,
-        totalUsers: 0,
-        searchQuery: _searchQuery,
-      ));
+      emit(
+        UserListLoaded(
+          users: const [],
+          currentPage: 1,
+          totalPages: 1,
+          totalUsers: 0,
+          searchQuery: _searchQuery,
+        ),
+      );
       return;
     }
 
@@ -144,19 +141,18 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       roleFilter: _roleFilter,
     );
 
-    result.fold(
-      (failure) => emit(UserListError(failure.message)),
-      (users) {
-        final totalPages = (_totalUsers / pageSize).ceil();
-        emit(UserListLoaded(
+    result.fold((failure) => emit(UserListError(failure.message)), (users) {
+      final totalPages = (_totalUsers / pageSize).ceil();
+      emit(
+        UserListLoaded(
           users: users,
           currentPage: _currentPage,
           totalPages: totalPages,
           totalUsers: _totalUsers,
           searchQuery: _searchQuery,
-        ));
-      },
-    );
+        ),
+      );
+    });
   }
 
   Future<void> _onSearchUsers(
@@ -172,23 +168,22 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       roleFilter: _roleFilter,
     );
 
-    final count = countResult.fold(
-      (failure) {
-        emit(UserListError(failure.message));
-        return 0;
-      },
-      (count) => count,
-    );
+    final count = countResult.fold((failure) {
+      emit(UserListError(failure.message));
+      return 0;
+    }, (count) => count);
 
     if (count == 0) {
       _totalUsers = 0;
-      emit(UserListLoaded(
-        users: const [],
-        currentPage: 1,
-        totalPages: 1,
-        totalUsers: 0,
-        searchQuery: _searchQuery,
-      ));
+      emit(
+        UserListLoaded(
+          users: const [],
+          currentPage: 1,
+          totalPages: 1,
+          totalUsers: 0,
+          searchQuery: _searchQuery,
+        ),
+      );
       return;
     }
 
@@ -201,19 +196,18 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       roleFilter: _roleFilter,
     );
 
-    result.fold(
-      (failure) => emit(UserListError(failure.message)),
-      (users) {
-        final totalPages = _totalUsers > 0 ? (_totalUsers / pageSize).ceil() : 1;
-        emit(UserListLoaded(
+    result.fold((failure) => emit(UserListError(failure.message)), (users) {
+      final totalPages = _totalUsers > 0 ? (_totalUsers / pageSize).ceil() : 1;
+      emit(
+        UserListLoaded(
           users: users,
           currentPage: _currentPage,
           totalPages: totalPages,
           totalUsers: _totalUsers,
           searchQuery: _searchQuery,
-        ));
-      },
-    );
+        ),
+      );
+    });
   }
 
   Future<void> _onNextPage(
@@ -290,8 +284,7 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
         add(RefreshUsersEvent());
       },
       (_) {
-        final message =
-            event.suspend ? 'User suspended' : 'User activated';
+        final message = event.suspend ? 'User suspended' : 'User activated';
         emit(UserActionSuccess(message));
         add(RefreshUsersEvent());
       },
@@ -328,19 +321,18 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       roleFilter: _roleFilter,
     );
 
-    result.fold(
-      (failure) => emit(UserListError(failure.message)),
-      (users) {
-        final totalPages = _totalUsers > 0 ? (_totalUsers / pageSize).ceil() : 1;
-        emit(UserListLoaded(
+    result.fold((failure) => emit(UserListError(failure.message)), (users) {
+      final totalPages = _totalUsers > 0 ? (_totalUsers / pageSize).ceil() : 1;
+      emit(
+        UserListLoaded(
           users: users,
           currentPage: _currentPage,
           totalPages: totalPages,
           totalUsers: _totalUsers,
           searchQuery: _searchQuery,
-        ));
-      },
-    );
+        ),
+      );
+    });
   }
 
   Future<void> _onCreateUser(

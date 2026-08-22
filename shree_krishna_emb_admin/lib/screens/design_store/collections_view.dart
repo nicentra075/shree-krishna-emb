@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/collections_cubit.dart';
+import 'package:shree_krishna_emb_admin/core/auth/access_policy.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/data/models/collection_model.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
@@ -23,15 +24,15 @@ class CollectionsView extends StatelessWidget {
         final pageSize = state.pageSize;
         final totalPages = all.isEmpty ? 1 : (all.length / pageSize).ceil();
         final page = state.page.clamp(1, totalPages).toInt();
-        final items =
-            all.skip((page - 1) * pageSize).take(pageSize).toList();
+        final items = all.skip((page - 1) * pageSize).take(pageSize).toList();
         return CatalogScaffold(
           addLabel: strings.addCollection,
           onAdd: () => _openDialog(context),
           status: state.status,
           isEmpty: all.isEmpty,
           emptyText: strings.noCollections,
-          onRetry: () => context.read<CollectionsCubit>().load(forceRefresh: true),
+          onRetry: () =>
+              context.read<CollectionsCubit>().load(forceRefresh: true),
           itemCount: items.length,
           currentPage: page,
           totalPages: totalPages,
@@ -41,13 +42,18 @@ class CollectionsView extends StatelessWidget {
               context.read<CollectionsCubit>().setPageSize(n),
           itemBuilder: (context, index) {
             final c = items[index];
+            // Designers can add collections but not mutate the shared
+            // taxonomy (D2 — rules enforce this server-side too).
+            final canMutate = currentAccessPolicy().canMutateTaxonomy;
             return CatalogListRow(
               imageUrl: c.imageUrl,
               title: c.name,
               subtitle: 'ID: ${c.id}',
               isActive: c.isActive,
-              onEdit: () => _openDialog(context, collection: c),
-              onDelete: () => _confirmDelete(context, c),
+              onEdit: canMutate
+                  ? () => _openDialog(context, collection: c)
+                  : null,
+              onDelete: canMutate ? () => _confirmDelete(context, c) : null,
             );
           },
         );
@@ -64,7 +70,7 @@ class CollectionsView extends StatelessWidget {
     final hasChildren = counts.categories > 0 || counts.designs > 0;
     final summary = hasChildren
         ? '${counts.categories} ${strings.categories} · '
-            '${counts.designs} ${strings.designs}'
+              '${counts.designs} ${strings.designs}'
         : null;
 
     final result = await showCascadeDeleteDialog(
@@ -154,15 +160,17 @@ class _CollectionEditDialogState extends State<_CollectionEditDialog> {
               ),
               const SizedBox(height: 20),
               AppTextField(
-                  label: strings.collectionName,
-                  hint: strings.collectionName,
-                  controller: _name),
+                label: strings.collectionName,
+                hint: strings.collectionName,
+                controller: _name,
+              ),
               const SizedBox(height: 12),
               AppTextField(
-                  label: strings.descriptionLabel,
-                  hint: strings.descriptionLabel,
-                  controller: _description,
-                  maxLines: 3),
+                label: strings.descriptionLabel,
+                hint: strings.descriptionLabel,
+                controller: _description,
+                maxLines: 3,
+              ),
               const SizedBox(height: 12),
               AppImagePickerField(
                 label: strings.imageUrl,
@@ -172,15 +180,18 @@ class _CollectionEditDialogState extends State<_CollectionEditDialog> {
               ),
               const SizedBox(height: 12),
               AppTextField(
-                  label: strings.positionLabel,
-                  hint: '0',
-                  controller: _position,
-                  keyboardType: TextInputType.number),
+                label: strings.positionLabel,
+                hint: '0',
+                controller: _position,
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 8),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(strings.isActiveLabel,
-                    style: AppTextStyles.labelMedium()),
+                title: Text(
+                  strings.isActiveLabel,
+                  style: AppTextStyles.labelMedium(),
+                ),
                 value: _isActive,
                 activeThumbColor: AppTheme.primaryDark,
                 onChanged: (v) => setState(() => _isActive = v),
@@ -226,8 +237,9 @@ class _CollectionEditDialogState extends State<_CollectionEditDialog> {
     final model = CollectionModel(
       id: existing?.id ?? 'new',
       name: _name.text.trim(),
-      description:
-          _description.text.trim().isEmpty ? null : _description.text.trim(),
+      description: _description.text.trim().isEmpty
+          ? null
+          : _description.text.trim(),
       imageUrl: url.isEmpty ? null : url,
       isActive: _isActive,
       position: int.tryParse(_position.text.trim()) ?? 0,
@@ -236,8 +248,9 @@ class _CollectionEditDialogState extends State<_CollectionEditDialog> {
       designCount: existing?.designCount ?? 0,
       createdAt: existing?.createdAt ?? DateTime.now(),
     );
-    final err =
-        isCreate ? await cubit.create(model) : await cubit.update(model);
+    final err = isCreate
+        ? await cubit.create(model)
+        : await cubit.update(model);
     if (!context.mounted) return;
     Navigator.pop(context);
     err == null

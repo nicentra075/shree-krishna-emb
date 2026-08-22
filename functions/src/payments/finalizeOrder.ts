@@ -118,6 +118,31 @@ export async function finalizeOrder(
   const batch = db.batch();
   const purchasedAt = nowIso();
 
+  // D2 (designer role): stamp the order with which design authors earned from
+  // it, so designers can query/read their own sales (rules + admin panel).
+  //  - ownerIds: authorId of every design in the order (deduped)
+  //  - ownerTotals: { authorId: sum of their items' prices } (int paise)
+  // Missing/legacy designs fall back to authorId 'platform'.
+  const ownerTotals: Record<string, number> = {};
+  const designSnaps = await db.getAll(
+    ...order.items.map((i: OrderItem) =>
+      db.collection(Collections.designs).doc(i.designId),
+    ),
+  );
+  const authorByDesign = new Map<string, string>();
+  for (const snap of designSnaps) {
+    const author = (snap.data()?.authorId as string | undefined) ?? "platform";
+    authorByDesign.set(snap.id, author);
+  }
+  for (const item of order.items as OrderItem[]) {
+    const author = authorByDesign.get(item.designId) ?? "platform";
+    ownerTotals[author] = (ownerTotals[author] ?? 0) + item.price;
+  }
+  batch.update(orderRef, {
+    ownerIds: Object.keys(ownerTotals),
+    ownerTotals,
+  });
+
   for (const item of order.items as OrderItem[]) {
     // users/{uid}/purchases/{designId} — the keystone purchase index.
     const purchaseRef = db

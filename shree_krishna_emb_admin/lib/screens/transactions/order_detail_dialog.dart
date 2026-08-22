@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shree_krishna_core/shree_krishna_core.dart'
     show OrderModel, OrderStatus, OrderItemEntity;
 import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
+import 'package:shree_krishna_emb_admin/core/auth/access_policy.dart';
 import 'package:shree_krishna_emb_admin/bloc/transactions/orders_cubit.dart';
 import 'package:shree_krishna_emb_admin/core/utils/responsive_snackbar.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
@@ -282,7 +283,11 @@ class OrderDetailDialog extends StatelessWidget {
     dynamic strings,
     ColorScheme colorScheme,
   ) {
-    final canRefund = order.status == OrderStatus.paid;
+    // Refunds move money — admin only (D2); designers see their sales
+    // read-only.
+    final canRefund =
+        order.status == OrderStatus.paid &&
+        currentAccessPolicy().canInitiateRefunds;
     return BlocBuilder<OrdersCubit, OrdersState>(
       builder: (context, state) {
         return Container(

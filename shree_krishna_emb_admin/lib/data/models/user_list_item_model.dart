@@ -43,7 +43,10 @@ class UserListItemModel extends UserListItem {
     }
 
     return UserListItemModel(
-      id: toStringOrNull(json['id']) ?? toStringOrNull(json['uid']) ?? 'unknown',
+      id:
+          toStringOrNull(json['id']) ??
+          toStringOrNull(json['uid']) ??
+          'unknown',
       name: toStringOrNull(json['name']) ?? 'Unknown',
       email: toStringOrNull(json['email']) ?? 'unknown@example.com',
       role: toStringOrNull(json['role']) ?? 'user',
@@ -100,8 +103,12 @@ class UserListItemModel extends UserListItem {
       phoneNumber: json['phoneNumber'] as String?,
       loginMethod: json['loginMethod'] as String?,
       photoUrl: json['photoUrl'] as String?,
-      loginAt: json['loginAt'] != null ? DateTime.parse(json['loginAt'] as String) : null,
-      logoutAt: json['logoutAt'] != null ? DateTime.parse(json['logoutAt'] as String) : null,
+      loginAt: json['loginAt'] != null
+          ? DateTime.parse(json['loginAt'] as String)
+          : null,
+      logoutAt: json['logoutAt'] != null
+          ? DateTime.parse(json['logoutAt'] as String)
+          : null,
       storeName: json['storeName'] as String?,
       storeImageUrl: json['storeImageUrl'] as String?,
       storeDescription: json['storeDescription'] as String?,

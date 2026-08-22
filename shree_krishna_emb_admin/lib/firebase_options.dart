@@ -60,8 +60,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '879320012130',
     projectId: 'shree-krishna-emb',
     storageBucket: 'shree-krishna-emb.firebasestorage.app',
-    androidClientId: '879320012130-fjot0jajuvac7e77gfu1764p7c3052uu.apps.googleusercontent.com',
-    iosClientId: '879320012130-l27pn2odufibdl8g8si5f2pjr9v0c0ua.apps.googleusercontent.com',
+    androidClientId:
+        '879320012130-fjot0jajuvac7e77gfu1764p7c3052uu.apps.googleusercontent.com',
+    iosClientId:
+        '879320012130-l27pn2odufibdl8g8si5f2pjr9v0c0ua.apps.googleusercontent.com',
     iosBundleId: 'com.example.shreeKrishnaEmbAdmin',
   );
 
@@ -73,5 +75,4 @@ class DefaultFirebaseOptions {
     authDomain: 'shree-krishna-emb.firebaseapp.com',
     storageBucket: 'shree-krishna-emb.firebasestorage.app',
   );
-
 }

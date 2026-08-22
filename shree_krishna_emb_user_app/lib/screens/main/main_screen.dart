@@ -5,9 +5,7 @@ import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/theme/app_theme.dart';
 import 'package:shree_krishna_emb/screens/home/home_screen.dart';
 import 'package:shree_krishna_emb/screens/profile/profile_screen.dart';
-import 'package:shree_krishna_emb/screens/work/work_screen.dart';
 import 'package:shree_krishna_emb/screens/purchases/my_purchases_screen.dart';
-import 'package:shree_krishna_emb/bloc/work/work_bloc.dart';
 import 'package:shree_krishna_emb/bloc/cart/cart_cubit.dart';
 import 'package:shree_krishna_emb/bloc/notifications/notification_cubit.dart';
 import 'package:shree_krishna_emb/bloc/notifications/notification_state.dart';
@@ -56,7 +54,8 @@ class _MainScreenState extends State<MainScreen> {
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: _buildAppBar(context),
-        body: _buildCurrentScreen(context),
+        // Offline banner sits above every tab's content (WS-B4).
+        body: AppConnectivityBanner(child: _buildCurrentScreen(context)),
         bottomNavigationBar: SlideInUp(
           duration: const Duration(milliseconds: 600),
           delay: const Duration(milliseconds: 800),
@@ -94,9 +93,6 @@ class _MainScreenState extends State<MainScreen> {
         screenName = AppLocalization.strings.myPurchases;
         break;
       case 2:
-        screenName = AppLocalization.strings.myWork;
-        break;
-      case 3:
         screenName = AppLocalization.strings.profile;
         break;
       default:
@@ -134,6 +130,23 @@ class _MainScreenState extends State<MainScreen> {
         Padding(
           padding: const EdgeInsets.only(right: 12),
           child: FadeInDown(
+            delay: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 500),
+            child: Center(
+              child: GestureDetector(
+                onTap: () => AppRoutes.navigateToSearch(context),
+                child: Icon(
+                  Icons.search,
+                  color: AppTheme.primaryDark,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: FadeInDown(
             delay: const Duration(milliseconds: 350),
             duration: const Duration(milliseconds: 500),
             child: Center(child: _buildCartAction(context)),
@@ -149,7 +162,8 @@ class _MainScreenState extends State<MainScreen> {
                 onTap: () {
                   // Navigate to Account screen
                   setState(() {
-                    _selectedBottomNav = 3;
+                    // Profile is tab index 2 now that My Work is Phase 2.
+                    _selectedBottomNav = 2;
                   });
                 },
                 child: Container(
@@ -286,12 +300,9 @@ class _MainScreenState extends State<MainScreen> {
         return MyPurchasesContent(
           onBrowse: () => setState(() => _selectedBottomNav = 0),
         );
+      // "My Work" (job posting) is Phase 2 — WorkScreen/WorkBloc stay in the
+      // codebase but are not reachable in the Phase 1 shell.
       case 2:
-        return BlocProvider(
-          create: (context) => WorkBloc(),
-          child: const WorkScreen(),
-        );
-      case 3:
         return const ProfileScreen();
       default:
         return const HomeScreenContent();
@@ -332,11 +343,6 @@ class _MainScreenState extends State<MainScreen> {
             icon: const Icon(Icons.shopping_bag_outlined),
             activeIcon: const Icon(Icons.shopping_bag),
             label: AppLocalization.strings.myPurchases,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.work_outline),
-            activeIcon: const Icon(Icons.work),
-            label: AppLocalization.strings.myWork,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person_outline),

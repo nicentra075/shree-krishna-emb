@@ -5,6 +5,8 @@ import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/categories_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/collections_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/designs_cubit.dart';
+import 'package:shree_krishna_emb_admin/bloc/admin_auth/admin_auth_bloc.dart';
+import 'package:shree_krishna_emb_admin/core/auth/access_policy.dart';
 import 'package:shree_krishna_emb_admin/l10n/app_localization.dart';
 import 'package:shree_krishna_emb_admin/screens/design_store/categories_view.dart';
 import 'package:shree_krishna_emb_admin/screens/design_store/collections_view.dart';
@@ -22,6 +24,11 @@ class DesignStoreContentView extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = AppLocalization.strings;
     final colorScheme = Theme.of(context).colorScheme;
+    // Home layout curation is platform-wide — admin only (D2).
+    final authState = GetIt.instance<AdminAuthBloc>().state;
+    final policy = AccessPolicy(
+      authState is AdminAuthAuthenticated ? authState.role : 'admin',
+    );
 
     return MultiBlocProvider(
       providers: [
@@ -30,7 +37,7 @@ class DesignStoreContentView extends StatelessWidget {
         BlocProvider(create: (_) => GetIt.instance<DesignsCubit>()..load()),
       ],
       child: DefaultTabController(
-        length: 4,
+        length: policy.canEditHomeLayout ? 4 : 3,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -53,22 +60,22 @@ class DesignStoreContentView extends StatelessWidget {
               indicatorColor: colorScheme.primary,
               tabAlignment: TabAlignment.start,
               tabs: [
-                Tab(text: strings.homeLayout),
+                if (policy.canEditHomeLayout) Tab(text: strings.homeLayout),
                 Tab(text: strings.designs),
                 Tab(text: strings.categories),
                 Tab(text: strings.collections),
               ],
             ),
-            const Expanded(
+            Expanded(
               child: TabBarView(
                 // Tabs change only via the tab bar — no horizontal swipe (it
                 // conflicts with horizontal lists / drag-reorder inside tabs).
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  HomeLayoutView(),
-                  DesignsView(),
-                  CategoriesView(),
-                  CollectionsView(),
+                  if (policy.canEditHomeLayout) const HomeLayoutView(),
+                  const DesignsView(),
+                  const CategoriesView(),
+                  const CollectionsView(),
                 ],
               ),
             ),

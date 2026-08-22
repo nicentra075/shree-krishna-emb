@@ -37,11 +37,14 @@ class SearchableSelect extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Text(label!,
-              style:
-                  AppTextStyles.labelSmall(color: colorScheme.onSurfaceVariant),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+          Text(
+            label!,
+            style: AppTextStyles.labelSmall(
+              color: colorScheme.onSurfaceVariant,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 6),
         ],
         InkWell(
@@ -53,8 +56,9 @@ class SearchableSelect extends StatelessWidget {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
-              border:
-                  Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: colorScheme.outline.withValues(alpha: 0.3),
+              ),
             ),
             child: Row(
               children: [
@@ -70,7 +74,10 @@ class SearchableSelect extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Icon(Icons.arrow_drop_down, color: colorScheme.onSurfaceVariant),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ],
             ),
           ),
@@ -90,9 +97,11 @@ class SearchableSelect extends StatelessWidget {
             final filtered = query.isEmpty
                 ? options
                 : options
-                    .where((o) =>
-                        o.label.toLowerCase().contains(query.toLowerCase()))
-                    .toList();
+                      .where(
+                        (o) =>
+                            o.label.toLowerCase().contains(query.toLowerCase()),
+                      )
+                      .toList();
             return Dialog(
               child: Container(
                 width: 440,
@@ -104,16 +113,22 @@ class SearchableSelect extends StatelessWidget {
                     TextField(
                       autofocus: true,
                       onChanged: (v) => setState(() => query = v),
-                      style:
-                          AppTextStyles.bodyMedium(color: colorScheme.onSurface),
+                      style: AppTextStyles.bodyMedium(
+                        color: colorScheme.onSurface,
+                      ),
                       decoration: InputDecoration(
                         isDense: true,
                         hintText: AppLocalization.strings.search,
                         hintStyle: AppTextStyles.bodyMedium(
-                            color: colorScheme.onSurfaceVariant
-                                .withValues(alpha: 0.6)),
-                        prefixIcon: Icon(Icons.search,
-                            size: 18, color: colorScheme.onSurfaceVariant),
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.6,
+                          ),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          size: 18,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest,
                         border: OutlineInputBorder(
@@ -127,9 +142,12 @@ class SearchableSelect extends StatelessWidget {
                       child: filtered.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.all(24),
-                              child: Text(AppLocalization.strings.noData,
-                                  style: AppTextStyles.bodyMedium(
-                                      color: colorScheme.onSurfaceVariant)),
+                              child: Text(
+                                AppLocalization.strings.noData,
+                                style: AppTextStyles.bodyMedium(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
                             )
                           : ListView.builder(
                               shrinkWrap: true,
@@ -142,14 +160,20 @@ class SearchableSelect extends StatelessWidget {
                                   selected: isSel,
                                   selectedTileColor: colorScheme.primary
                                       .withValues(alpha: 0.08),
-                                  title: Text(o.label,
-                                      style: AppTextStyles.bodyMedium(
-                                          color: colorScheme.onSurface),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis),
+                                  title: Text(
+                                    o.label,
+                                    style: AppTextStyles.bodyMedium(
+                                      color: colorScheme.onSurface,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                   trailing: isSel
-                                      ? Icon(Icons.check,
-                                          size: 18, color: colorScheme.primary)
+                                      ? Icon(
+                                          Icons.check,
+                                          size: 18,
+                                          color: colorScheme.primary,
+                                        )
                                       : null,
                                   onTap: () {
                                     onSelected(o.value);

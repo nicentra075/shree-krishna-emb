@@ -1,4 +1,3 @@
-
 import 'package:shree_krishna_core/errors/failures.dart';
 import 'package:shree_krishna_core/models/user_model.dart';
 import 'package:shree_krishna_core/utils/either.dart';
@@ -27,5 +26,4 @@ abstract class UserRepository {
 
   /// Search users
   Future<Either<Failure, List<UserModel>>> searchUsers(String query);
-  
 }

@@ -12,7 +12,7 @@ class FirebaseHomeConfigDataSource implements HomeConfigDataSource {
   final FirebaseFirestore _firestore;
 
   FirebaseHomeConfigDataSource({required FirebaseFirestore firestore})
-      : _firestore = firestore;
+    : _firestore = firestore;
 
   DocumentReference<Map<String, dynamic>> get _ref =>
       _firestore.collection('config').doc('homeFeed');

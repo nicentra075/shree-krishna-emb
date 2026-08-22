@@ -4,5 +4,8 @@ import 'package:shree_krishna_emb_admin/data/datasources/firebase_dashboard_stat
 
 /// Backend-agnostic contract for the live admin dashboard counters + revenue.
 abstract class DashboardStatsRepository {
-  Future<Either<Failure, DashboardStats>> getStats({int chartDays});
+  Future<Either<Failure, DashboardStats>> getStats({
+    int chartDays,
+    String? authorUid,
+  });
 }

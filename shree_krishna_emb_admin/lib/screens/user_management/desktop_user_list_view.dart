@@ -70,44 +70,44 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                             constraints: const BoxConstraints(maxWidth: 400),
                             child: Container(
                               height: 44,
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: colorScheme.outline.withValues(alpha: 0.2),
-                          ),
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (query) {
-                            context.read<UserListBloc>().add(
-                              SearchUsersEvent(query),
-                            );
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Search by name or email...',
-                            hintStyle: AppTextStyles.bodyMedium(
-                              color: colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.6,
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: colorScheme.outline.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                ),
                               ),
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.6,
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (query) {
+                                  context.read<UserListBloc>().add(
+                                    SearchUsersEvent(query),
+                                  );
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Search by name or email...',
+                                  hintStyle: AppTextStyles.bodyMedium(
+                                    color: colorScheme.onSurfaceVariant
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: colorScheme.onSurfaceVariant
+                                        .withValues(alpha: 0.6),
+                                    size: 20,
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                style: AppTextStyles.bodyMedium(
+                                  color: colorScheme.onSurface,
+                                ),
                               ),
-                              size: 20,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          style: AppTextStyles.bodyMedium(
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
                             ),
                           ),
                         ),
@@ -217,10 +217,8 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                                 color: colorScheme.onSurfaceVariant,
                                 onPressed: () =>
                                     context.read<UserListBloc>().add(
-                                          const LoadUsersEvent(
-                                            forceRefresh: true,
-                                          ),
-                                        ),
+                                      const LoadUsersEvent(forceRefresh: true),
+                                    ),
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -282,128 +280,147 @@ class _DesktopUserListViewState extends State<DesktopUserListView> {
                               const minTableWidth = 820.0;
                               final tableWidth =
                                   constraints.maxWidth < minTableWidth
-                                      ? minTableWidth
-                                      : constraints.maxWidth;
+                                  ? minTableWidth
+                                  : constraints.maxWidth;
                               return SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: SizedBox(
                                   width: tableWidth,
                                   child: Container(
-                            decoration: BoxDecoration(
-                              color: colorScheme.surface,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: colorScheme.outline.withValues(
-                                  alpha: 0.2,
-                                ),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                // Header row
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surfaceContainerHighest,
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(8),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: colorScheme.outline.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 12,
-                                        child: Text(
-                                          'User ID',
-                                          style: AppTextStyles.labelMedium(
-                                            color: colorScheme.onSurfaceVariant,
-                                            fontWeight: FontWeight.w600,
+                                    child: Column(
+                                      children: [
+                                        // Header row
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 12,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 20,
-                                        child: Text(
-                                          'Name',
-                                          style: AppTextStyles.labelMedium(
-                                            color: colorScheme.onSurfaceVariant,
-                                            fontWeight: FontWeight.w600,
+                                          decoration: BoxDecoration(
+                                            color: colorScheme
+                                                .surfaceContainerHighest,
+                                            borderRadius:
+                                                const BorderRadius.vertical(
+                                                  top: Radius.circular(8),
+                                                ),
                                           ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 30,
-                                        child: Text(
-                                          'Email',
-                                          style: AppTextStyles.labelMedium(
-                                            color: colorScheme.onSurfaceVariant,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 15,
-                                        child: Row(
-                                          mainAxisAlignment: .center,
-                                          children: [
-                                            Text(
-                                              'Role',
-                                              style: AppTextStyles.labelMedium(
-                                                color: colorScheme
-                                                    .onSurfaceVariant,
-                                                fontWeight: FontWeight.w600,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 12,
+                                                child: Text(
+                                                  'User ID',
+                                                  style:
+                                                      AppTextStyles.labelMedium(
+                                                        color: colorScheme
+                                                            .onSurfaceVariant,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 15,
-                                        child: Row(
-                                          mainAxisAlignment: .center,
-                                          children: [
-                                            Text(
-                                              'Status',
-                                              style: AppTextStyles.labelMedium(
-                                                color: colorScheme
-                                                    .onSurfaceVariant,
-                                                fontWeight: FontWeight.w600,
+                                              Expanded(
+                                                flex: 20,
+                                                child: Text(
+                                                  'Name',
+                                                  style:
+                                                      AppTextStyles.labelMedium(
+                                                        color: colorScheme
+                                                            .onSurfaceVariant,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 20,
-                                        child: Text(
-                                          'Actions',
-                                          style: AppTextStyles.labelMedium(
-                                            color: colorScheme.onSurfaceVariant,
-                                            fontWeight: FontWeight.w600,
+                                              Expanded(
+                                                flex: 30,
+                                                child: Text(
+                                                  'Email',
+                                                  style:
+                                                      AppTextStyles.labelMedium(
+                                                        color: colorScheme
+                                                            .onSurfaceVariant,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 15,
+                                                child: Row(
+                                                  mainAxisAlignment: .center,
+                                                  children: [
+                                                    Text(
+                                                      'Role',
+                                                      style:
+                                                          AppTextStyles.labelMedium(
+                                                            color: colorScheme
+                                                                .onSurfaceVariant,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 15,
+                                                child: Row(
+                                                  mainAxisAlignment: .center,
+                                                  children: [
+                                                    Text(
+                                                      'Status',
+                                                      style:
+                                                          AppTextStyles.labelMedium(
+                                                            color: colorScheme
+                                                                .onSurfaceVariant,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 20,
+                                                child: Text(
+                                                  'Actions',
+                                                  style:
+                                                      AppTextStyles.labelMedium(
+                                                        color: colorScheme
+                                                            .onSurfaceVariant,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                  textAlign: TextAlign.right,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          textAlign: TextAlign.right,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Data rows
-                                ...state.users.map((user) {
-                                  final isLastItem =
-                                      state.users.last.id == user.id;
-                                  return _buildUserRow(
-                                    context,
-                                    user,
-                                    isLast: isLastItem,
-                                  );
-                                }),
-                              ],
-                            ),
+                                        // Data rows
+                                        ...state.users.map((user) {
+                                          final isLastItem =
+                                              state.users.last.id == user.id;
+                                          return _buildUserRow(
+                                            context,
+                                            user,
+                                            isLast: isLastItem,
+                                          );
+                                        }),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               );

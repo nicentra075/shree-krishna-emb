@@ -22,6 +22,8 @@ abstract class FirebaseAuthDataSource {
 
   Future<AuthResult> signInWithGoogle();
 
+  Future<AuthResult> signInWithApple();
+
   Future<String> sendPhoneOtp(String phoneNumber);
 
   Future<AuthResult> verifyPhoneOtp({
@@ -97,10 +99,10 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       // `role: 'user'` is REQUIRED by firestore.rules users-create
       // (request.resource.data.role in ['user','designer']); without it the
       // create is denied. Self-signup can only ever be 'user' (never 'admin').
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .set({...user.toFirebaseJson(), 'role': 'user'});
+      await _firestore.collection('users').doc(uid).set({
+        ...user.toFirebaseJson(),
+        'role': 'user',
+      });
 
       return user;
     } on FirebaseAuthException catch (e) {
@@ -292,10 +294,10 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           isActive: true,
         );
 
-        await _firestore
-            .collection('users')
-            .doc(uid)
-            .set({...user.toFirebaseJson(), 'role': 'user'});
+        await _firestore.collection('users').doc(uid).set({
+          ...user.toFirebaseJson(),
+          'role': 'user',
+        });
 
         AppLogger.logOperation(
           'signInWithGoogle',
@@ -345,21 +347,118 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   }
 
   @override
-  Future<String> sendPhoneOtp(String phoneNumber) async {
+  Future<AuthResult> signInWithApple() async {
     try {
-      print(
-        '🟡 [FirebaseAuthDataSource] sendPhoneOtp called with: $phoneNumber',
+      AppLogger.logOperation('signInWithApple', status: 'initiating');
+
+      // Native Sign in with Apple via firebase_auth — handles the nonce and
+      // the platform sheet internally (iOS only; the button is iOS-gated).
+      final appleProvider = AppleAuthProvider()
+        ..addScope('email')
+        ..addScope('name');
+
+      final userCredential = await _firebaseAuth.signInWithProvider(
+        appleProvider,
       );
 
+      if (userCredential.user == null) {
+        AppLogger.logError(
+          'signInWithApple',
+          error: 'Firebase authentication failed',
+        );
+        throw ServerException(message: 'Failed to sign in with Apple');
+      }
+
+      AppLogger.logOperation(
+        'signInWithApple',
+        status: 'Firebase authentication successful',
+      );
+
+      final uid = userCredential.user!.uid;
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+      final isNewUser = !userDoc.exists;
+
+      if (isNewUser) {
+        AppLogger.logOperation('signInWithApple', status: 'creating new user');
+
+        // Apple only shares name/email on the FIRST authorization — persist
+        // them now; relogins won't include them.
+        final user = UserModel(
+          id: uid,
+          email: userCredential.user!.email ?? '',
+          name: userCredential.user!.displayName,
+          phoneNumber: null,
+          userId: await _generateSequentialUserId(),
+          loginMethod: 'apple',
+          createdAt: DateTime.now(),
+          loginAt: DateTime.now(),
+          logoutAt: null,
+          isActive: true,
+        );
+
+        await _firestore.collection('users').doc(uid).set({
+          ...user.toFirebaseJson(),
+          'role': 'user',
+        });
+
+        AppLogger.logOperation(
+          'signInWithApple',
+          status: 'new user created in Firestore',
+        );
+
+        return AuthResult(user: user, isNewUser: true);
+      } else {
+        AppLogger.logOperation(
+          'signInWithApple',
+          status: 'existing user login',
+        );
+
+        final user = UserModel.fromFirebaseJson(userDoc.data()!, uid);
+
+        await _guardSuspended(user);
+
+        await _firestore.collection('users').doc(uid).update({
+          'loginAt': DateTime.now().toIso8601String(),
+        });
+
+        return AuthResult(user: user, isNewUser: false);
+      }
+    } on SuspendedAccountException {
+      rethrow;
+    } on FirebaseAuthException catch (e) {
+      // The user closing the Apple sheet surfaces as 'canceled'/'web-context-canceled'.
+      if (e.code == 'canceled' ||
+          e.code == 'web-context-canceled' ||
+          e.code == 'user-cancelled') {
+        AppLogger.logOperation(
+          'signInWithApple',
+          status: 'user cancelled sign in',
+        );
+        throw ServerException(message: 'Apple sign in cancelled');
+      }
+      AppLogger.logError(
+        'signInWithApple',
+        error: 'Firebase error: ${e.code} - ${e.message}',
+      );
+      throw ServerException(message: _handleAuthException(e));
+    } catch (e) {
+      AppLogger.logError(
+        'signInWithApple',
+        error: 'Unexpected error: ${e.toString()}',
+      );
+      throw ServerException(message: 'Apple sign in failed: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<String> sendPhoneOtp(String phoneNumber) async {
+    try {
       final completer = Completer<String>();
       bool isCompleted = false;
 
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          print(
-            '🟢 [FirebaseAuthDataSource] verificationCompleted - Auto-signing in with credential',
-          );
           if (!isCompleted) {
             isCompleted = true;
             await _firebaseAuth.signInWithCredential(credential);
@@ -374,9 +473,6 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
         },
         verificationFailed: (FirebaseAuthException e) {
-          print(
-            '🔴 [FirebaseAuthDataSource] verificationFailed - Error: ${e.code} - ${e.message}',
-          );
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -387,9 +483,6 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
         },
         codeSent: (String vId, int? resendToken) {
-          print(
-            '🟢 [FirebaseAuthDataSource] codeSent - Verification ID: $vId, ResendToken: $resendToken',
-          );
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -398,9 +491,6 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
         },
         codeAutoRetrievalTimeout: (String vId) {
-          print(
-            '🟠 [FirebaseAuthDataSource] codeAutoRetrievalTimeout - Verification ID: $vId',
-          );
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -412,14 +502,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       );
 
       final verificationId = await completer.future;
-      print(
-        '🟢 [FirebaseAuthDataSource] sendPhoneOtp completed successfully with ID: $verificationId',
-      );
+
       return verificationId;
     } catch (e) {
-      print(
-        '🔴 [FirebaseAuthDataSource] sendPhoneOtp Exception: ${e.toString()}',
-      );
       throw ServerException(
         message: 'Failed to send phone OTP: ${e.toString()}',
       );
@@ -465,10 +550,10 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           isActive: true,
         );
 
-        await _firestore
-            .collection('users')
-            .doc(uid)
-            .set({...user.toFirebaseJson(), 'role': 'user'});
+        await _firestore.collection('users').doc(uid).set({
+          ...user.toFirebaseJson(),
+          'role': 'user',
+        });
 
         return AuthResult(user: user, isNewUser: true);
       } else {

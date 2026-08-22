@@ -7,7 +7,7 @@ class SellerRepositoryImpl implements SellerRepository {
   final SellerDataSource _dataSource;
 
   SellerRepositoryImpl({required SellerDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   @override
   Future<Either<Failure, List<SellerEntity>>> getAuthorisedSellers({

@@ -21,12 +21,11 @@ class HomeFeedState extends Equatable {
     HomeFeedStatus? status,
     HomeFeed? feed,
     String? error,
-  }) =>
-      HomeFeedState(
-        status: status ?? this.status,
-        feed: feed ?? this.feed,
-        error: error,
-      );
+  }) => HomeFeedState(
+    status: status ?? this.status,
+    feed: feed ?? this.feed,
+    error: error,
+  );
 
   @override
   List<Object?> get props => [status, feed, error];
@@ -50,8 +49,9 @@ class HomeFeedCubit extends Cubit<HomeFeedState> {
 
   void _emitResult(Either<Failure, HomeFeed> result) {
     result.fold(
-      (failure) => emit(state.copyWith(
-          status: HomeFeedStatus.error, error: failure.message)),
+      (failure) => emit(
+        state.copyWith(status: HomeFeedStatus.error, error: failure.message),
+      ),
       (feed) => emit(HomeFeedState(status: HomeFeedStatus.loaded, feed: feed)),
     );
   }

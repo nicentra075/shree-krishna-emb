@@ -140,7 +140,8 @@ class _MainAppState extends State<MainApp> {
             await svc.onLogin(state.user.id);
             getIt<NotificationCubit>().start(state.user.id);
           } else if (state is AuthUnauthenticated || state is AuthSuspended) {
-            final uid = _lastUid ?? FirebaseAuth.instance.currentUser?.uid ?? '';
+            final uid =
+                _lastUid ?? FirebaseAuth.instance.currentUser?.uid ?? '';
             await svc.onLogout(uid);
             getIt<NotificationCubit>().stop();
             _lastUid = null;

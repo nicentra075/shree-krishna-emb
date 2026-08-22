@@ -29,8 +29,12 @@ class BannerItem extends HomeItem {
   final String? label;
   final String? title;
   final String? ctaTarget;
-  const BannerItem(
-      {required this.imageUrl, this.label, this.title, this.ctaTarget});
+  const BannerItem({
+    required this.imageUrl,
+    this.label,
+    this.title,
+    this.ctaTarget,
+  });
   @override
   List<Object?> get props => [imageUrl, label, title, ctaTarget];
 }
@@ -39,8 +43,11 @@ class SellerItem extends HomeItem {
   final String uid;
   final String displayName;
   final String? storeImageUrl;
-  const SellerItem(
-      {required this.uid, required this.displayName, this.storeImageUrl});
+  const SellerItem({
+    required this.uid,
+    required this.displayName,
+    this.storeImageUrl,
+  });
   @override
   List<Object?> get props => [uid, displayName, storeImageUrl];
 }
@@ -52,6 +59,12 @@ class DesignItem extends HomeItem {
   final bool isFree;
   final String? firstImageUrl;
   final String? description;
+
+  /// Review aggregates maintained by the onReviewWritten Cloud Function.
+  /// 0 means "no reviews yet" — cards hide the star badge then.
+  final double avgRating;
+  final int reviewCount;
+
   const DesignItem({
     required this.id,
     required this.name,
@@ -59,10 +72,20 @@ class DesignItem extends HomeItem {
     required this.isFree,
     this.firstImageUrl,
     this.description,
+    this.avgRating = 0,
+    this.reviewCount = 0,
   });
   @override
-  List<Object?> get props =>
-      [id, name, finalPrice, isFree, firstImageUrl, description];
+  List<Object?> get props => [
+    id,
+    name,
+    finalPrice,
+    isFree,
+    firstImageUrl,
+    description,
+    avgRating,
+    reviewCount,
+  ];
 }
 
 class CollectionItem extends HomeItem {
@@ -113,8 +136,15 @@ class HomeSection extends Equatable {
     this.sourceCollectionId,
   });
   @override
-  List<Object?> get props =>
-      [id, type, title, subtitle, viewAll, items, sourceCollectionId];
+  List<Object?> get props => [
+    id,
+    type,
+    title,
+    subtitle,
+    viewAll,
+    items,
+    sourceCollectionId,
+  ];
 }
 
 class HomeFeed extends Equatable {

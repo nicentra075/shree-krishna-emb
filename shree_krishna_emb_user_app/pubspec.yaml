@@ -1,7 +1,7 @@
 name: shree_krishna_emb
 description: "A new Flutter project."
 publish_to: "none"
-version: 0.1.0
+version: 1.0.0+3
 
 environment:
   sdk: ^3.10.7
@@ -71,6 +71,10 @@ dependencies:
   equatable: ^2.0.8
   uuid: ^4.5.3
   screen_protector: ^1.5.2
+
+  # Invoice PDF generation + share/save (WS-B3)
+  pdf: ^3.11.3
+  printing: ^5.14.2
 
 dev_dependencies:
   flutter_test:

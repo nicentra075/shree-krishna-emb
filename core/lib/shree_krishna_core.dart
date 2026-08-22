@@ -47,6 +47,7 @@ export 'cache/cached_data.dart';
 export 'cache/cache_config.dart';
 export 'cache/local_datasource_base.dart';
 export 'config/app_theme_config.dart';
+export 'config/brand_config.dart';
 
 // Theme state (shared ThemeCubit)
 export 'theme/theme_cubit.dart';

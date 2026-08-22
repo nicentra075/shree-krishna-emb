@@ -41,7 +41,11 @@ class AppLogger {
   /// Log error messages with optional stack trace
   ///
   /// Only logs in debug mode
-  static void logError(String message, {dynamic error, StackTrace? stackTrace}) {
+  static void logError(
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+  }) {
     if (!kDebugMode) return;
     debugPrint('════════════════════════════════════════════════════');
     debugPrint('❌ [ERROR] $message');
@@ -76,7 +80,11 @@ class AppLogger {
   /// Log data and state changes
   ///
   /// Only logs in debug mode
-  static void logStateChange(String stateName, {String? details, dynamic newValue}) {
+  static void logStateChange(
+    String stateName, {
+    String? details,
+    dynamic newValue,
+  }) {
     if (!kDebugMode) return;
     final detailsText = details != null ? ' | Details: $details' : '';
     final valueText = newValue != null ? ' | Value: $newValue' : '';
@@ -149,7 +157,11 @@ class AppLogger {
   /// Log database operations
   ///
   /// Only logs in debug mode
-  static void logDatabase(String operation, {String? collection, dynamic data}) {
+  static void logDatabase(
+    String operation, {
+    String? collection,
+    dynamic data,
+  }) {
     if (!kDebugMode) return;
     final coll = collection != null ? ' | Collection: $collection' : '';
     final dt = data != null ? ' | Data: $data' : '';

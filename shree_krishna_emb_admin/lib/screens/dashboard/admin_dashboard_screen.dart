@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shree_krishna_emb_admin/core/auth/access_policy.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/categories_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/collections_cubit.dart';
 import 'package:shree_krishna_emb_admin/bloc/design_store/designs_cubit.dart';
@@ -38,6 +39,24 @@ class AdminDashboardScreen extends StatefulWidget {
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   String _selectedSection = 'dashboard'; // Track selected sidebar section
 
+  /// Role-based capabilities of the signed-in staff member (admin/designer).
+  AccessPolicy get _policy {
+    final authState = GetIt.instance<AdminAuthBloc>().state;
+    return AccessPolicy(
+      authState is AdminAuthAuthenticated ? authState.role : 'admin',
+    );
+  }
+
+  /// Uid to scope dashboard data to when the signed-in staff member is a
+  /// designer (D2); null for admins (platform-wide view).
+  String? get _scopeUid {
+    final authState = GetIt.instance<AdminAuthBloc>().state;
+    if (authState is AdminAuthAuthenticated && _policy.isDesigner) {
+      return authState.adminId;
+    }
+    return null;
+  }
+
   /// Key for the mobile Scaffold so the app-bar menu button can open the
   /// drawer (Scaffold.of(context) from the build context can't reach it).
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -54,7 +73,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     // signed-in admin is — the dashboard only mounts post-auth, so the
     // current AdminAuthBloc state already has it.
     final authState = GetIt.instance<AdminAuthBloc>().state;
-    if (authState is AdminAuthAuthenticated) {
+    // The admin-notifications inbox is admin-only (rules deny designers).
+    if (authState is AdminAuthAuthenticated && _policy.canBroadcast) {
       GetIt.instance<AdminNotificationsCubit>().start(authState.adminId);
     }
   }
@@ -93,8 +113,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
             Positioned(
               top: bellOffset.dy + bellSize.height + 8,
-              right: (screenSize.width - bellOffset.dx - bellSize.width)
-                  .clamp(8.0, screenSize.width - 8.0),
+              right: (screenSize.width - bellOffset.dx - bellSize.width).clamp(
+                8.0,
+                screenSize.width - 8.0,
+              ),
               child: AdminNotificationsPopup(
                 onClose: _closeNotificationsPopup,
                 onViewMore: () =>
@@ -186,8 +208,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   // Build content based on selected section
   Widget _buildContent() {
+    // Server rules enforce this too — the UI just never routes a designer
+    // into an admin-only section (deep links / stale state fall back to
+    // the dashboard).
     switch (_selectedSection) {
       case 'user_management':
+        if (!_policy.canManageUsers) return _buildDashboardContent();
         return _buildUserManagementContent();
       case 'settings':
         return const SettingsContentView();
@@ -200,6 +226,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       case 'payouts':
         return const PayoutsContentView();
       case 'notifications':
+        if (!_policy.canBroadcast) return _buildDashboardContent();
         return const AdminNotificationsView();
       default:
         return _buildDashboardContent();
@@ -211,7 +238,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final isMobile = MediaQuery.of(context).size.width < 768;
 
     return BlocProvider<DashboardStatsCubit>(
-      create: (_) => GetIt.instance<DashboardStatsCubit>()..load(),
+      create: (_) =>
+          GetIt.instance<DashboardStatsCubit>()..load(authorUid: _scopeUid),
       child: BlocBuilder<DashboardStatsCubit, DashboardStatsState>(
         builder: (context, statsState) {
           return SingleChildScrollView(
@@ -227,24 +255,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Approval-queue + system-health cards removed for
+                      // Phase 1 (they were hardcoded mockups; approval queue
+                      // is a Phase 2 feature).
                       Expanded(
-                        flex: 65,
                         child: Column(
                           children: [
                             _buildRevenueSection(isMobile, statsState),
                             const SizedBox(height: 24),
                             _buildRecentActivitySection(),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        flex: 35,
-                        child: Column(
-                          children: [
-                            _buildApprovalCard(),
-                            const SizedBox(height: 24),
-                            _buildSystemHealthCard(),
                           ],
                         ),
                       ),
@@ -254,8 +273,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Column(
                     children: [
                       _buildRevenueSection(isMobile, statsState),
-                      const SizedBox(height: 24),
-                      _buildApprovalCard(),
                       const SizedBox(height: 24),
                       _buildRecentActivitySection(),
                     ],
@@ -370,49 +387,53 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 );
               },
             ),
-            BlocBuilder<AdminNotificationsCubit, AdminNotificationsState>(
-              bloc: GetIt.instance<AdminNotificationsCubit>(),
-              builder: (context, notifState) {
-                final unread = notifState.unreadCount;
-                return Stack(
-                  key: _notificationBellKey,
-                  clipBehavior: Clip.none,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.notifications_outlined, size: 24),
-                      color: Colors.grey.withValues(alpha: 0.6),
-                      onPressed: () => _toggleNotificationsPopup(context),
-                    ),
-                    if (unread > 0)
-                      Positioned(
-                        right: 6,
-                        top: 6,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.error,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            unread > 9 ? '9+' : '$unread',
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onError,
-                              fontSize: 9,
+            if (_policy.canBroadcast)
+              BlocBuilder<AdminNotificationsCubit, AdminNotificationsState>(
+                bloc: GetIt.instance<AdminNotificationsCubit>(),
+                builder: (context, notifState) {
+                  final unread = notifState.unreadCount;
+                  return Stack(
+                    key: _notificationBellKey,
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications_outlined,
+                          size: 24,
+                        ),
+                        color: Colors.grey.withValues(alpha: 0.6),
+                        onPressed: () => _toggleNotificationsPopup(context),
+                      ),
+                      if (unread > 0)
+                        Positioned(
+                          right: 6,
+                          top: 6,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.error,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              unread > 9 ? '9+' : '$unread',
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onError,
+                                fontSize: 9,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
-                );
-              },
-            ),
+                    ],
+                  );
+                },
+              ),
             IconButton(
               icon: const Icon(Icons.settings_outlined, size: 24),
               color: Colors.grey.withValues(alpha: 0.6),
@@ -556,25 +577,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     isActive: _selectedSection == 'dashboard',
                     onTap: () => setState(() => _selectedSection = 'dashboard'),
                   ),
-                  _buildSidebarItem(
-                    icon: Icons.assignment_outlined,
-                    label: AppLocalization.strings.approvalQueue,
-                    isActive: _selectedSection == 'approval',
-                    onTap: () => setState(() => _selectedSection = 'approval'),
-                  ),
+                  // Approval Queue is a Phase 2 feature — no sidebar entry
+                  // until the screen actually exists.
                   _buildSidebarItem(
                     icon: Icons.store_outlined,
                     label: AppLocalization.strings.designStore,
                     isActive: _selectedSection == 'store',
                     onTap: () => setState(() => _selectedSection = 'store'),
                   ),
-                  _buildSidebarItem(
-                    icon: Icons.people_outline,
-                    label: AppLocalization.strings.userManagement,
-                    isActive: _selectedSection == 'user_management',
-                    onTap: () =>
-                        setState(() => _selectedSection = 'user_management'),
-                  ),
+                  if (_policy.canManageUsers)
+                    _buildSidebarItem(
+                      icon: Icons.people_outline,
+                      label: AppLocalization.strings.userManagement,
+                      isActive: _selectedSection == 'user_management',
+                      onTap: () =>
+                          setState(() => _selectedSection = 'user_management'),
+                    ),
                   _buildSidebarItem(
                     icon: Icons.swap_horiz,
                     label: AppLocalization.strings.transactions,
@@ -606,20 +624,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                BlocBuilder<AdminNotificationsCubit, AdminNotificationsState>(
-                  bloc: GetIt.instance<AdminNotificationsCubit>(),
-                  builder: (context, notifState) {
-                    return _buildSidebarItem(
-                      icon: Icons.notifications_outlined,
-                      label: AppLocalization.strings.adminNotificationsTitle,
-                      isActive: _selectedSection == 'notifications',
-                      onTap: () =>
-                          setState(() => _selectedSection = 'notifications'),
-                      badgeCount: notifState.unreadCount,
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
+                if (_policy.canBroadcast) ...[
+                  BlocBuilder<AdminNotificationsCubit, AdminNotificationsState>(
+                    bloc: GetIt.instance<AdminNotificationsCubit>(),
+                    builder: (context, notifState) {
+                      return _buildSidebarItem(
+                        icon: Icons.notifications_outlined,
+                        label: AppLocalization.strings.adminNotificationsTitle,
+                        isActive: _selectedSection == 'notifications',
+                        onTap: () =>
+                            setState(() => _selectedSection = 'notifications'),
+                        badgeCount: notifState.unreadCount,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 _buildSidebarItem(
                   icon: Icons.settings_outlined,
                   label: AppLocalization.strings.settings,
@@ -821,7 +841,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       builder: (context, constraints) {
         final cardWidth = isMobile
             ? constraints.maxWidth
-            : (constraints.maxWidth - 32) / 3;
+            : (constraints.maxWidth - 48) / 4;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -863,6 +883,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   trendPositive: true,
                   isLoading: isLoading,
                 ),
+                // Platform-wide user counts are meaningless (and hidden) for
+                // a designer-scoped dashboard.
+                if (_policy.canSeeAllData)
+                  _buildKPICard(
+                    width: cardWidth,
+                    icon: Icons.people_outline,
+                    label: strings.totalUsers,
+                    value: v(stats?.totalUsers),
+                    trend:
+                        '${strings.totalDesigners}: ${v(stats?.totalDesigners)}',
+                    trendPositive: true,
+                    isLoading: isLoading,
+                  ),
               ],
             ),
           ],
@@ -896,7 +929,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ),
           TextButton(
-            onPressed: () => context.read<DashboardStatsCubit>().load(),
+            onPressed: () =>
+                context.read<DashboardStatsCubit>().load(authorUid: _scopeUid),
             child: Text(
               strings.retry,
               style: AppTextStyles.labelMedium(color: colorScheme.primary),
@@ -1208,170 +1242,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  // Approval Queue Card
-  Widget _buildApprovalCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppTheme.primaryDark, const Color(0xFFFF9933)],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.assignment_outlined,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '42 Designs Awaiting Review',
-            style: AppTextStyles.headlineMedium(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Maintain marketplace quality. Pending submissions from 12 verified designers.',
-            style: AppTextStyles.bodySmall(
-              color: Colors.white.withValues(alpha: 0.9),
-            ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppTheme.primaryDark,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                'Launch Approval Queue',
-                style: AppTextStyles.button(color: AppTheme.primaryDark),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // System Health Card
-  Widget _buildSystemHealthCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'System Status',
-            style: AppTextStyles.labelMedium(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Operational',
-                style: AppTextStyles.bodyMedium(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Payout Cycle',
-                  style: AppTextStyles.labelSmall(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'In 3 Days',
-                  style: AppTextStyles.labelMedium(
-                    color: const Color(0xFF4CAF50),
-                    fontWeight: FontWeight.w700,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // Recent Activity Section
   Widget _buildRecentActivitySection() {
     return Column(
@@ -1600,9 +1470,7 @@ class _GlobalSearchDialogState extends State<_GlobalSearchDialog> {
       ],
       child: Dialog(
         backgroundColor: colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560, maxHeight: 560),
           child: Column(
@@ -1632,7 +1500,11 @@ class _GlobalSearchDialogState extends State<_GlobalSearchDialog> {
     );
   }
 
-  Widget _results(BuildContext context, ColorScheme colorScheme, dynamic strings) {
+  Widget _results(
+    BuildContext context,
+    ColorScheme colorScheme,
+    dynamic strings,
+  ) {
     final q = _query.toLowerCase();
     if (q.isEmpty) {
       return Padding(
@@ -1640,7 +1512,9 @@ class _GlobalSearchDialogState extends State<_GlobalSearchDialog> {
         child: Center(
           child: Text(
             strings.searchPlaceholder,
-            style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
+            style: AppTextStyles.bodyMedium(
+              color: colorScheme.onSurfaceVariant,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -1676,7 +1550,9 @@ class _GlobalSearchDialogState extends State<_GlobalSearchDialog> {
         child: Center(
           child: Text(
             strings.noData,
-            style: AppTextStyles.bodyMedium(color: colorScheme.onSurfaceVariant),
+            style: AppTextStyles.bodyMedium(
+              color: colorScheme.onSurfaceVariant,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

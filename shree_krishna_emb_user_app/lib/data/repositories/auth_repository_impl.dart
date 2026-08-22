@@ -74,6 +74,26 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, AuthResult>> signInWithApple() async {
+    try {
+      final result = await _dataSource.signInWithApple();
+      return Right(
+        AuthResult(
+          user: result.user,
+          isNewUser: result.isNewUser,
+          verificationId: result.verificationId,
+        ),
+      );
+    } on SuspendedAccountException catch (e) {
+      return Left(SuspendedFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, String>> sendPhoneOtp(String phoneNumber) async {
     try {
       final verificationId = await _dataSource.sendPhoneOtp(phoneNumber);

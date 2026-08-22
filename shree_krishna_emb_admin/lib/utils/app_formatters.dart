@@ -6,10 +6,7 @@ class AppFormatters {
 
   /// Formats amount as Indian Rupees currency (₹)
   static String currency(double amount) {
-    return '₹${amount.toStringAsFixed(2).replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (match) => '${match[1]},',
-        )}';
+    return '₹${amount.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]},')}';
   }
 
   /// Formats date as "15 Apr 2024"
@@ -89,10 +86,13 @@ class AppFormatters {
 
   /// Capitalize first letter of each word
   static String capitalize(String text) {
-    return text.split(' ').map((word) {
-      if (word.isEmpty) return word;
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
+    return text
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 
   /// Truncate text with ellipsis

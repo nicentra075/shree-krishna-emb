@@ -8,5 +8,6 @@ abstract class ReportsRepository {
     required DateTime start,
     required DateTime end,
     bool forceRefresh,
+    String? ownerUid,
   });
 }

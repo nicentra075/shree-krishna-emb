@@ -45,10 +45,16 @@ class GlobalNavigator {
   }
 
   /// Push a replacement route
-  static Future? pushReplacementNamed(String routeName,
-      {Object? arguments, Object? result}) {
-    return state?.pushReplacementNamed(routeName,
-        arguments: arguments, result: result);
+  static Future? pushReplacementNamed(
+    String routeName, {
+    Object? arguments,
+    Object? result,
+  }) {
+    return state?.pushReplacementNamed(
+      routeName,
+      arguments: arguments,
+      result: result,
+    );
   }
 
   /// Push and remove all previous routes

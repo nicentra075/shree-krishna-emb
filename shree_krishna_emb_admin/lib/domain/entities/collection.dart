@@ -29,15 +29,15 @@ class CollectionEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        description,
-        imageUrl,
-        ownerId,
-        ownerType,
-        isActive,
-        position,
-        designCount,
-        createdAt,
-      ];
+    id,
+    name,
+    description,
+    imageUrl,
+    ownerId,
+    ownerType,
+    isActive,
+    position,
+    designCount,
+    createdAt,
+  ];
 }

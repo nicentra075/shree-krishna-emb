@@ -69,6 +69,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             AppSnackbar.showSuccess('Profile completed successfully!');
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
+                // ignore: use_build_context_synchronously
                 AppRoutes.navigateToHome(context);
               }
             });

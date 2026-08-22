@@ -18,12 +18,15 @@ class FirebaseUserDataSource implements UserDataSource {
   static const String _collectionName = 'users';
 
   FirebaseUserDataSource({required FirebaseFirestore firestore})
-      : _firestore = firestore;
+    : _firestore = firestore;
 
   @override
   Future<UserModel> getUserById(String userId) async {
     try {
-      final doc = await _firestore.collection(_collectionName).doc(userId).get();
+      final doc = await _firestore
+          .collection(_collectionName)
+          .doc(userId)
+          .get();
 
       if (!doc.exists) {
         throw ServerException(
@@ -40,10 +43,7 @@ class FirebaseUserDataSource implements UserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to fetch user',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to fetch user', originalError: e);
     }
   }
 
@@ -53,16 +53,19 @@ class FirebaseUserDataSource implements UserDataSource {
     String? lastDocumentId,
   }) async {
     try {
-      Query<Map<String, dynamic>> query =
-          _firestore.collection(_collectionName).orderBy('createdAt', descending: true);
+      Query<Map<String, dynamic>> query = _firestore
+          .collection(_collectionName)
+          .orderBy('createdAt', descending: true);
 
       if (limit != null) {
         query = query.limit(limit + 1);
       }
 
       if (lastDocumentId != null) {
-        final lastDoc =
-            await _firestore.collection(_collectionName).doc(lastDocumentId).get();
+        final lastDoc = await _firestore
+            .collection(_collectionName)
+            .doc(lastDocumentId)
+            .get();
         query = query.startAfterDocument(lastDoc);
       }
 
@@ -77,10 +80,7 @@ class FirebaseUserDataSource implements UserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to fetch users',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to fetch users', originalError: e);
     }
   }
 
@@ -100,10 +100,7 @@ class FirebaseUserDataSource implements UserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to create user',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to create user', originalError: e);
     }
   }
 
@@ -123,10 +120,7 @@ class FirebaseUserDataSource implements UserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to update user',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to update user', originalError: e);
     }
   }
 
@@ -141,10 +135,7 @@ class FirebaseUserDataSource implements UserDataSource {
         originalError: e,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Failed to delete user',
-        originalError: e,
-      );
+      throw ServerException(message: 'Failed to delete user', originalError: e);
     }
   }
 
@@ -155,19 +146,20 @@ class FirebaseUserDataSource implements UserDataSource {
         .doc(userId)
         .snapshots()
         .map((snapshot) {
-      if (!snapshot.exists) {
-        throw ServerException(
-          message: 'User not found',
-          code: 'USER_NOT_FOUND',
-        );
-      }
-      return UserModel.fromFirebaseJson(snapshot.data()!, snapshot.id);
-    }).handleError((e) {
-      throw ServerException(
-        message: 'Failed to watch user',
-        originalError: e,
-      );
-    });
+          if (!snapshot.exists) {
+            throw ServerException(
+              message: 'User not found',
+              code: 'USER_NOT_FOUND',
+            );
+          }
+          return UserModel.fromFirebaseJson(snapshot.data()!, snapshot.id);
+        })
+        .handleError((e) {
+          throw ServerException(
+            message: 'Failed to watch user',
+            originalError: e,
+          );
+        });
   }
 
   @override
@@ -176,7 +168,7 @@ class FirebaseUserDataSource implements UserDataSource {
       final snapshot = await _firestore
           .collection(_collectionName)
           .where('name', isGreaterThanOrEqualTo: query)
-          .where('name', isLessThan: query + 'z')
+          .where('name', isLessThan: '${query}z')
           .limit(20)
           .get();
 

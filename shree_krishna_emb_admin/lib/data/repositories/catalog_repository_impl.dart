@@ -11,7 +11,7 @@ class CatalogRepositoryImpl implements CatalogRepository {
   final CatalogDataSource _dataSource;
 
   CatalogRepositoryImpl({required CatalogDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   Future<Either<Failure, T>> _guard<T>(Future<T> Function() action) async {
     try {
@@ -27,14 +27,12 @@ class CatalogRepositoryImpl implements CatalogRepository {
   @override
   Future<Either<Failure, List<CollectionModel>>> getCollections({
     bool forceRefresh = false,
-  }) =>
-      _guard(() => _dataSource.getCollections(forceRefresh: forceRefresh));
+  }) => _guard(() => _dataSource.getCollections(forceRefresh: forceRefresh));
 
   @override
   Future<Either<Failure, CollectionModel>> createCollection(
     CollectionModel collection,
-  ) =>
-      _guard(() => _dataSource.createCollection(collection));
+  ) => _guard(() => _dataSource.createCollection(collection));
 
   @override
   Future<Either<Failure, void>> updateCollection(CollectionModel collection) =>
@@ -49,15 +47,17 @@ class CatalogRepositoryImpl implements CatalogRepository {
   Future<Either<Failure, List<CategoryModel>>> getCategories({
     String? collectionId,
     bool forceRefresh = false,
-  }) =>
-      _guard(() => _dataSource.getCategories(
-            collectionId: collectionId,
-            forceRefresh: forceRefresh,
-          ));
+  }) => _guard(
+    () => _dataSource.getCategories(
+      collectionId: collectionId,
+      forceRefresh: forceRefresh,
+    ),
+  );
 
   @override
-  Future<Either<Failure, CategoryModel>> createCategory(CategoryModel category) =>
-      _guard(() => _dataSource.createCategory(category));
+  Future<Either<Failure, CategoryModel>> createCategory(
+    CategoryModel category,
+  ) => _guard(() => _dataSource.createCategory(category));
 
   @override
   Future<Either<Failure, void>> updateCategory(CategoryModel category) =>
@@ -76,15 +76,18 @@ class CatalogRepositoryImpl implements CatalogRepository {
     String? searchQuery,
     DesignSort sort = DesignSort.newest,
     bool forceRefresh = false,
-  }) =>
-      _guard(() => _dataSource.getDesigns(
-            collectionId: collectionId,
-            categoryId: categoryId,
-            status: status,
-            searchQuery: searchQuery,
-            sort: sort,
-            forceRefresh: forceRefresh,
-          ));
+    String? authorId,
+  }) => _guard(
+    () => _dataSource.getDesigns(
+      collectionId: collectionId,
+      categoryId: categoryId,
+      status: status,
+      searchQuery: searchQuery,
+      sort: sort,
+      forceRefresh: forceRefresh,
+      authorId: authorId,
+    ),
+  );
 
   @override
   Future<Either<Failure, DesignModel>> createDesign(DesignModel design) =>

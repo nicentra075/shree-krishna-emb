@@ -33,14 +33,13 @@ class CollectionsState extends Equatable {
     int? page,
     int? pageSize,
     String? error,
-  }) =>
-      CollectionsState(
-        status: status ?? this.status,
-        collections: collections ?? this.collections,
-        page: page ?? this.page,
-        pageSize: pageSize ?? this.pageSize,
-        error: error,
-      );
+  }) => CollectionsState(
+    status: status ?? this.status,
+    collections: collections ?? this.collections,
+    page: page ?? this.page,
+    pageSize: pageSize ?? this.pageSize,
+    error: error,
+  );
 
   @override
   List<Object?> get props => [status, collections, page, pageSize, error];
@@ -51,24 +50,27 @@ class CollectionsCubit extends Cubit<CollectionsState> {
   final ImageStorageDataSource imageStorage;
 
   CollectionsCubit({required this.repository, required this.imageStorage})
-      : super(const CollectionsState());
+    : super(const CollectionsState());
 
   void setPage(int page) => emit(state.copyWith(page: page));
 
-  void setPageSize(int size) =>
-      emit(state.copyWith(pageSize: size, page: 1));
+  void setPageSize(int size) => emit(state.copyWith(pageSize: size, page: 1));
 
   Future<void> load({bool forceRefresh = false}) async {
     emit(state.copyWith(status: CatalogStatus.loading));
     final result = await repository.getCollections(forceRefresh: forceRefresh);
     if (isClosed) return;
     result.fold(
-      (failure) =>
-          emit(state.copyWith(status: CatalogStatus.error, error: failure.message)),
-      (collections) => emit(CollectionsState(
+      (failure) => emit(
+        state.copyWith(status: CatalogStatus.error, error: failure.message),
+      ),
+      (collections) => emit(
+        CollectionsState(
           status: CatalogStatus.loaded,
           collections: collections,
-          pageSize: state.pageSize)),
+          pageSize: state.pageSize,
+        ),
+      ),
     );
   }
 
@@ -106,11 +108,17 @@ class CollectionsCubit extends Cubit<CollectionsState> {
 
   /// Number of categories and designs that belong to [collectionId] — shown in
   /// the cascade-delete confirmation.
-  Future<({int categories, int designs})> childCounts(String collectionId) async {
+  Future<({int categories, int designs})> childCounts(
+    String collectionId,
+  ) async {
     final cats = await repository.getCategories(
-        collectionId: collectionId, forceRefresh: true);
+      collectionId: collectionId,
+      forceRefresh: true,
+    );
     final designs = await repository.getDesigns(
-        collectionId: collectionId, forceRefresh: true);
+      collectionId: collectionId,
+      forceRefresh: true,
+    );
     return (
       categories: cats.fold((_) => 0, (l) => l.length),
       designs: designs.fold((_) => 0, (l) => l.length),
@@ -122,22 +130,28 @@ class CollectionsCubit extends Cubit<CollectionsState> {
   Future<String?> removeCascade(String id) async {
     // Gather every image URL we'll orphan, to clean up Storage afterwards.
     final imageUrls = <String>[];
-    final designsRes =
-        await repository.getDesigns(collectionId: id, forceRefresh: true);
+    final designsRes = await repository.getDesigns(
+      collectionId: id,
+      forceRefresh: true,
+    );
     final designs = designsRes.fold((_) => <DesignModel>[], (l) => l);
     for (final d in designs) {
       imageUrls.addAll(d.images);
-      final err =
-          (await repository.deleteDesign(d.id)).fold((f) => f.message, (_) => null);
+      final err = (await repository.deleteDesign(
+        d.id,
+      )).fold((f) => f.message, (_) => null);
       if (err != null) return err;
     }
-    final catsRes =
-        await repository.getCategories(collectionId: id, forceRefresh: true);
+    final catsRes = await repository.getCategories(
+      collectionId: id,
+      forceRefresh: true,
+    );
     final cats = catsRes.fold((_) => <CategoryModel>[], (l) => l);
     for (final c in cats) {
       if ((c.imageUrl ?? '').isNotEmpty) imageUrls.add(c.imageUrl!);
-      final err = (await repository.deleteCategory(c.id))
-          .fold((f) => f.message, (_) => null);
+      final err = (await repository.deleteCategory(
+        c.id,
+      )).fold((f) => f.message, (_) => null);
       if (err != null) return err;
     }
     final selfUrl = state.collections

@@ -38,7 +38,7 @@ class AuthorisedSellersCubit extends Cubit<AuthorisedSellersState> {
   final SellerRepository repository;
 
   AuthorisedSellersCubit({required this.repository})
-      : super(const AuthorisedSellersInitial());
+    : super(const AuthorisedSellersInitial());
 
   Future<void> load() async {
     emit(const AuthorisedSellersLoading());

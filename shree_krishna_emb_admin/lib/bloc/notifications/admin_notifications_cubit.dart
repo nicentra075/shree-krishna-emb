@@ -34,7 +34,7 @@ class AdminNotificationsCubit extends Cubit<AdminNotificationsState> {
   String? _adminUid;
 
   AdminNotificationsCubit({required this.repository})
-      : super(const AdminNotificationsState());
+    : super(const AdminNotificationsState());
 
   /// Starts (or restarts, e.g. on re-login as a different admin) the feed
   /// subscription for [adminUid].

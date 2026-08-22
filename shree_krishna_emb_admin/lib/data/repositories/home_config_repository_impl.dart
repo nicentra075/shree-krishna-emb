@@ -9,7 +9,7 @@ class HomeConfigRepositoryImpl implements HomeConfigRepository {
   final HomeConfigDataSource _dataSource;
 
   HomeConfigRepositoryImpl({required HomeConfigDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   @override
   Future<Either<Failure, HomeFeedConfig>> read() async {

@@ -44,7 +44,10 @@ class ReportsState extends Equatable {
 class ReportsCubit extends Cubit<ReportsState> {
   final ReportsRepository repository;
 
-  ReportsCubit({required this.repository})
+  /// When set (designer sessions - D2), reports cover only this designer.
+  final String? scopedOwnerUid;
+
+  ReportsCubit({required this.repository, this.scopedOwnerUid})
     : super(ReportsState(start: _defaultStart(), end: _defaultEnd()));
 
   static DateTime _defaultStart() {
@@ -65,6 +68,7 @@ class ReportsCubit extends Cubit<ReportsState> {
       start: state.start,
       end: state.end,
       forceRefresh: forceRefresh,
+      ownerUid: scopedOwnerUid,
     );
     if (isClosed) return;
     result.fold(

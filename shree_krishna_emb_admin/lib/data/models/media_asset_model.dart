@@ -33,10 +33,10 @@ class MediaAssetModel {
   }
 
   Map<String, dynamic> toFirebaseJson() => {
-        'name': name,
-        'url': url,
-        'path': path,
-        'sizeBytes': sizeBytes,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'name': name,
+    'url': url,
+    'path': path,
+    'sizeBytes': sizeBytes,
+    'createdAt': createdAt.toIso8601String(),
+  };
 }

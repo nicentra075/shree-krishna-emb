@@ -536,4 +536,117 @@ class EnUSStrings implements LocaleStrings {
   String timeAgoHours(int hours) => '${hours}h';
   @override
   String timeAgoDays(int days) => '${days}d';
+
+  // ========== Search & Filters (WS-B1) ==========
+  @override
+  String get filters => 'Filters';
+  @override
+  String get priceRange => 'Price Range';
+  @override
+  String get minPrice => 'Min Price';
+  @override
+  String get maxPrice => 'Max Price';
+  @override
+  String get freeOnly => 'Free designs only';
+  @override
+  String get applyFilters => 'Apply Filters';
+  @override
+  String get clearFilters => 'Clear All';
+  @override
+  String get sortBy => 'Sort By';
+  @override
+  String get sortNewest => 'Newest';
+  @override
+  String get sortPopular => 'Popular';
+  @override
+  String get sortPriceLowHigh => 'Price: Low to High';
+  @override
+  String get sortPriceHighLow => 'Price: High to Low';
+  @override
+  String get allCategories => 'All Categories';
+  @override
+  String get searchStartTyping => 'Search designs by name or code';
+
+  // ========== Reviews (WS-B2) ==========
+  @override
+  String get writeReview => 'Write a Review';
+  @override
+  String get editReview => 'Edit Review';
+  @override
+  String get deleteReview => 'Delete Review';
+  @override
+  String get deleteReviewConfirm =>
+      'Are you sure you want to delete your review?';
+  @override
+  String get yourRating => 'Your Rating';
+  @override
+  String get reviewHint => 'Share your experience with this design...';
+  @override
+  String get submitReview => 'Submit Review';
+  @override
+  String get reviewSubmitted => 'Review submitted. Thank you!';
+  @override
+  String get reviewDeleted => 'Review deleted';
+  @override
+  String get noReviewsYet => 'No reviews yet';
+  @override
+  String get purchaseToReview => 'Purchase this design to write a review';
+  @override
+  String get showLess => 'Show less';
+  @override
+  String reviewsCount(int count) => count == 1 ? '1 review' : '$count reviews';
+
+  // ========== Orders & Invoice (WS-B3) ==========
+  @override
+  String get designsTab => 'Designs';
+  @override
+  String get invoice => 'Invoice';
+  @override
+  String get downloadInvoice => 'Download Invoice';
+  @override
+  String get invoiceFailed => 'Could not generate the invoice. Try again.';
+  @override
+  String get invoiceNumber => 'Invoice No.';
+  @override
+  String get paymentId => 'Payment ID';
+  @override
+  String get orderItems => 'Items';
+  @override
+  String get orderStatusPaid => 'Paid';
+  @override
+  String get orderStatusPending => 'Pending';
+  @override
+  String get orderStatusFailed => 'Failed';
+  @override
+  String get orderStatusRefunded => 'Refunded';
+  @override
+  String get orderStatusRefundInitiated => 'Refund Initiated';
+
+  // ========== Notification Preferences (WS-B4) ==========
+  @override
+  String get notificationPreferences => 'Notification Preferences';
+  @override
+  String get pushNotifications => 'Push Notifications';
+  @override
+  String get pushNotificationsDesc => 'Master switch for all app notifications';
+  @override
+  String get purchaseAlerts => 'Order & Purchase Updates';
+  @override
+  String get purchaseAlertsDesc =>
+      'Payment confirmations and download-ready alerts';
+  @override
+  String get newDesignAlerts => 'New Design Alerts';
+  @override
+  String get newDesignAlertsDesc => 'Get notified when new designs are added';
+  @override
+  String get promotionalNotifications => 'Promotions & Announcements';
+  @override
+  String get promotionalNotificationsDesc =>
+      'Offers, festivals and store announcements';
+  @override
+  String get preferencesSaved => 'Preferences saved';
+
+  // ========== Generic feedback (D6) ==========
+  @override
+  String get somethingWentWrong => 'Something went wrong. Please try again.';
 }

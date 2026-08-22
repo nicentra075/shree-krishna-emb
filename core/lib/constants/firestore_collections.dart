@@ -64,4 +64,5 @@ class CloudFunctionNames {
   static const String initiateRefund = 'initiateRefund';
   static const String setRazorpaySecret = 'setRazorpaySecret';
   static const String broadcastNotification = 'broadcastNotification';
+  static const String refreshRoleClaim = 'refreshRoleClaim';
 }

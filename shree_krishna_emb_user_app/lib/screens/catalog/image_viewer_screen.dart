@@ -4,16 +4,22 @@ import 'package:shree_krishna_design_system/shree_krishna_design_system.dart';
 import 'package:shree_krishna_emb/localisations/app_localization.dart';
 import 'package:shree_krishna_emb/widgets/watermark_overlay.dart';
 
-/// Full-screen, swipeable image gallery with pinch-to-zoom. Opened from a
-/// design's image; starts at [initialIndex] and lets the user swipe through
-/// every image in [images].
+/// Full-screen, swipeable image gallery. Opened from a design's image;
+/// starts at [initialIndex] and lets the user swipe through every image in
+/// [images].
+///
+/// Zooming is anti-piracy-gated: disabled by default so design details can't
+/// be inspected up close before purchase, and enabled ([allowZoom]) only when
+/// the viewer owns the design (product decision D1).
 class ImageViewerScreen extends StatefulWidget {
   final List<String> images;
   final int initialIndex;
+  final bool allowZoom;
   const ImageViewerScreen({
     super.key,
     required this.images,
     this.initialIndex = 0,
+    this.allowZoom = false,
   });
 
   @override
@@ -44,17 +50,14 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Swipeable, pinch-zoomable pages.
+          // Swipeable pages. Pinch-zoom only for owners (D1) — non-owners
+          // must not view designs at high magnification before purchase.
           PageView.builder(
             controller: _controller,
             itemCount: count,
             onPageChanged: (i) => setState(() => _index = i),
-            itemBuilder: (context, i) => InteractiveViewer(
-              minScale: 1,
-              maxScale: 4,
-              // Watermark sits inside the zoom target so it scales with the
-              // image and can't be panned/zoomed out of frame.
-              child: Center(
+            itemBuilder: (context, i) {
+              final image = Center(
                 child: WatermarkOverlay(
                   text: AppLocalization.strings.appName,
                   color: Colors.white,
@@ -64,8 +67,15 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
                     width: double.infinity,
                   ),
                 ),
-              ),
-            ),
+              );
+              if (!widget.allowZoom) return image;
+              return InteractiveViewer(
+                minScale: 1,
+                maxScale: 5,
+                clipBehavior: Clip.none,
+                child: image,
+              );
+            },
           ),
           // Close button.
           Positioned(
@@ -82,8 +92,10 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
               top: MediaQuery.of(context).padding.top + 14,
               right: 16,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),

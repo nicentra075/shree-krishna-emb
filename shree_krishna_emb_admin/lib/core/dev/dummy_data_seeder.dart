@@ -51,7 +51,8 @@ class DummyDataSeeder {
         batch.delete(firestore.collection('categories').doc(categoryId));
         for (var i = 1; i <= 3; i++) {
           batch.delete(
-              firestore.collection('designs').doc(_designId(categoryId, i)));
+            firestore.collection('designs').doc(_designId(categoryId, i)),
+          );
         }
       }
     });
@@ -161,7 +162,9 @@ class DummyDataSeeder {
     const name = 'dummySeeder';
     try {
       return await Firebase.initializeApp(
-          name: name, options: Firebase.app().options);
+        name: name,
+        options: Firebase.app().options,
+      );
     } on FirebaseException catch (_) {
       return Firebase.app(name);
     }
@@ -169,10 +172,19 @@ class DummyDataSeeder {
 
   // collectionId -> (collection name, [category names]). Shared by seed + clear.
   static const Map<String, ({String name, List<String> categories})>
-      _catalogData = {
-    'seed_bridal': (name: 'Bridal Collection', categories: ['Saree', 'Lehenga', 'Blouse']),
-    'seed_festive': (name: 'Festive Collection', categories: ['Kurti', 'Dupatta', 'Sherwani']),
-    'seed_casual': (name: 'Casual Collection', categories: ['T-Shirt', 'Cap', 'Tote Bag']),
+  _catalogData = {
+    'seed_bridal': (
+      name: 'Bridal Collection',
+      categories: ['Saree', 'Lehenga', 'Blouse'],
+    ),
+    'seed_festive': (
+      name: 'Festive Collection',
+      categories: ['Kurti', 'Dupatta', 'Sherwani'],
+    ),
+    'seed_casual': (
+      name: 'Casual Collection',
+      categories: ['T-Shirt', 'Cap', 'Tote Bag'],
+    ),
   };
 
   String _categoryId(String collectionId, String catName) =>

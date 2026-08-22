@@ -24,6 +24,12 @@ class SellerEntity extends Equatable {
       (storeName != null && storeName!.trim().isNotEmpty) ? storeName! : name;
 
   @override
-  List<Object?> get props =>
-      [uid, userId, name, storeName, storeImageUrl, storeDescription];
+  List<Object?> get props => [
+    uid,
+    userId,
+    name,
+    storeName,
+    storeImageUrl,
+    storeDescription,
+  ];
 }

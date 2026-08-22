@@ -14,9 +14,7 @@ class SplashInitial extends SplashState {
 class SplashLoading extends SplashState {
   final Duration elapsed;
 
-  const SplashLoading({
-    required this.elapsed,
-  });
+  const SplashLoading({required this.elapsed});
 
   @override
   List<Object?> get props => [elapsed];

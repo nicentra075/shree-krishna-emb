@@ -141,10 +141,8 @@ class _TransactionsBodyState extends State<_TransactionsBody> {
   ) async {
     final range = await showDialog<DateTimeRange>(
       context: context,
-      builder: (_) => _DateRangeDialog(
-        initialStart: state.start,
-        initialEnd: state.end,
-      ),
+      builder: (_) =>
+          _DateRangeDialog(initialStart: state.start, initialEnd: state.end),
     );
     if (range == null) return;
     cubit.setDateRange(
@@ -417,7 +415,9 @@ class _OrderRow extends StatelessWidget {
                 ],
               );
 
-              final amountText = isFree ? strings.free : '₹${order.totalAmount}';
+              final amountText = isFree
+                  ? strings.free
+                  : '₹${order.totalAmount}';
               final statusChip = isFree
                   ? const _FreeChip()
                   : OrderStatusChip(status: order.status);
@@ -496,7 +496,10 @@ class _FreeChip extends StatelessWidget {
       ),
       child: Text(
         AppLocalization.strings.free,
-        style: AppTextStyles.labelSmall(color: color, fontWeight: FontWeight.w700),
+        style: AppTextStyles.labelSmall(
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),

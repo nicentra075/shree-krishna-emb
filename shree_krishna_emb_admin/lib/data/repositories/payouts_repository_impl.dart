@@ -13,9 +13,15 @@ class PayoutsRepositoryImpl implements PayoutsRepository {
   @override
   Future<Either<Failure, List<DesignerEarnings>>> getEarnings({
     bool forceRefresh = false,
+    String? ownerUid,
   }) async {
     try {
-      return Right(await _dataSource.getEarnings(forceRefresh: forceRefresh));
+      return Right(
+        await _dataSource.getEarnings(
+          forceRefresh: forceRefresh,
+          ownerUid: ownerUid,
+        ),
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

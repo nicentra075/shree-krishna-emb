@@ -11,9 +11,14 @@ class DashboardStatsRepositoryImpl implements DashboardStatsRepository {
     : _dataSource = dataSource;
 
   @override
-  Future<Either<Failure, DashboardStats>> getStats({int chartDays = 7}) async {
+  Future<Either<Failure, DashboardStats>> getStats({
+    int chartDays = 7,
+    String? authorUid,
+  }) async {
     try {
-      return Right(await _dataSource.getStats(chartDays: chartDays));
+      return Right(
+        await _dataSource.getStats(chartDays: chartDays, authorUid: authorUid),
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
